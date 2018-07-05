@@ -8,6 +8,8 @@
 .SUFFIXES:
 .SUFFIXES: .f90 .o
 
+CC = gcc
+
 #-------------------------------------------------#
 # FC = f90
 # FC = g95
@@ -39,9 +41,8 @@ OBJS = 	constants.o 		\
         grid.o			\
         namelist.o		\
 	debug.o			\
+	vis.o			\
 	field.o			\
-	avsdatalib.o		\
-	avsdata.o		\
 	slicedata.o		\
 	solver.o		\
 	main.o
@@ -57,13 +58,10 @@ ut.o: constants.o
 namelist.o: constants.o ut.o
 debug.o: constants.o ut.o namelist.o
 field.o: constants.o grid.o
-avsdatalib.o: constants.o 
-avsdata.o: grid.o ut.o debug.o field.o avsdatalib.o namelist.o solver.o
 slicedata.o: ut.o field.o namelist.o debug.o solver.o
 solver.o: constants.o grid.o ut.o field.o debug.o namelist.o
+vis.o: grid.o ut.o debug.o field.o solver.o namelist.o vis_interface.o
 
-avsdatalib.f90: avsdatalib_generator.rb
-	./avsdatalib_generator.rb > avsdatalib.f90
 
 
 main.o: constants.o		\
@@ -72,11 +70,10 @@ main.o: constants.o		\
 	namelist.o		\
 	debug.o			\
 	field.o			\
-	avsdatalib.o		\
-	avsdata.o		\
+	vis.o			\
 	slicedata.o		\
 	solver.o
 
 clean:
 	rm -f smoke-ring core ${OBJS} *.mod *.L
-	rm -f _data_slice* _data_avs*
+	rm -f _data_slice*
