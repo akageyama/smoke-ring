@@ -41,7 +41,6 @@ OBJS = 	constants.o 		\
         grid.o			\
         namelist.o		\
 	debug.o			\
-	vis.o			\
 	field.o			\
 	slicedata.o		\
 	solver.o		\
@@ -60,7 +59,6 @@ debug.o: constants.o ut.o namelist.o
 field.o: constants.o grid.o
 slicedata.o: ut.o field.o namelist.o debug.o solver.o
 solver.o: constants.o grid.o ut.o field.o debug.o namelist.o
-vis.o: grid.o ut.o debug.o field.o solver.o namelist.o vis_interface.o
 
 
 
@@ -70,7 +68,6 @@ main.o: constants.o		\
 	namelist.o		\
 	debug.o			\
 	field.o			\
-	vis.o			\
 	slicedata.o		\
 	solver.o
 
