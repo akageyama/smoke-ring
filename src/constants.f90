@@ -36,10 +36,9 @@ module constants_m
   integer, parameter :: KARTE_UNDERFLOW =  4
 
   ! << I/O files >>
-  integer, parameter :: FILE_NAMELIST     = 05
+  integer, parameter :: FILE_TEMPORAL     = 10
   integer, parameter :: FILE_RESTART      = 80
   integer, parameter :: FILE_STANDARD_OUT = 06
-  integer, parameter :: FILE_AVS_DATA     = 50
   integer, parameter :: FILE_SLICEDATA    = 51
 
   ! << Grid Size >>

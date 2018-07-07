@@ -29,17 +29,16 @@ module namelist_m
   logical, save :: Read_done = .false.
 
   integer                              :: Total_nloop
-  integer                              :: Kvs_nskip, Slicedata_nskip
-  character(len=TAG_STRING_LENGTH_MAX) :: Kvs_tag,   Slicedata_tag
+  integer                              :: Slicedata_nskip
+  character(len=TAG_STRING_LENGTH_MAX) :: Slicedata_tag
   real(DP)                             :: Viscosity, Kappa
   logical                              :: Debug
 
   namelist /data00/ Total_nloop
-  namelist /data01/ Kvs_nskip,        Kvs_tag
-  namelist /data02/ Slicedata_nskip,  Slicedata_tag
-  namelist /data03/ Viscosity
-  namelist /data04/ Kappa
-  namelist /data05/ Debug
+  namelist /data01/ Slicedata_nskip,  Slicedata_tag
+  namelist /data02/ Viscosity
+  namelist /data03/ Kappa
+  namelist /data04/ Debug
 
 
 contains
@@ -83,8 +82,6 @@ contains
                     '<namelist__integer> Read namelist file first.')
 
     select case (variable)
-    case                 ('Kvs_nskip')
-       namelist__integer = Kvs_nskip
     case                 ('Slicedata_nskip')
        namelist__integer = Slicedata_nskip
     case                 ('Total_nloop')
@@ -123,20 +120,23 @@ contains
   subroutine namelist__read
 !________________________________________________________________________
 !
+    character(len=TAG_STRING_LENGTH_MAX) :: namelist_file
 
-    read(FILE_NAMELIST,nml=data00)
-    read(FILE_NAMELIST,nml=data01)
-    read(FILE_NAMELIST,nml=data02)
-    read(FILE_NAMELIST,nml=data03)
-    read(FILE_NAMELIST,nml=data04)
-    read(FILE_NAMELIST,nml=data05)
+    call get_command_argument(1,namelist_file)
+
+    open(FILE_TEMPORAL,file=trim(namelist_file))
+      read(FILE_TEMPORAL,nml=data00)
+      read(FILE_TEMPORAL,nml=data01)
+      read(FILE_TEMPORAL,nml=data02)
+      read(FILE_TEMPORAL,nml=data03)
+      read(FILE_TEMPORAL,nml=data04)
+    close(FILE_TEMPORAL)
 
     write(FILE_STANDARD_OUT,nml=data00)
     write(FILE_STANDARD_OUT,nml=data01)
     write(FILE_STANDARD_OUT,nml=data02)
     write(FILE_STANDARD_OUT,nml=data03)
     write(FILE_STANDARD_OUT,nml=data04)
-    write(FILE_STANDARD_OUT,nml=data05)
 
     Read_done = .true.
 
@@ -154,8 +154,6 @@ contains
                     '<namelist__string> Read namelist file first.')
 
     select case         (variable)
-    case                ('Kvs_tag')
-       namelist__string = Kvs_tag
     case                ('Slicedata_tag')
        namelist__string = Slicedata_tag
     case default
