@@ -44,7 +44,6 @@ program main_m
   use debug_m                 !                                    for debugging
   use grid_m                  !                                        grid mesh
   use field_m                 !                   field operators and operations
-! use vis_m                   !                            visualize data by kvs
   use slicedata_m             !                         generate 2-d sliced data
   use solver_m                !         4th order runge-kutta integration method
   implicit none               !-------------------------------------------------
@@ -57,7 +56,6 @@ program main_m
   call namelist__read
   call grid__initialize
   call solver__initialize(fluid)
-! call vis__initialize
   call slicedata__initialize
 
   time = 0.0_DP
@@ -73,7 +71,6 @@ program main_m
      nloop = nloop + 1
      if (nloop >= namelist__integer('Total_nloop')) karte = KARTE_LOOP_MAX
      call solver__diagnosis(nloop,time,fluid,karte)
-!    call vis__apply(nloop,time,fluid)
      call slicedata__write(nloop,time,fluid)
   end do
 
