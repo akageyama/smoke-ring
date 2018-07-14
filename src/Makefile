@@ -8,49 +8,30 @@
 .SUFFIXES:
 .SUFFIXES: .f90 .o
 
-CC = gcc
-
-#-------------------------------------------------#
-# FC = f90
-# FC = g95
 FC = gfortran
-# FC = ifort
-# FC = sxf90 
-#-------------------------------------------------#
-# DEBUG_FLAGS = -Rb -Rc -Rs
-DEBUG_FLAGS = 
-# DEBUG_FLAGS = -z0
-#-------------------------------------------------#
-# FFLAGS = -P auto
-# FFLAGS = +check=all
-# FFLAGS = -R2
-# FFLAGS = -O3 -xAVX # for vizfront, serial
-# for gfortran...
-# FFLAGS = -Wall -Warray-bounds  -Wconversion -Wimplicit-interface -Wsurprising -Wtabs -Wunderflow -Wintrinsic-shadow -Wunused-parameter  -Walign-commons   -fdump-parse-tree  -fdump-core -fbacktrace -O0
-#-------------------------------------------------#
+FFLAGS =
 FLIB =
-#-------------------------------------------------
 
 
 .f90.o:
-	$(FC) $(FFLAGS) $(DEBUG_FLAGS) -c $<
+	$(FC) $(FFLAGS) -c $<
 
 
-OBJS = 	constants.o 		\
-        ut.o 			\
-        grid.o			\
-        namelist.o		\
-	debug.o			\
-	field.o			\
-	slicedata.o		\
-	solver.o		\
-	main.o
+OBJS = constants.o \
+       ut.o \
+       grid.o \
+       namelist.o \
+       debug.o \
+       field.o \
+       slicedata.o \
+       solver.o \
+       main.o
 
 smoke-ring: main.o
-	$(FC) $(FFLAGS) $(DEBUG_FLAGS) -o smoke-ring ${OBJS} ${FLIB}
+	$(FC) $(FFLAGS) -o smoke-ring ${OBJS} ${FLIB}
 
 data: smoke-ring sample.namelist
-	./smoke-ring < sample.namelist
+	./smoke-ring sample.namelist
 
 grid.o: constants.o debug.o ut.o
 ut.o: constants.o
@@ -62,14 +43,14 @@ solver.o: constants.o grid.o ut.o field.o debug.o namelist.o
 
 
 
-main.o: constants.o		\
-	ut.o			\
-	grid.o			\
-	namelist.o		\
-	debug.o			\
-	field.o			\
-	slicedata.o		\
-	solver.o
+main.o: constants.o \
+        ut.o \
+        grid.o \
+        namelist.o \
+        debug.o \
+        field.o \
+        slicedata.o \
+        solver.o
 
 clean:
 	rm -f smoke-ring core ${OBJS} *.mod *.L
