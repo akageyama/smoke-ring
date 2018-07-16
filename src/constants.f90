@@ -6,27 +6,16 @@
 !       Kobe University, Japan.
 !       email: kage@port.kobe-u.ac.jp or sgks@mac.com
 !-----------------------------------------------------------------------------
-! constants.f90
-!     2008.06.02: Developed by Akira Kageyama. Copied from kindanb.
-!     2018.04.12: Copied from boxfluid.
-!-----------------------------------------------------------------------------
-
 module constants_m
-!*****************************************************************************
-! MODULE CONSTANTS                                         Numerical Constants
-!*****************************************************************************
   implicit none
 
   ! << f90 constants >>
-  integer, parameter ::  SP = kind(1.0)
-  integer, parameter ::  DP = selected_real_kind(2*precision(1.0_SP))
-  integer, parameter :: DPC = kind((1.0_DP,1.0_DP))
+  integer, parameter :: SP = kind(1.0)
+  integer, parameter :: DP = selected_real_kind(2*precision(1.0_SP))
 
   ! << Mathematical constants >>
-  real(DP),     parameter :: PI = 3.14159265358979323846264338_DP
-  real(DP),     parameter :: TWOPI = PI*2
-  complex(DPC), parameter :: Z0 = (0.0_DP,0.0_DP)
-  complex(DPC), parameter :: ZI = (0.0_DP,1.0_DP)
+  real(DP), parameter :: PI = 3.14159265358979323846264338_DP
+  real(DP), parameter :: TWOPI = PI*2
 
   ! << Job karte >>
   integer, parameter :: KARTE_FINE      =  0

@@ -4,17 +4,10 @@
 !    by Akira Kageyama,
 !       Department of Computational Science,
 !       Kobe University, Japan.
-!       email: kage@port.kobe-u.ac.jp or sgks@mac.com
-!-----------------------------------------------------------------------------
-! debug.f90
-!     2008.06.02: Developed by Akira Kageyama.
-!     2018.04.12: Copied from boxfluid.
+!       email: kage@port.kobe-u.ac.jp / sgks@mac.com
 !-----------------------------------------------------------------------------
 
 module debug_m
-!*****************************************************************************
-! MODULE DEBUG                                                   For Debugging
-!*****************************************************************************
   use constants_m
   use ut_m
   use namelist_m
@@ -232,11 +225,5 @@ contains
     end if
 
   end subroutine message_str_int_str_int
-
-
-!==============
-!    Public
-!==============
-
 
 end module debug_m
