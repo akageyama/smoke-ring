@@ -1,22 +1,17 @@
-!-----------------------------------------------------------------------------
-! smoke-ring: A simple 3-D Fluid Solver by FDM on Cartesian Grid.
+!-------------------------------------------------------------------
+! class-hpc-smoke-ring: A simple sample field solver.
 !
-!    by Akira Kageyama,
-!       Department of Computational Science,
-!       Kobe University, Japan.
-!       email: kage@port.kobe-u.ac.jp / sgks@mac.com
-!-----------------------------------------------------------------------------
+!    by Akira Kageyama, Kobe University, Japan.
+!       email: sgks@mac.com
 !
-!  - A simple CFD code for educational purposes.
+!    Copyright 2018 Akira Kageyama
 !
-!  - It solves compressible Navier-Stokes equations for an ideal gas under
-!    the periodic boundary conditions in all (three) directions.
+!    This software is released under the MIT License.
 !
-!  - In the original setting, an external force is applied in a local
-!    region near an end of the box to drive the fluid to flow towrard the
-!    other end of the box. The well-known smoke ring will be formed.
-!
-!-----------------------------------------------------------------------------
+!-------------------------------------------------------------------
+!    src/main.f90
+!-------------------------------------------------------------------
+
 program main_m
   use constants_m   ! numerical constants
   use ut_m          ! utility functions
@@ -28,8 +23,9 @@ program main_m
   use solver_m      ! 4th order runge-kutta integration method
   implicit none
 
-  integer  :: nloop, karte=KARTE_FINE
-  real(DP) :: dt, time
+  integer(SI) :: karte=KARTE_FINE
+  integer(DI) :: nloop
+  real(DR) :: dt, time
 
   type(field__fluid_) :: fluid
 
@@ -38,7 +34,7 @@ program main_m
   call solver__initialize(fluid)
   call slicedata__initialize
 
-  time = 0.0_DP
+  time = 0.0_DR
   nloop = 0
 
   call solver__diagnosis(nloop,time,fluid,karte)
@@ -46,7 +42,7 @@ program main_m
   dt = solver__set_time_step(nloop,fluid)
 
   do while(karte==KARTE_FINE)
-     call debug__message("running. nloop=",nloop)
+     call debug__print("running. nloop=",nloop)
      call solver__advance(time,dt,fluid)
      dt = solver__set_time_step(nloop,fluid)
      nloop = nloop + 1
@@ -69,5 +65,4 @@ program main_m
   case default
      call ut__message('?',"Stopped at nloop = ",  nloop)
   end select
-
 end program main_m

@@ -2,7 +2,10 @@
 
 ## burgers_equation
 
-This code will be used for introductory explanations of the main code of smoke-ring.
+This directory contains a stand-alone program, a simple solver of Burgers eq.
+Reading (and running) this code will help you to understand the smoke-ring code,
+because the rogramming style and the adopted numerical schemes (the finite difference
+method with Runge-Kutta integrator) are common.
 
 ## Prerequisite
 

@@ -27,11 +27,11 @@ module slicedata_m
             slicedata__write
 
   ! - 2-D single precision real arrays.
-  real(SP), dimension(:,:), allocatable :: Slice_vx  ! x-comp. of velocity
-  real(SP), dimension(:,:), allocatable :: Slice_vy  ! y-comp.
-  real(SP), dimension(:,:), allocatable :: Slice_vz  ! z-comp.
-  real(SP), dimension(:,:), allocatable :: Slice_ps  ! Pressure
-  real(SP), dimension(:,:), allocatable :: Slice_en  ! Enstrophy
+  real(SR), dimension(:,:), allocatable :: Slice_vx  ! x-comp. of velocity
+  real(SR), dimension(:,:), allocatable :: Slice_vy  ! y-comp.
+  real(SR), dimension(:,:), allocatable :: Slice_vz  ! z-comp.
+  real(SR), dimension(:,:), allocatable :: Slice_ps  ! Pressure
+  real(SR), dimension(:,:), allocatable :: Slice_en  ! Enstrophy
 
   logical, save :: Initialize_done = .false.
 
@@ -47,26 +47,26 @@ contains
 !
   subroutine make_single_precision_field(vel,ps)
     type(field__vector3d_),        intent(in) :: vel
-    real(DP), dimension(NX,NY,NZ), intent(in) :: ps
+    real(DR), dimension(NX,NY,NZ), intent(in) :: ps
 !________________________________________________________________________
 !
-    integer :: slice_j = NY / 2
+    integer(SI) :: slice_j = NY / 2
 
     type(field__vector3d_)        :: vor   ! vorticity
-    real(DP), dimension(NX,NY,NZ) :: enstrophy
+    real(DR), dimension(NX,NY,NZ) :: enstrophy
 
 !>        vor = .curl.vel
 !>  enstrophy = vor.dot.vor
           vor = operator_curl(vel)
     enstrophy = operator_dot_product(vor,vor)
 
-    Slice_vx = real(    vel%x(:,slice_j,:),SP)
-    Slice_vy = real(    vel%y(:,slice_j,:),SP)
-    Slice_vz = real(    vel%z(:,slice_j,:),SP)
-    Slice_ps = real(       ps(:,slice_j,:),SP)
-    Slice_en = real(enstrophy(:,slice_j,:),SP)
+    Slice_vx = real(    vel%x(:,slice_j,:),SR)
+    Slice_vy = real(    vel%y(:,slice_j,:),SR)
+    Slice_vz = real(    vel%z(:,slice_j,:),SR)
+    Slice_ps = real(       ps(:,slice_j,:),SR)
+    Slice_en = real(enstrophy(:,slice_j,:),SR)
 
-    call debug__message('called slicedata/make_single_precision_field.')
+    call debug__print('called slicedata/make_single_precision_field.')
 
   end subroutine make_single_precision_field
 
@@ -87,7 +87,7 @@ contains
              Slice_ps(NX,NZ),   &
              Slice_en(NX,NZ))
 
-    call debug__message('Slice data allocated.')
+    call debug__print('Slice data allocated.')
 
     open(FILE_SLICEDATA,                                &
          file=trim(namelist__string('Slicedata_tag')),  &
@@ -95,7 +95,7 @@ contains
 
     Initialize_done = .true.
 
-    call debug__message('called slicedata__initlilize')
+    call debug__print('called slicedata__initlilize')
 
   end subroutine slicedata__initialize
 
@@ -103,8 +103,8 @@ contains
 !________________________________________________________________public__
 !
   subroutine slicedata__write(nloop,time,fluid)
-    integer,             intent(in) :: nloop
-    real(DP),            intent(in) :: time
+    integer(SI),         intent(in) :: nloop
+    real(DR),            intent(in) :: time
     type(field__fluid_), intent(in) :: fluid
 !________________________________________________________________________
 !
@@ -124,13 +124,13 @@ contains
 
     call make_single_precision_field(vel,fluid%pressure)
 
-    write(FILE_SLICEDATA) nloop, real(time,SP),                 &
+    write(FILE_SLICEDATA) nloop, real(time,SR),                 &
                           Slice_vx, Slice_vy, Slice_vz,         &
                           Slice_ps, Slice_en
 
     call ut__message('#slice data saved at ', nloop, time)
 
-    call debug__message('called slicedata__write.')
+    call debug__print('called slicedata__write.')
 
   end subroutine slicedata__write
 

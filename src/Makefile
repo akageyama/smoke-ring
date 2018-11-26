@@ -4,13 +4,15 @@
 #     Akira Kageyama (kage@port.kobe-u.ac.jp)
 #            2018.04.12: Copied from boxfluid.
 #
+#
+
+.PHONY: data clean
 
 .SUFFIXES:
 .SUFFIXES: .f90 .o
 
 FC = gfortran
 FFLAGS =
-FLIB =
 
 
 .f90.o:
@@ -27,11 +29,11 @@ OBJS = constants.o \
        solver.o \
        main.o
 
-smoke-ring: main.o
-	$(FC) $(FFLAGS) -o smoke-ring ${OBJS} ${FLIB}
-
 data: smoke-ring sample.namelist
 	./smoke-ring sample.namelist
+
+smoke-ring: $(OBJS)
+	$(FC) $(FFLAGS) -o smoke-ring $(OBJS)
 
 grid.o: constants.o debug.o ut.o
 ut.o: constants.o

@@ -55,14 +55,14 @@ module field_m
   !--- << Types >> ---!
 
   type field__vector3d_
-     real(DP), dimension(NX,NY,NZ) :: x
-     real(DP), dimension(NX,NY,NZ) :: y
-     real(DP), dimension(NX,NY,NZ) :: z
+     real(DR), dimension(NX,NY,NZ) :: x
+     real(DR), dimension(NX,NY,NZ) :: y
+     real(DR), dimension(NX,NY,NZ) :: z
   end type field__vector3d_
 
   type field__fluid_
-     real(DP), dimension(NX,NY,NZ) :: pressure  ! fluid pressure
-     real(DP), dimension(NX,NY,NZ) :: density   ! mass density
+     real(DR), dimension(NX,NY,NZ) :: pressure  ! fluid pressure
+     real(DR), dimension(NX,NY,NZ) :: density   ! mass density
      type(field__vector3d_)        :: flux      ! mass flux
   end type field__fluid_
 
@@ -140,7 +140,7 @@ contains
 !
   subroutine assignment_real_to_fluid(fluid,real)
     type(field__fluid_), intent(out) :: fluid
-    real(DP),            intent(in)  :: real
+    real(DR),            intent(in)  :: real
 !________________________________________________________________________
 !
     fluid%pressure(:,:,:) = real
@@ -156,7 +156,7 @@ contains
 !
   subroutine assignment_real_to_vector(vector,real)
     type(field__vector3d_), intent(out) :: vector
-    real(DP),               intent(in)  :: real
+    real(DR),               intent(in)  :: real
 !________________________________________________________________________
 !
     vector%x(:,:,:) = real
@@ -182,7 +182,7 @@ contains
 !_______________________________________________________________private__
 !
   subroutine boundary_condition_scalar(scalar)
-    real(DP), dimension(NX,NY,NZ), intent(inout) :: scalar
+    real(DR), dimension(NX,NY,NZ), intent(inout) :: scalar
 !________________________________________________________________________
 !
     scalar( 1,:,:) = scalar(NX-1,:,:)
@@ -248,8 +248,8 @@ contains
     type(field__vector3d_)             :: operator_curl
 !________________________________________________________________________
 !
-    integer  :: i, j, k
-    real(DP) :: dx1, dy1, dz1
+    integer(SI) :: i, j, k
+    real(DR) :: dx1, dy1, dz1
 
     dx1 = grid__d1%x
     dy1 = grid__d1%y
@@ -277,11 +277,11 @@ contains
 !
   function operator_div(a)
     type(field__vector3d_), intent(in)  :: a
-    real(DP), dimension(NX,NY,NZ) :: operator_div
+    real(DR), dimension(NX,NY,NZ) :: operator_div
 !________________________________________________________________________
 !
-    integer  :: i, j, k
-    real(DP) :: dx1, dy1, dz1
+    integer(SI) :: i, j, k
+    real(DR) :: dx1, dy1, dz1
 
     dx1 = grid__d1%x
     dy1 = grid__d1%y
@@ -306,7 +306,7 @@ contains
 !
   function operator_dot_product(a,b)
     type(field__vector3d_), intent(in) :: a, b
-    real(DP), dimension(NX,NY,NZ)      :: operator_dot_product
+    real(DR), dimension(NX,NY,NZ)      :: operator_dot_product
 !________________________________________________________________________
 !
     operator_dot_product = a%x*b%x +a%y*b%y + a%z*b%z
@@ -318,14 +318,14 @@ contains
 !
   function operator_energyintegral(a)
     type(field__fluid_), intent(in) :: a
-    real(DP)                        :: operator_energyintegral
+    real(DR)                        :: operator_energyintegral
 !________________________________________________________________________
 !
 !   flow_energy = (1/2) * rho * vel^2 = (1/2) * (massflux)^2 / rho
 !________________________________________________________________________/
 !
-    real(DP) :: dvol
-    real(DP), dimension(NX,NY,NZ) :: flux_sq
+    real(DR) :: dvol
+    real(DR), dimension(NX,NY,NZ) :: flux_sq
 
     dvol = (grid__delta%x)*(grid__delta%y)*(grid__delta%z)
          !  Here we suppose that the grid spacings are uniform.
@@ -335,7 +335,7 @@ contains
     flux_sq = operator_dot_product(a%flux,a%flux)
 
     operator_energyintegral                                      &
-         = 0.5_DP * sum(    flux_sq(2:NX-1,2:NY-1,2:NZ-1)        &
+         = 0.5_DR * sum(    flux_sq(2:NX-1,2:NY-1,2:NZ-1)        &
                         / a%density(2:NX-1,2:NY-1,2:NZ-1)        &
                         ) * dvol
 
@@ -362,8 +362,8 @@ contains
 !
   function operator_fluid_times_integer(fluid,integer)
     type(field__fluid_), intent(in) :: fluid
-    integer,             intent(in) :: integer
-    type(field__fluid_)             :: operator_fluid_times_integer
+    integer(SI),         intent(in) :: integer
+    type(field__fluid_) :: operator_fluid_times_integer
 !________________________________________________________________________
 !
     operator_fluid_times_integer%pressure = integer*(fluid%pressure)
@@ -379,8 +379,8 @@ contains
 !
   function operator_fluid_times_real(fluid,real)
     type(field__fluid_), intent(in) :: fluid
-    real(DP),            intent(in) :: real
-    type(field__fluid_)             :: operator_fluid_times_real
+    real(DR),            intent(in) :: real
+    type(field__fluid_) :: operator_fluid_times_real
 !________________________________________________________________________
 !
     operator_fluid_times_real%pressure = real*(fluid%pressure)
@@ -395,9 +395,9 @@ contains
 !_______________________________________________________________private__
 !
   function operator_integer_times_fluid(integer,fluid)
-    integer,             intent(in) :: integer
+    integer(SI),         intent(in) :: integer
     type(field__fluid_), intent(in) :: fluid
-    type(field__fluid_)             :: operator_integer_times_fluid
+    type(field__fluid_) :: operator_integer_times_fluid
 !________________________________________________________________________
 !
     operator_integer_times_fluid%pressure = integer*(fluid%pressure)
@@ -412,12 +412,12 @@ contains
 !_______________________________________________________________private__
 !
   function operator_laplacian_scalar(a)
-    real(DP), dimension(NX,NY,NZ), intent(in) :: a
-    real(DP), dimension(NX,NY,NZ) :: operator_laplacian_scalar
+    real(DR), dimension(NX,NY,NZ), intent(in) :: a
+    real(DR), dimension(NX,NY,NZ) :: operator_laplacian_scalar
 !________________________________________________________________________
 !
-    integer  :: i, j, k
-    real(DP) :: dx2, dy2, dz2
+    integer(SI) :: i, j, k
+    real(DR) :: dx2, dy2, dz2
 
     dx2 = grid__d2%x
     dy2 = grid__d2%y
@@ -446,8 +446,8 @@ contains
     type(field__vector3d_)             :: operator_laplacian_vector
 !________________________________________________________________________
 !
-    integer  :: i, j, k
-    real(DP) :: dx2, dy2, dz2
+    integer(SI) :: i, j, k
+    real(DR) :: dx2, dy2, dz2
 
     dx2 = grid__d2%x
     dy2 = grid__d2%y
@@ -480,7 +480,7 @@ contains
 !_______________________________________________________________private__
 !
   function operator_real_times_fluid(real,fluid)
-    real(DP),            intent(in) :: real
+    real(DR),            intent(in) :: real
     type(field__fluid_), intent(in) :: fluid
     type(field__fluid_)             :: operator_real_times_fluid
 !________________________________________________________________________
@@ -497,7 +497,7 @@ contains
 !_______________________________________________________________private__
 !
   function operator_real_times_vector(real,vec)
-    real(DP),               intent(in) :: real
+    real(DR),               intent(in) :: real
     type(field__vector3d_), intent(in) :: vec
     type(field__vector3d_)             :: operator_real_times_vector
 !________________________________________________________________________
@@ -512,7 +512,7 @@ contains
 !_______________________________________________________________private__
 !
   function operator_scalar_times_vector(scalar,vec)
-    real(DP), dimension(NX,NY,NZ), intent(in) :: scalar
+    real(DR), dimension(NX,NY,NZ), intent(in) :: scalar
     type(field__vector3d_),        intent(in) :: vec
     type(field__vector3d_)             :: operator_scalar_times_vector
 !________________________________________________________________________
@@ -527,11 +527,11 @@ contains
 !_______________________________________________________________private__
 !
   function operator_scalarintegral(a)
-    real(DP), dimension(NX,NY,NZ), intent(in) :: a
-    real(DP)                                  :: operator_scalarintegral
+    real(DR), dimension(NX,NY,NZ), intent(in) :: a
+    real(DR)                                  :: operator_scalarintegral
 !________________________________________________________________________
 !
-    real(DP) :: dvol
+    real(DR) :: dvol
 
     dvol = (grid__delta%x)*(grid__delta%y)*(grid__delta%z)
          !  Here we suppose that the grid spacings are uniform.
@@ -560,7 +560,7 @@ contains
 !
   function operator_vector_divby_scalar(vec,scalar)
     type(field__vector3d_),        intent(in) :: vec
-    real(DP), dimension(NX,NY,NZ), intent(in) :: scalar
+    real(DR), dimension(NX,NY,NZ), intent(in) :: scalar
     type(field__vector3d_) :: operator_vector_divby_scalar
 !________________________________________________________________________
 !
@@ -575,7 +575,7 @@ contains
 !
   function operator_vector_times_real(vec,real)
     type(field__vector3d_), intent(in) :: vec
-    real(DP),               intent(in) :: real
+    real(DR),               intent(in) :: real
     type(field__vector3d_)             :: operator_vector_times_real
 !________________________________________________________________________
 !
@@ -590,7 +590,7 @@ contains
 !
   function operator_vector_times_scalar(vec,scalar)
     type(field__vector3d_),        intent(in) :: vec
-    real(DP), dimension(NX,NY,NZ), intent(in) :: scalar
+    real(DR), dimension(NX,NY,NZ), intent(in) :: scalar
     type(field__vector3d_) :: operator_vector_times_scalar
 !________________________________________________________________________
 !

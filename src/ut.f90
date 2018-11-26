@@ -64,7 +64,7 @@ contains
   !                              # This is a test. #
   !                              ###################
   !----------------------------------------------------------
-    integer :: len
+    integer(SI) :: len
 
     len = len_trim(string) + 4
 
@@ -79,7 +79,7 @@ contains
   subroutine message_decorated_str_int(mark,string,int)
     character, intent(in)        :: mark
     character(len=*), intent(in) :: string
-    integer, intent(in)          :: int
+    integer(SI), intent(in)      :: int
 !________________________________________________________________________
 ! Usage:
 !    call mess...('#','This is message at nloop = ', nloop)
@@ -106,7 +106,7 @@ contains
 !
   subroutine message_str_double(string, double)
     character(len=*), intent(in) :: string
-    real(DP), intent(in)         :: double
+    real(DR), intent(in)         :: double
 !________________________________________________________________________
 !
     write(FILE_STANDARD_OUT,*) string, double
@@ -116,8 +116,8 @@ contains
 !
   subroutine message_str_double_double(string, double1, double2)
     character(len=*), intent(in) :: string
-    real(DP), intent(in)         :: double1
-    real(DP), intent(in)         :: double2
+    real(DR), intent(in)         :: double1
+    real(DR), intent(in)         :: double2
 !________________________________________________________________________
 !
     write(FILE_STANDARD_OUT,*) string, double1, double2
@@ -128,7 +128,7 @@ contains
 !
   subroutine message_str_int(string, int)
     character(len=*), intent(in) :: string
-    integer, intent(in)          :: int
+    integer(SI), intent(in)      :: int
 !________________________________________________________________________
 !
    write(FILE_STANDARD_OUT,*) string, int
@@ -139,7 +139,7 @@ contains
 !
   subroutine message_str_int_int(string, i1, i2)
     character(len=*), intent(in) :: string
-    integer, intent(in)          :: i1, i2
+    integer(SI), intent(in)      :: i1, i2
 !________________________________________________________________________
 !
     write(FILE_STANDARD_OUT,*) string, i1, i2
@@ -150,7 +150,7 @@ contains
 !
   subroutine message_str_int_int_int(string, i1, i2, i3)
     character(len=*), intent(in) :: string
-    integer, intent(in)          :: i1, i2, i3
+    integer(SI), intent(in)      :: i1, i2, i3
 !________________________________________________________________________
 !
     write(FILE_STANDARD_OUT,*) string, i1, i2, i3
@@ -161,8 +161,8 @@ contains
 !
   subroutine message_str_int_int_double(string, i1, i2, d1)
     character(len=*), intent(in) :: string
-    integer, intent(in)          :: i1, i2
-    real(DP), intent(in)         :: d1
+    integer(SI), intent(in)      :: i1, i2
+    real(DR), intent(in)         :: d1
 !________________________________________________________________________
 !
     write(FILE_STANDARD_OUT,*) string, i1, i2, d1
@@ -173,8 +173,8 @@ contains
 !
   subroutine message_str_int_double(string, i1, d1)
     character(len=*), intent(in) :: string
-    integer, intent(in)          :: i1
-    real(DP), intent(in)         :: d1
+    integer(SI), intent(in)      :: i1
+    real(DR), intent(in)         :: d1
 !________________________________________________________________________
 !
     write(FILE_STANDARD_OUT,*) string, i1, d1
@@ -185,8 +185,8 @@ contains
 !
   subroutine message_str_int_double_double(string, i1, d1, d2)
     character(len=*), intent(in) :: string
-    integer, intent(in)          :: i1
-    real(DP), intent(in)         :: d1, d2
+    integer(SI), intent(in)      :: i1
+    real(DR), intent(in)         :: d1, d2
 !________________________________________________________________________
 !
     write(FILE_STANDARD_OUT,*) string, i1, d1, d2
@@ -197,8 +197,8 @@ contains
 !
   subroutine message_str_int_float_float(string, i1, f1, f2)
     character(len=*), intent(in) :: string
-    integer, intent(in)          :: i1
-    real(SP), intent(in)         :: f1, f2
+    integer(SI), intent(in)      :: i1
+    real(SR), intent(in)         :: f1, f2
 !________________________________________________________________________
 !
     write(FILE_STANDARD_OUT,*) string, i1, f1, f2
@@ -209,7 +209,7 @@ contains
 !
   subroutine message_str_int_str_int(str1, i1, str2, i2)
     character(len=*), intent(in) :: str1, str2
-    integer, intent(in)          :: i1, i2
+    integer(SI), intent(in)      :: i1, i2
 !________________________________________________________________________
 !
     write(FILE_STANDARD_OUT,*) str1, i1, str2, i2
@@ -253,8 +253,8 @@ contains
 !________________________________________________________________public__
 !
   function ut__int_to_str3(i) result(str3)
-    integer, intent(in) :: i
-    character(len=3)    :: str3
+    integer(SI), intent(in) :: i
+    character(len=3) :: str3
 !________________________________________________________________________
 !  Convert an integer into 3 characters.
 !             e.g., i=10 --> str3="010"
@@ -274,8 +274,8 @@ contains
 !________________________________________________________________public__
 !
   function ut__int_to_str7(i) result(str7)
-    integer, intent(in) :: i
-    character(len=7)    :: str7
+    integer(SI), intent(in) :: i
+    character(len=7) :: str7
 !________________________________________________________________________
 !  Convert an integer into 7 characters.
 !             e.g., i=12345 --> str7="0012345"

@@ -35,29 +35,29 @@ module grid_m
             grid__initialize
 
   type grid__pos_
-     real(DP), dimension(NX) :: x
-     real(DP), dimension(NY) :: y
-     real(DP), dimension(NZ) :: z
+     real(DR), dimension(NX) :: x
+     real(DR), dimension(NY) :: y
+     real(DR), dimension(NZ) :: z
   end type grid__pos_
 
   type(grid__pos_) :: grid__pos
 
   type grid__delta_
-     real(DP) :: x, y, z
+     real(DR) :: x, y, z
   end type grid__delta_
 
-  real(DP) :: grid__delta_min
+  real(DR) :: grid__delta_min
 
   type(grid__delta_) :: grid__delta
 
   type grid__derivative_operator_1st_
-     real(DP) :: x, y, z
+     real(DR) :: x, y, z
   end type grid__derivative_operator_1st_
 
   type(grid__derivative_operator_1st_) :: grid__d1
 
   type grid__derivative_operator_2nd_
-     real(DP) :: x, y, z
+     real(DR) :: x, y, z
   end type grid__derivative_operator_2nd_
 
   type(grid__derivative_operator_2nd_) :: grid__d2
@@ -84,10 +84,10 @@ contains
 !   Here we suppose the periodic boundary condition in all directions.
 !________________________________________________________________________/
 !
-    integer  :: i, j, k
-    real(DP) :: dx, dy, dz
+    integer(SI) :: i, j, k
+    real(DR) :: dx, dy, dz
 
-    real(DP), parameter :: NEARLY_ZERO = 1.e-10_DP
+    real(DR), parameter :: NEARLY_ZERO = 1.e-10_DR
 
     !___________________________________________________________________
     !
@@ -109,34 +109,34 @@ contains
     grid__delta%x = dx
     grid__delta%y = dy
     grid__delta%z = dz
-    call debug__message('grid__delta%x = ', grid__delta%x)
-    call debug__message('grid__delta%y = ', grid__delta%y)
-    call debug__message('grid__delta%z = ', grid__delta%z)
+    call debug__print('grid__delta%x = ', grid__delta%x)
+    call debug__print('grid__delta%y = ', grid__delta%y)
+    call debug__print('grid__delta%z = ', grid__delta%z)
 
     grid__delta_min = min(grid__delta%x,grid__delta%y,grid__delta%z)
-    call debug__message('grid__delta_min = ', grid__delta_min)
+    call debug__print('grid__delta_min = ', grid__delta_min)
 
-    grid__d1%x = 1.0_DP/(2*dx)   ! factor for 1st derivative
-    grid__d1%y = 1.0_DP/(2*dy)
-    grid__d1%z = 1.0_DP/(2*dz)
+    grid__d1%x = 1.0_DR/(2*dx)   ! factor for 1st derivative
+    grid__d1%y = 1.0_DR/(2*dy)
+    grid__d1%z = 1.0_DR/(2*dz)
 
-    grid__d2%x = 1.0_DP/(dx**2)  ! factor for 2nd derivative
-    grid__d2%y = 1.0_DP/(dy**2)
-    grid__d2%z = 1.0_DP/(dz**2)
+    grid__d2%x = 1.0_DR/(dx**2)  ! factor for 2nd derivative
+    grid__d2%y = 1.0_DR/(dy**2)
+    grid__d2%z = 1.0_DR/(dz**2)
 
     do i = 1 , NX
-       grid__pos%x(i) = XMIN + dx*(real(i,DP)-1.5_DP)
-       call debug__message('grid_x: i, x = ', i, grid__pos%x(i))
+       grid__pos%x(i) = XMIN + dx*(real(i,DR)-1.5_DR)
+       call debug__print('grid_x: i, x = ', i, grid__pos%x(i))
     end do
 
     do j = 1 , NY
-       grid__pos%y(j) = YMIN + dy*(real(j,DP)-1.5_DP)
-       call debug__message('grid_y: j, y = ', j, grid__pos%y(j))
+       grid__pos%y(j) = YMIN + dy*(real(j,DR)-1.5_DR)
+       call debug__print('grid_y: j, y = ', j, grid__pos%y(j))
     end do
 
     do k = 1 , NZ
-       grid__pos%z(k) = ZMIN + dz*(real(k,DP)-1.5_DP)
-       call debug__message('grid_z: k, z = ', k, grid__pos%z(k))
+       grid__pos%z(k) = ZMIN + dz*(real(k,DR)-1.5_DR)
+       call debug__print('grid_z: k, z = ', k, grid__pos%z(k))
     end do
 
     call ut__assert(abs(grid__pos%x( 1)-XMIN+dx/2) +                 &
@@ -147,7 +147,7 @@ contains
                     abs(grid__pos%z(NZ)-ZMAX-dz/2)  < NEARLY_ZERO,   &
                    "<grid__initialize> grid min/max inconsistent.")
 
-    call debug__message('called grid__initialize.')
+    call debug__print('called grid__initialize.')
 
   end subroutine grid__initialize
 

@@ -1,11 +1,16 @@
-!-----------------------------------------------------------------------------
-! smoke-ring: A simple 3-D Fluid Solver by FDM on Cartesian Grid.
+!-------------------------------------------------------------------
+! class-hpc-smoke-ring: A simple sample field solver.
 !
-!    by Akira Kageyama,
-!       Department of Computational Science,
-!       Kobe University, Japan.
-!       email: kage@port.kobe-u.ac.jp / sgks@mac.com
-!-----------------------------------------------------------------------------
+!    by Akira Kageyama, Kobe University, Japan.
+!       email: sgks@mac.com
+!
+!    Copyright 2018 Akira Kageyama
+!
+!    This software is released under the MIT License.
+!
+!-------------------------------------------------------------------
+!    src/debug.f90
+!-------------------------------------------------------------------
 
 module debug_m
   use constants_m
@@ -14,216 +19,79 @@ module debug_m
   implicit none
 
   private
-  public :: debug__message
+  public :: debug__print
 
-  interface debug__message
-     module procedure message_decorated_str,          &
-                      message_decorated_str_int,      &
-                      message_str,                    &
-                      message_str_double,             &
-                      message_str_double_double,      &
-                      message_str_int,                &
-                      message_str_int_int,            &
-                      message_str_int_int_int,        &
-                      message_str_int_int_double,     &
-                      message_str_int_double,         &
-                      message_str_int_double_double,  &
-                      message_str_int_float_float,    &
-                      message_str_int_str_int
+  interface debug__print
+    module procedure print_str,             &
+                     print_str_dint,        &
+                     print_str_dint_double, &
+                     print_str_double,      &
+                     print_str_sint,        &
+                     print_str_sint_double
   end interface
 
 
 contains
 
 
-!===============
-!    Private
-!===============
-
-
-!_______________________________________________________________private__
-!
-  subroutine message_decorated_str(mark,string)
-    character, intent(in)        :: mark
+  subroutine print_str(string)
     character(len=*), intent(in) :: string
-!________________________________________________________________________
-!
+
     if (namelist__logical('Debug')) then
-       call ut__message(mark, 'debug: '//string)
+      call ut__print('debug: '//string)
     end if
+  end subroutine print_str
 
-  end subroutine message_decorated_str
 
-
-!_______________________________________________________________private__
-!
-  subroutine message_decorated_str_int(mark,string,int)
-    character, intent(in)        :: mark
+  subroutine print_str_double(string, double)
     character(len=*), intent(in) :: string
-    integer, intent(in)          :: int
-!________________________________________________________________________
-!
+    real(DR), intent(in)         :: double
+
     if (namelist__logical('Debug')) then
-       call ut__message(mark, 'debug: '//string, int)
+      call ut__print('debug: '//string, double)
     end if
+  end subroutine print_str_double
 
-  end subroutine message_decorated_str_int
 
-
-!_______________________________________________________________private__
-!
-  subroutine message_str(string)
+  subroutine print_str_dint(string, int)
     character(len=*), intent(in) :: string
-!________________________________________________________________________
-!
+    integer(DI), intent(in)      :: int
+
     if (namelist__logical('Debug')) then
-       call ut__message('debug: '//string)
+      call ut__print('debug: '//trim(string), int)
     end if
+  end subroutine print_str_dint
 
-  end subroutine message_str
 
-
-!_______________________________________________________________private__
-!
-  subroutine message_str_double(string, double)
+  subroutine print_str_sint(string, int)
     character(len=*), intent(in) :: string
-    real(DP), intent(in)         :: double
-!________________________________________________________________________
-!
+    integer(SI), intent(in)      :: int
+
     if (namelist__logical('Debug')) then
-       call ut__message('debug: '//string, double)
+      call ut__print('debug: '//trim(string), int)
     end if
+  end subroutine print_str_sint
 
-  end subroutine message_str_double
 
-!_______________________________________________________________private__
-!
-  subroutine message_str_double_double(string, double1, double2)
+  subroutine print_str_dint_double(string, i1, d1)
     character(len=*), intent(in) :: string
-    real(DP), intent(in)         :: double1
-    real(DP), intent(in)         :: double2
-!________________________________________________________________________
-!
+    integer(DI), intent(in)      :: i1
+    real(DR), intent(in)         :: d1
+
     if (namelist__logical('Debug')) then
-       call ut__message('debug: '//string, double1, double2)
+      call ut__print('debug: '//trim(string), i1, d1)
     end if
+  end subroutine print_str_dint_double
 
-  end subroutine message_str_double_double
 
-
-!_______________________________________________________________private__
-!
-  subroutine message_str_int(string, int)
+  subroutine print_str_sint_double(string, i1, d1)
     character(len=*), intent(in) :: string
-    integer, intent(in)          :: int
-!________________________________________________________________________
-!
+    integer(SI), intent(in)      :: i1
+    real(DR), intent(in)         :: d1
+
     if (namelist__logical('Debug')) then
-       call ut__message('debug: '//string, int)
+      call ut__print('debug: '//trim(string), i1, d1)
     end if
-
-  end subroutine message_str_int
-
-
-!_______________________________________________________________private__
-!
-  subroutine message_str_int_int(string, i1, i2)
-    character(len=*), intent(in) :: string
-    integer, intent(in)          :: i1, i2
-!________________________________________________________________________
-!
-    if (namelist__logical('Debug')) then
-       call ut__message('debug: '//string, i1, i2)
-    end if
-
-  end subroutine message_str_int_int
-
-
-!_______________________________________________________________private__
-!
-  subroutine message_str_int_int_int(string, i1, i2, i3)
-    character(len=*), intent(in) :: string
-    integer, intent(in)          :: i1, i2, i3
-!________________________________________________________________________
-!
-    if (namelist__logical('Debug')) then
-       call ut__message('debug: '//string, i1, i2, i3)
-    end if
-
-  end subroutine message_str_int_int_int
-
-
-!_______________________________________________________________private__
-!
-  subroutine message_str_int_int_double(string, i1, i2, d1)
-    character(len=*), intent(in) :: string
-    integer, intent(in)          :: i1, i2
-    real(DP), intent(in)         :: d1
-!________________________________________________________________________
-!
-    if (namelist__logical('Debug')) then
-       call ut__message('debug: '//string, i1, i2, d1)
-    end if
-
-  end subroutine message_str_int_int_double
-
-
-!_______________________________________________________________private__
-!
-  subroutine message_str_int_double(string, i1, d1)
-    character(len=*), intent(in) :: string
-    integer, intent(in)          :: i1
-    real(DP), intent(in)         :: d1
-!________________________________________________________________________
-!
-    if (namelist__logical('Debug')) then
-       call ut__message('debug: '//string, i1, d1)
-    end if
-
-  end subroutine message_str_int_double
-
-
-!_______________________________________________________________private__
-!
-  subroutine message_str_int_double_double(string, i1, d1, d2)
-    character(len=*), intent(in) :: string
-    integer, intent(in)          :: i1
-    real(DP), intent(in)         :: d1, d2
-!________________________________________________________________________
-!
-    if (namelist__logical('Debug')) then
-       call ut__message('debug: '//string, i1, d1, d2)
-    end if
-
-  end subroutine message_str_int_double_double
-
-
-!_______________________________________________________________private__
-!
-  subroutine message_str_int_float_float(string, i1, f1, f2)
-    character(len=*), intent(in) :: string
-    integer, intent(in)          :: i1
-    real(SP), intent(in)         :: f1, f2
-!________________________________________________________________________
-!
-    if (namelist__logical('Debug')) then
-       call ut__message('debug: '//string, i1, f1, f2)
-    end if
-
-  end subroutine message_str_int_float_float
-
-
-!_______________________________________________________________private__
-!
-  subroutine message_str_int_str_int(str1, i1, str2, i2)
-    character(len=*), intent(in) :: str1, str2
-    integer, intent(in)          :: i1, i2
-!________________________________________________________________________
-!
-    if (namelist__logical('Debug')) then
-       call ut__message('debug: '//str1, i1, str2 , i2)
-    end if
-
-  end subroutine message_str_int_str_int
+  end subroutine print_str_sint_double
 
 end module debug_m

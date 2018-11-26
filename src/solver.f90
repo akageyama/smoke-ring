@@ -36,11 +36,11 @@ module solver_m
                       subfield_vel_tm_divv
   end interface
 
-  real(DP), parameter :: GAMMA = 5.0_DP / 3.0_DP ! ratio of specific heats.
+  real(DR), parameter :: GAMMA = 5.0_DR / 3.0_DR ! ratio of specific heats.
 
   logical,                save :: Initialize_done = .false.
-  real(DP),               save :: Viscosity
-  real(DP),               save :: Gamma1_kappa   ! (gamma-1)*kappa
+  real(DR),               save :: Viscosity
+  real(DR),               save :: Gamma1_kappa   ! (gamma-1)*kappa
   type(field__vector3d_), save :: Drive_force
 
 
@@ -55,8 +55,8 @@ contains
 !_______________________________________________________________private__
 !
   function drive_force_factor(time)
-    real(DP), intent(in) :: time
-    real(DP)             :: drive_force_factor
+    real(DR), intent(in) :: time
+    real(DR)             :: drive_force_factor
 !________________________________________________________________________
 !
 !                                      factor
@@ -69,14 +69,14 @@ contains
 !          t_start         t_end
 !________________________________________________________________________/
 !
-    real(DP), parameter :: T_START =  0.0_DP
-    real(DP), parameter :: T_END   =  5.0_DP
+    real(DR), parameter :: T_START =  0.0_DR
+    real(DR), parameter :: T_END   =  5.0_DR
                                    ! Find proper value by trials & erros.
-    real(DP), parameter :: T0 = T_START + (T_END-T_START)/10
-    real(DP), parameter :: T1 = T_END   - (T_END-T_START)/10
+    real(DR), parameter :: T0 = T_START + (T_END-T_START)/10
+    real(DR), parameter :: T1 = T_END   - (T_END-T_START)/10
 
-    real(DP), parameter :: ONE  = 1.0_DP
-    real(DP), parameter :: ZERO = 0.0_DP
+    real(DR), parameter :: ONE  = 1.0_DR
+    real(DR), parameter :: ZERO = 0.0_DR
 
     call ut__assert( T_START < T0 .and. T0 < T1 .and. T1 < T_END,     &
                     "<solver/drive_force_factor> Time inconsistent.")
@@ -93,9 +93,9 @@ contains
        drive_force_factor = ZERO
     end if
 
-    call ut__assert(drive_force_factor >=0.0_DP                        &
+    call ut__assert(drive_force_factor >=0.0_DR                        &
                               .and.                                    &
-                    drive_force_factor <=1.0_DP,                       &
+                    drive_force_factor <=1.0_DR,                       &
                     "<solver/drive_force_factor> strange value.")
 
   end function drive_force_factor
@@ -106,13 +106,13 @@ contains
   subroutine set_drive_force_field
 !________________________________________________________________________
 !
-    real(DP) :: xx, yy, zz
-    integer  :: i, j, k
-    real(DP) :: force_region_x_min, force_region_x_max
-    real(DP) :: force_center_y, force_center_z
-    real(DP) :: force_cylinder_diameter, force_cylinder_radius_sq
+    integer(SI) :: i, j, k
+    real(DR) :: xx, yy, zz
+    real(DR) :: force_region_x_min, force_region_x_max
+    real(DR) :: force_center_y, force_center_z
+    real(DR) :: force_cylinder_diameter, force_cylinder_radius_sq
 
-    real(DP), parameter :: THE_FORCE = 0.02_DP
+    real(DR), parameter :: THE_FORCE = 0.02_DR
                                      ! Find proper value by trials & erros.
 
     !________________________________________________________________
@@ -146,12 +146,12 @@ contains
                                 .and.                           &
                       (xx < force_region_x_max) ) then
                 Drive_force%x(i,j,k) = THE_FORCE
-                Drive_force%y(i,j,k) = 0.0_DP
-                Drive_force%z(i,j,k) = 0.0_DP
+                Drive_force%y(i,j,k) = 0.0_DR
+                Drive_force%z(i,j,k) = 0.0_DR
              else
-                Drive_force%x(i,j,k) = 0.0_DP
-                Drive_force%y(i,j,k) = 0.0_DP
-                Drive_force%z(i,j,k) = 0.0_DP
+                Drive_force%x(i,j,k) = 0.0_DR
+                Drive_force%y(i,j,k) = 0.0_DR
+                Drive_force%z(i,j,k) = 0.0_DR
              end if
           end do
        end do
@@ -162,7 +162,7 @@ contains
     call ut__assert(maxval(Drive_force%x)==THE_FORCE,                     &
                     "<solver/set_drive_force_field> something is strange.")
 
-    call debug__message("called solver/set_drive_force_field.")
+    call debug__print("called solver/set_drive_force_field.")
 
   end subroutine set_drive_force_field
 
@@ -177,7 +177,7 @@ contains
 !>  vel = fluid%flux / fluid%density     ! operator defined in field.
     vel = operator_vector_divby_scalar(fluid%flux, fluid%density)
 
-    call debug__message("called solver/subfield_vel.")
+    call debug__print("called solver/subfield_vel.")
 
   end subroutine subfield_vel
 
@@ -187,14 +187,14 @@ contains
   subroutine subfield_vel_tm(fluid,vel,tm)
     type(field__fluid_),           intent(in)  :: fluid
     type(field__vector3d_),        intent(out) :: vel
-    real(DP), dimension(NX,NY,NZ), intent(out) :: tm
+    real(DR), dimension(NX,NY,NZ), intent(out) :: tm
 !________________________________________________________________________
 !
 !>   vel = fluid%flux     / fluid%density ! operator defined in field.f90.
      vel = operator_vector_divby_scalar(fluid%flux, fluid%density)
       tm = fluid%pressure / fluid%density
 
-    call debug__message("called solver/subfield_vel_tm.")
+    call debug__print("called solver/subfield_vel_tm.")
 
   end subroutine subfield_vel_tm
 
@@ -204,8 +204,8 @@ contains
   subroutine subfield_vel_tm_divv(fluid,vel,tm,divv)
     type(field__fluid_),           intent(in)  :: fluid
     type(field__vector3d_),        intent(out) :: vel
-    real(DP), dimension(NX,NY,NZ), intent(out) :: tm
-    real(DP), dimension(NX,NY,NZ), intent(out) :: divv
+    real(DR), dimension(NX,NY,NZ), intent(out) :: tm
+    real(DR), dimension(NX,NY,NZ), intent(out) :: divv
 !________________________________________________________________________
 !
 !>   vel = fluid%flux     / fluid%density ! operator defined in field.f90.
@@ -214,7 +214,7 @@ contains
 !>  divv = .div.vel
     divv = operator_div(vel)
 
-    call debug__message("called solver/subfield_vel_tm_divv.")
+    call debug__print("called solver/subfield_vel_tm_divv.")
 
   end subroutine subfield_vel_tm_divv
 
@@ -222,25 +222,25 @@ contains
 !_______________________________________________________________private__
 !
   function the_equation(t,dt,vx,vy,vz,tm,divv,fx,fy,fz,ps)
-    real(DP),                      intent(in) :: t, dt
-    real(DP), dimension(NX,NY,NZ), intent(in) :: vx, vy, vz
-    real(DP), dimension(NX,NY,NZ), intent(in) :: tm, divv
-    real(DP), dimension(NX,NY,NZ), intent(in) :: fx, fy, fz
-    real(DP), dimension(NX,NY,NZ), intent(in) :: ps
+    real(DR),                      intent(in) :: t, dt
+    real(DR), dimension(NX,NY,NZ), intent(in) :: vx, vy, vz
+    real(DR), dimension(NX,NY,NZ), intent(in) :: tm, divv
+    real(DR), dimension(NX,NY,NZ), intent(in) :: fx, fy, fz
+    real(DR), dimension(NX,NY,NZ), intent(in) :: ps
     type(field__fluid_) :: the_equation
 !________________________________________________________________________
 !
 !  Here we ignore the viscous heating term in the presssure equation.
 !________________________________________________________________________/
 !
-    integer :: i, j, k
-    real(DP), parameter :: ONE_THIRD = 1.0_DP / 3.0_DP
-    real(DP) :: gradpx, gradpy, gradpz
-    real(DP) :: gdivvx, gdivvy, gdivvz
-    real(DP) :: divfvx, divfvy, divfvz
-    real(DP) :: lapvx, lapvy, lapvz, laptm
-    real(DP) :: divf
-    real(DP) :: factor
+    integer(SI) :: i, j, k
+    real(DR), parameter :: ONE_THIRD = 1.0_DR / 3.0_DR
+    real(DR) :: gradpx, gradpy, gradpz
+    real(DR) :: gdivvx, gdivvy, gdivvz
+    real(DR) :: divfvx, divfvy, divfvz
+    real(DR) :: lapvx, lapvy, lapvz, laptm
+    real(DR) :: divf
+    real(DR) :: factor
 
     call ut__assert(Initialize_done, "<solver/the_equation> Forgot init?")
 
@@ -336,7 +336,7 @@ contains
 
     call field__boundary_condition(the_equation)
 
-    call debug__message("called solver/the_equation.")
+    call debug__print("called solver/the_equation.")
 
   end function the_equation
 
@@ -349,20 +349,20 @@ contains
 !_______________________________________________________________public___
 !
   subroutine solver__advance(t,dt,fluid)
-    real(DP), intent(inout)             :: t
-    real(DP), intent(in)                :: dt
+    real(DR), intent(inout)             :: t
+    real(DR), intent(in)                :: dt
     type(field__fluid_), intent(inout)  :: fluid
 !________________________________________________________________________
 !
 !   The classical 4-step, 4-th order Runge-Kutta method.
 !________________________________________________________________________/
 !
-    real(DP), parameter :: ONE_SIXTH = 1.0_DP / 6.0_DP
-    real(DP), parameter :: ONE_THIRD = 1.0_DP / 3.0_DP
+    real(DR), parameter :: ONE_SIXTH = 1.0_DR / 6.0_DR
+    real(DR), parameter :: ONE_THIRD = 1.0_DR / 3.0_DR
 
     type(field__vector3d_)        :: vel
-    real(DP), dimension(NX,NY,NZ) :: tm
-    real(DP), dimension(NX,NY,NZ) :: divv
+    real(DR), dimension(NX,NY,NZ) :: tm
+    real(DR), dimension(NX,NY,NZ) :: divv
 
     type(field__fluid_) :: dfluid01, dfluid02, dfluid03, dfluid04
     type(field__fluid_) :: gluid  ! work variable
@@ -377,8 +377,8 @@ contains
 
     t = t + dt/2
     !--< step 2 >--!
-!>  gluid = fluid + dfluid01*0.5_DP
-    dfluid01 = operator_fluid_times_real(dfluid01,0.5_DP)
+!>  gluid = fluid + dfluid01*0.5_DR
+    dfluid01 = operator_fluid_times_real(dfluid01,0.5_DR)
     gluid    = operator_fluid_add(fluid,dfluid01)
 
     call subfield_vel_tm_divv(gluid,vel,tm,divv)
@@ -388,8 +388,8 @@ contains
                             gluid%pressure)
 
     !--< step 3 >--!
-!>  gluid = fluid + dfluid02*0.5_DP
-    dfluid02 = operator_fluid_times_real(dfluid02,0.5_DP)
+!>  gluid = fluid + dfluid02*0.5_DR
+    dfluid02 = operator_fluid_times_real(dfluid02,0.5_DR)
     gluid    = operator_fluid_add(fluid,dfluid02)
 
     call subfield_vel_tm_divv(gluid,vel,tm,divv)
@@ -422,7 +422,7 @@ contains
     fluid = operator_fluid_add(fluid,dfluid03)
     fluid = operator_fluid_add(fluid,dfluid04)
 
-    call debug__message("called solver__advance.")
+    call debug__print("called solver__advance.")
 
   end subroutine solver__advance
 
@@ -430,14 +430,14 @@ contains
 !_______________________________________________________________public___
 !
   subroutine solver__diagnosis(nloop,time,fluid,karte)
-    integer,             intent(in)    :: nloop
-    real(DP),            intent(in)    :: time
+    integer(DI),         intent(in)    :: nloop
+    real(DR),            intent(in)    :: time
     type(field__fluid_), intent(in)    :: fluid
-    integer,             intent(inout) :: karte
+    integer(SI),         intent(inout) :: karte
 !________________________________________________________________________
 !
-    integer,  parameter :: SKIP = 100
-    real(DP), parameter :: ABNORMALLY_LARGE = 1.e5_DP
+    integer(SI), parameter :: SKIP = 100
+    real(DR), parameter :: ABNORMALLY_LARGE = 1.e5_DR
 
     type(field__vector3d_) :: vel
 
@@ -475,13 +475,13 @@ contains
        return
     end if
 
-    if ( minval(fluid%pressure) < 0.0_DP ) then
+    if ( minval(fluid%pressure) < 0.0_DR ) then
        call ut__message("<solver__diagnosis> Negative pressure.")
        karte = KARTE_UNDERFLOW
        return
     end if
 
-    if ( minval(fluid%density) < 0.0_DP ) then
+    if ( minval(fluid%density) < 0.0_DR ) then
        call ut__message("<solver__diagnosis> Negative density.")
        karte = KARTE_UNDERFLOW
        return
@@ -499,7 +499,7 @@ contains
 !>                                    .scalarintegral.(fluid%density))
                                operator_scalarintegral(fluid%density))
 
-    call debug__message('called solver__diagnosis.')
+    call debug__print('called solver__diagnosis.')
 
   end subroutine solver__diagnosis
 
@@ -510,7 +510,7 @@ contains
     type(field__fluid_), intent(out) :: fluid
 !________________________________________________________________________
 !
-    real(DP) :: kappa
+    real(DR) :: kappa
 
     !<< Physical parameters >>!
     Viscosity = namelist__double('Viscosity')
@@ -519,19 +519,19 @@ contains
     Gamma1_kappa = (Gamma-1)*kappa
 
     !<< Initial condition of the fluid >>!
-    fluid%pressure = 1.0_DP
-    fluid%density  = 1.0_DP      ! uniform p, T, and rho.
-!>  fluid%flux     = 0.0_DP      ! no flow at t=0
-    fluid%flux%x   = 0.0_DP      ! no flow at t=0
-    fluid%flux%y   = 0.0_DP      ! no flow at t=0
-    fluid%flux%z   = 0.0_DP      ! no flow at t=0
+    fluid%pressure = 1.0_DR
+    fluid%density  = 1.0_DR      ! uniform p, T, and rho.
+!>  fluid%flux     = 0.0_DR      ! no flow at t=0
+    fluid%flux%x   = 0.0_DR      ! no flow at t=0
+    fluid%flux%y   = 0.0_DR      ! no flow at t=0
+    fluid%flux%z   = 0.0_DR      ! no flow at t=0
 
     !<< Define drive force field >>!
     call set_drive_force_field
 
     Initialize_done = .true.
 
-    call debug__message("called solver__initialize.")
+    call debug__print("called solver__initialize.")
 
   end subroutine solver__initialize
 
@@ -539,23 +539,23 @@ contains
 !_______________________________________________________________public___
 !
   function solver__set_time_step(nloop,fluid)
-    integer,             intent(in) :: nloop
+    integer(DI),         intent(in) :: nloop
     type(field__fluid_), intent(in) :: fluid
-    real(DP)                        :: solver__set_time_step
+    real(DR)                        :: solver__set_time_step
 !________________________________________________________________________
 !
 !   set dt by the CFL condition.
 !________________________________________________________________________/
 !
     type(field__vector3d_)        :: vel
-    real(DP), dimension(NX,NY,NZ) :: tm
+    real(DR), dimension(NX,NY,NZ) :: tm
 
-    real(DP)            :: vmax, sound_v
-    real(DP)            :: dt_vel, dt_sound, dt_viscous, dt_kappa
-    real(DP), parameter :: ALMOST_ZERO = 1.e-20_DP
-    real(DP), parameter :: ABNORMAL_VALUE = -999.999_DP
-    real(DP), save      :: dt = ABNORMAL_VALUE  ! To detect error.
-    integer,  parameter :: SKIP = 20            ! Recalc dt every this cycle.
+    real(DR) :: vmax, sound_v
+    real(DR) :: dt_vel, dt_sound, dt_viscous, dt_kappa
+    real(DR), parameter :: ALMOST_ZERO = 1.e-20_DR
+    real(DR), parameter :: ABNORMAL_VALUE = -999.999_DR
+    real(DR), save :: dt = ABNORMAL_VALUE  ! To detect error.
+    integer(SI), parameter :: SKIP = 20            ! Recalc dt every this cycle.
 
     call ut__assert(Initialize_done,"<solver__set_tim_step> Forgot init?")
 
@@ -570,10 +570,10 @@ contains
 
        call ut__assert(sound_v > ALMOST_ZERO,"<solver__time_step> sound_v=0?")
 
-       dt_vel     = 0.8_DP*grid__delta_min/vmax
-       dt_sound   = 0.8_DP*grid__delta_min/sound_v
-       dt_viscous = 0.2_DP*(grid__delta_min**2)/Viscosity
-       dt_kappa   = 0.2_DP*(grid__delta_min**2)/Gamma1_kappa    ! A rough estimate.
+       dt_vel     = 0.8_DR*grid__delta_min/vmax
+       dt_sound   = 0.8_DR*grid__delta_min/sound_v
+       dt_viscous = 0.2_DR*(grid__delta_min**2)/Viscosity
+       dt_kappa   = 0.2_DR*(grid__delta_min**2)/Gamma1_kappa    ! A rough estimate.
 
        dt = min(dt_vel, dt_sound, dt_viscous, dt_kappa)
 

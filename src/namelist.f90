@@ -28,11 +28,11 @@ module namelist_m
 
   logical, save :: Read_done = .false.
 
-  integer                              :: Total_nloop
-  integer                              :: Slicedata_nskip
+  integer(SI) :: Total_nloop
+  integer(SI) :: Slicedata_nskip
   character(len=TAG_STRING_LENGTH_MAX) :: Slicedata_tag
-  real(DP)                             :: Viscosity, Kappa
-  logical                              :: Debug
+  real(DR) :: Viscosity, Kappa
+  logical  :: Debug
 
   namelist /data00/ Total_nloop
   namelist /data01/ Slicedata_nskip,  Slicedata_tag
@@ -52,7 +52,7 @@ contains
 !
   function namelist__double(variable)
     character(len=*), intent(in) :: variable
-    real(DP) :: namelist__double
+    real(DR) :: namelist__double
 !________________________________________________________________________
 !
     call ut__assert(Read_done, &
@@ -75,7 +75,7 @@ contains
 !
   function namelist__integer(variable)
     character(len=*), intent(in) :: variable
-    integer :: namelist__integer
+    integer(SI) :: namelist__integer
 !________________________________________________________________________
 !
     call ut__assert(Read_done, &
