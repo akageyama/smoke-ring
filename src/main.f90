@@ -27,7 +27,7 @@ program main_m
   integer(DI) :: nloop
   real(DR) :: dt, time
 
-  type(field__fluid_) :: fluid
+  type(field__fluid_t) :: fluid
 
   call namelist__read
   call grid__initialize
@@ -42,27 +42,27 @@ program main_m
   dt = solver__set_time_step(nloop,fluid)
 
   do while(karte==KARTE_FINE)
-     call debug__print("running. nloop=",nloop)
-     call solver__advance(time,dt,fluid)
-     dt = solver__set_time_step(nloop,fluid)
-     nloop = nloop + 1
-     if (nloop >= namelist__integer('Total_nloop')) karte = KARTE_LOOP_MAX
-     call solver__diagnosis(nloop,time,fluid,karte)
-     call slicedata__write(nloop,time,fluid)
+    call debug__print("running. nloop=",nloop)
+    call solver__advance(time,dt,fluid)
+    dt = solver__set_time_step(nloop,fluid)
+    nloop = nloop + 1
+    if (nloop >= namelist__get_integer('Total_nloop')) karte = KARTE_LOOP_MAX
+    call solver__diagnosis(nloop,time,fluid,karte)
+    call slicedata__write(nloop,time,fluid)
   end do
 
   select case (karte)
-  case (KARTE_FINE)
-     call ut__message('#',"Successfully finished.")
-  case (KARTE_LOOP_MAX)
-     call ut__message('=',"Reached max nloop = ", nloop)
-  case (KARTE_TIME_OUT)
-     call ut__message('-',"Time out at nloop = ", nloop)
-  case (KARTE_OVERFLOW)
-     call ut__message('%',"Overflow at nloop = ", nloop)
-  case (KARTE_UNDERFLOW)
-     call ut__message('%',"Underflow at nloop = ",nloop)
-  case default
-     call ut__message('?',"Stopped at nloop = ",  nloop)
+    case (KARTE_FINE)
+      call ut__message('#',"Successfully finished.")
+    case (KARTE_LOOP_MAX)
+      call ut__message('=',"Reached max nloop = ", nloop)
+    case (KARTE_TIME_OUT)
+      call ut__message('-',"Time out at nloop = ", nloop)
+    case (KARTE_OVERFLOW)
+      call ut__message('%',"Overflow at nloop = ", nloop)
+    case (KARTE_UNDERFLOW)
+      call ut__message('%',"Underflow at nloop = ",nloop)
+    case default
+      call ut__message('?',"Stopped at nloop = ",  nloop)
   end select
 end program main_m

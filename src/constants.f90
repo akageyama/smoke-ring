@@ -32,12 +32,6 @@ module constants_m
   integer(SI), parameter :: KARTE_OVERFLOW  =  3
   integer(SI), parameter :: KARTE_UNDERFLOW =  4
 
-  ! << I/O files >>
-  integer(SI), parameter :: FILE_TEMPORAL     = 10
-  integer(SI), parameter :: FILE_RESTART      = 80
-  integer(SI), parameter :: FILE_STANDARD_OUT = 06
-  integer(SI), parameter :: FILE_SLICEDATA    = 51
-
   ! << Grid Size >>
   integer(SI), parameter :: NX =  92
   integer(SI), parameter :: NY =  32
@@ -53,8 +47,4 @@ module constants_m
   real(DR), parameter :: YMAX = +0.5_DR
   real(DR), parameter :: ZMIN = -0.5_DR
   real(DR), parameter :: ZMAX = +0.5_DR
-
-  ! << Used for strings >>
-  integer(SI), parameter :: TAG_STRING_LENGTH_MAX = 100
-
 end module constants_m

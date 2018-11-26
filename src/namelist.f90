@@ -12,25 +12,24 @@
 !-----------------------------------------------------------------------------
 
 module namelist_m
-!*****************************************************************************
-! MODULE NAMELIST                                              Namelist Loader
-!*****************************************************************************
   use constants_m
   use ut_m
   implicit none
   private
   public :: & !< routines >!
-            namelist__double,   &
-            namelist__integer,  &
-            namelist__logical,  &
-            namelist__read,     &
-            namelist__string
+            namelist__get_double,   &
+            namelist__get_integer,  &
+            namelist__get_logical,  &
+            namelist__read,         &
+            namelist__get_string
 
   logical, save :: Read_done = .false.
 
+  integer(SI), parameter :: STRING_LENGTH_MAX = 200
+
   integer(SI) :: Total_nloop
   integer(SI) :: Slicedata_nskip
-  character(len=TAG_STRING_LENGTH_MAX) :: Slicedata_tag
+  character(len=STRING_LENGTH_MAX) :: Slicedata_tag
   real(DR) :: Viscosity, Kappa
   logical  :: Debug
 
@@ -43,124 +42,100 @@ module namelist_m
 
 contains
 
-
-!==============
-!    Public
-!==============
-
-!________________________________________________________________public__
-!
-  function namelist__double(variable)
+  function namelist__get_double(variable)
     character(len=*), intent(in) :: variable
-    real(DR) :: namelist__double
-!________________________________________________________________________
-!
+    real(DR) :: namelist__get_double
+
     call ut__assert(Read_done, &
-                    '<namelist__double> Read namelist file first.')
+                    '<namelist__get_double> Read namelist file first.')
 
     select case (variable)
-    case                ('Kappa')
-       namelist__double = Kappa
-    case                ('Viscosity')
-       namelist__double = Viscosity
-    case default
-       call ut__message('? arg = ', variable)
-       call ut__fatal('<namelist__double> not in the namelist?')
+      case                ('Kappa')
+        namelist__get_double = Kappa
+      case                ('Viscosity')
+        namelist__get_double = Viscosity
+      case default
+        call ut__message('? arg = ', variable)
+        call ut__fatal('<namelist__get_double> not in the namelist?')
     end select
+  end function namelist__get_double
 
-  end function namelist__double
 
-
-!________________________________________________________________public__
-!
-  function namelist__integer(variable)
+  function namelist__get_integer(variable)
     character(len=*), intent(in) :: variable
-    integer(SI) :: namelist__integer
-!________________________________________________________________________
-!
+    integer(SI) :: namelist__get_integer
+
     call ut__assert(Read_done, &
-                    '<namelist__integer> Read namelist file first.')
+                    '<namelist__get_integer> Read namelist file first.')
 
     select case (variable)
-    case                 ('Slicedata_nskip')
-       namelist__integer = Slicedata_nskip
-    case                 ('Total_nloop')
-       namelist__integer = Total_nloop
-    case default
-       call ut__message('? arg = ', variable)
-       call ut__fatal('<namelist__integer> not in the namelist?')
+      case                 ('Slicedata_nskip')
+        namelist__get_integer = Slicedata_nskip
+      case                 ('Total_nloop')
+        namelist__get_integer = Total_nloop
+      case default
+        call ut__message('? arg = ', variable)
+        call ut__fatal('<namelist__get_integer> not in the namelist?')
     end select
+  end function namelist__get_integer
 
-  end function namelist__integer
 
-
-!________________________________________________________________public__
-!
-  function namelist__logical(variable)
+  function namelist__get_logical(variable)
     character(len=*), intent(in) :: variable
-    logical :: namelist__logical
-!________________________________________________________________________
-!
+    logical :: namelist__get_logical
+
     call ut__assert(Read_done, &
-                    '<namelist__logical> Read namelist file first.')
+                    '<namelist__get_logical> Read namelist file first.')
 
     select case (variable)
-    case                 ('Debug')
-       namelist__logical = Debug
-    case default
-       call ut__message('? arg = ', variable)
-       call ut__fatal('<namelist__logical> not in the namelist?')
+      case                 ('Debug')
+        namelist__get_logical = Debug
+      case default
+        call ut__message('? arg = ', variable)
+        call ut__fatal('<namelist__get_logical> not in the namelist?')
     end select
+  end function namelist__get_logical
 
-  end function namelist__logical
 
-
-!________________________________________________________________public__
-!
   subroutine namelist__read
-!________________________________________________________________________
-!
-    character(len=TAG_STRING_LENGTH_MAX) :: namelist_file
+    character(len=STRING_LENGTH_MAX) :: namelist_file
 
+    call ut__assert(command_argument_count()==1, &
+                    "Usage: smoke_ring param_file")
     call get_command_argument(1,namelist_file)
 
-    open(FILE_TEMPORAL,file=trim(namelist_file))
-      read(FILE_TEMPORAL,nml=data00)
-      read(FILE_TEMPORAL,nml=data01)
-      read(FILE_TEMPORAL,nml=data02)
-      read(FILE_TEMPORAL,nml=data03)
-      read(FILE_TEMPORAL,nml=data04)
-    close(FILE_TEMPORAL)
+    open(10,file=trim(namelist_file))
+      read(10,nml=data00)
+      read(10,nml=data01)
+      read(10,nml=data02)
+      read(10,nml=data03)
+      read(10,nml=data04)
+    close(10)
 
-    write(FILE_STANDARD_OUT,nml=data00)
-    write(FILE_STANDARD_OUT,nml=data01)
-    write(FILE_STANDARD_OUT,nml=data02)
-    write(FILE_STANDARD_OUT,nml=data03)
-    write(FILE_STANDARD_OUT,nml=data04)
+    write(6,nml=data00)
+    write(6,nml=data01)
+    write(6,nml=data02)
+    write(6,nml=data03)
+    write(6,nml=data04)
 
     Read_done = .true.
-
   end subroutine namelist__read
 
 
-!________________________________________________________________public__
-!
-  function namelist__string(variable)
+  function namelist__get_string(variable)
     character(len=*), intent(in) :: variable
-    character(len=TAG_STRING_LENGTH_MAX) :: namelist__string
-!________________________________________________________________________
-!
+    character(len=STRING_LENGTH_MAX) :: namelist__get_string
+
     call ut__assert(Read_done, &
-                    '<namelist__string> Read namelist file first.')
+                    '<namelist__get_string> Read namelist file first.')
 
     select case         (variable)
-    case                ('Slicedata_tag')
-       namelist__string = Slicedata_tag
-    case default
-       call ut__message('? arg = ', variable)
-       call ut__fatal('<namelist__string> not in the namelist?')
+      case                ('Slicedata_tag')
+        namelist__get_string = Slicedata_tag
+      case default
+        call ut__message('? arg = ', variable)
+        call ut__fatal('<namelist__get_string> not in the namelist?')
     end select
-
-  end function namelist__string
+  end function namelist__get_string
 
 end module namelist_m

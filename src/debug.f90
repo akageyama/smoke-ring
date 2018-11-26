@@ -37,8 +37,8 @@ contains
   subroutine print_str(string)
     character(len=*), intent(in) :: string
 
-    if (namelist__logical('Debug')) then
-      call ut__print('debug: '//string)
+    if (namelist__get_logical('Debug')) then
+      call ut__message('debug: '//string)
     end if
   end subroutine print_str
 
@@ -47,8 +47,8 @@ contains
     character(len=*), intent(in) :: string
     real(DR), intent(in)         :: double
 
-    if (namelist__logical('Debug')) then
-      call ut__print('debug: '//string, double)
+    if (namelist__get_logical('Debug')) then
+      call ut__message('debug: '//string, double)
     end if
   end subroutine print_str_double
 
@@ -57,8 +57,8 @@ contains
     character(len=*), intent(in) :: string
     integer(DI), intent(in)      :: int
 
-    if (namelist__logical('Debug')) then
-      call ut__print('debug: '//trim(string), int)
+    if (namelist__get_logical('Debug')) then
+      call ut__message('debug: '//trim(string), int)
     end if
   end subroutine print_str_dint
 
@@ -67,8 +67,8 @@ contains
     character(len=*), intent(in) :: string
     integer(SI), intent(in)      :: int
 
-    if (namelist__logical('Debug')) then
-      call ut__print('debug: '//trim(string), int)
+    if (namelist__get_logical('Debug')) then
+      call ut__message('debug: '//trim(string), int)
     end if
   end subroutine print_str_sint
 
@@ -78,8 +78,8 @@ contains
     integer(DI), intent(in)      :: i1
     real(DR), intent(in)         :: d1
 
-    if (namelist__logical('Debug')) then
-      call ut__print('debug: '//trim(string), i1, d1)
+    if (namelist__get_logical('Debug')) then
+      call ut__message('debug: '//trim(string), i1, d1)
     end if
   end subroutine print_str_dint_double
 
@@ -89,8 +89,8 @@ contains
     integer(SI), intent(in)      :: i1
     real(DR), intent(in)         :: d1
 
-    if (namelist__logical('Debug')) then
-      call ut__print('debug: '//trim(string), i1, d1)
+    if (namelist__get_logical('Debug')) then
+      call ut__message('debug: '//trim(string), i1, d1)
     end if
   end subroutine print_str_sint_double
 

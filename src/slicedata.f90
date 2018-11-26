@@ -1,20 +1,18 @@
-!-----------------------------------------------------------------------------
-! smoke-ring: A simple 3-D Fluid Solver by FDM on Cartesian Grid.
+!-------------------------------------------------------------------
+! class-hpc-smoke-ring: A simple sample field solver.
 !
-!    by Akira Kageyama,
-!       Department of Computational Science,
-!       Kobe University, Japan.
-!       email: kage@port.kobe-u.ac.jp or sgks@mac.com
-!-----------------------------------------------------------------------------
-! slicedata.f90
-!     2008.06.02: Developed by Akira Kageyama. Copied from kindanb.
-!     2018.04.12: Copied from boxfluid.
-!-----------------------------------------------------------------------------
+!    by Akira Kageyama, Kobe University, Japan.
+!       email: sgks@mac.com
+!
+!    Copyright 2018 Akira Kageyama
+!
+!    This software is released under the MIT License.
+!
+!-------------------------------------------------------------------
+!    src/slicedata.f90
+!-------------------------------------------------------------------
 
 module slicedata_m
-!*****************************************************************************
-! MODULE SLICEDATA                                    Generate 2-D Sliced Data
-!*****************************************************************************
   use ut_m
   use field_m
   use namelist_m
@@ -34,25 +32,18 @@ module slicedata_m
   real(SR), dimension(:,:), allocatable :: Slice_en  ! Enstrophy
 
   logical, save :: Initialize_done = .false.
+  integer(SI), parameter :: FILE_SLICEDATA = 20
 
 contains
 
 
-!===============
-!    Private
-!===============
-
-
-!_______________________________________________________________private__
-!
   subroutine make_single_precision_field(vel,ps)
-    type(field__vector3d_),        intent(in) :: vel
+    type(field__vector3d_t),       intent(in) :: vel
     real(DR), dimension(NX,NY,NZ), intent(in) :: ps
-!________________________________________________________________________
-!
+
     integer(SI) :: slice_j = NY / 2
 
-    type(field__vector3d_)        :: vor   ! vorticity
+    type(field__vector3d_t)       :: vor   ! vorticity
     real(DR), dimension(NX,NY,NZ) :: enstrophy
 
 !>        vor = .curl.vel
@@ -67,20 +58,17 @@ contains
     Slice_en = real(enstrophy(:,slice_j,:),SR)
 
     call debug__print('called slicedata/make_single_precision_field.')
-
   end subroutine make_single_precision_field
 
 
-!==============
-!    Public
-!==============
-
-
-!________________________________________________________________public__
 !
+! Private
+!===============
+! Public
+!
+
+
   subroutine slicedata__initialize
-!________________________________________________________________________
-!
     allocate(Slice_vx(NX,NZ),   &
              Slice_vy(NX,NZ),   &
              Slice_vz(NX,NZ),   &
@@ -90,32 +78,28 @@ contains
     call debug__print('Slice data allocated.')
 
     open(FILE_SLICEDATA,                                &
-         file=trim(namelist__string('Slicedata_tag')),  &
+         file=trim(namelist__get_string('Slicedata_tag')),  &
          form='unformatted')
 
     Initialize_done = .true.
 
     call debug__print('called slicedata__initlilize')
-
   end subroutine slicedata__initialize
 
 
-!________________________________________________________________public__
-!
   subroutine slicedata__write(nloop,time,fluid)
-    integer(SI),         intent(in) :: nloop
-    real(DR),            intent(in) :: time
-    type(field__fluid_), intent(in) :: fluid
-!________________________________________________________________________
-!
-    type(field__vector3d_) :: vel
+    integer(DI),          intent(in) :: nloop
+    real(DR),             intent(in) :: time
+    type(field__fluid_t), intent(in) :: fluid
 
-    if ( namelist__integer('Slicedata_nskip') <= 0 ) return
+    type(field__vector3d_t) :: vel
+
+    if ( namelist__get_integer('Slicedata_nskip') <= 0 ) return
                                       ! Set zero or negative integer
                                       ! when you don't want to
                                       ! save any slice data.
 
-    if ( mod(nloop,namelist__integer('Slicedata_nskip')) /= 0 ) return
+    if ( mod(nloop,namelist__get_integer('Slicedata_nskip')) /= 0 ) return
 
 
     call ut__assert(Initialize_done,"<slicedata__write> Forgot init?")
@@ -124,14 +108,12 @@ contains
 
     call make_single_precision_field(vel,fluid%pressure)
 
-    write(FILE_SLICEDATA) nloop, real(time,SR),                 &
-                          Slice_vx, Slice_vy, Slice_vz,         &
+    write(FILE_SLICEDATA) nloop, real(time,SR),  &
+                          Slice_vx, Slice_vy, Slice_vz,  &
                           Slice_ps, Slice_en
 
     call ut__message('#slice data saved at ', nloop, time)
-
     call debug__print('called slicedata__write.')
-
   end subroutine slicedata__write
 
 end module slicedata_m

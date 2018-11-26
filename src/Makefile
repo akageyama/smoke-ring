@@ -29,11 +29,11 @@ OBJS = constants.o \
        solver.o \
        main.o
 
-data: smoke-ring sample.namelist
-	./smoke-ring sample.namelist
+data: smoke_ring sample.namelist
+	./smoke_ring sample.namelist
 
-smoke-ring: $(OBJS)
-	$(FC) $(FFLAGS) -o smoke-ring $(OBJS)
+smoke_ring: $(OBJS)
+	$(FC) $(FFLAGS) -o smoke_ring $(OBJS)
 
 grid.o: constants.o debug.o ut.o
 ut.o: constants.o
@@ -55,5 +55,5 @@ main.o: constants.o \
         solver.o
 
 clean:
-	rm -f smoke-ring core ${OBJS} *.mod *.L
+	rm -f smoke_ring core ${OBJS} *.mod *.L
 	rm -f _data_slice*
