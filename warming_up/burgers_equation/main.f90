@@ -31,21 +31,21 @@ program main
   real(DR), parameter :: CFL_FACTOR = 0.4_DR
 
 
-  !    1   2   3   4                                              NX-1 NX
-  !    !---!---!---!---!---!---!---!---!---!---!---!---!---!---!---!---!
-  !        !                                                           !
-  !        !                                                           !
-  !       -PI<---------------------- TWOPI -------------------------->+PI
-  !        !                                                           !
-  !        !                                                           !
-  !  --!---!                                                       !---!--
-  !  NX-1  NX                                                      1   2
+  !    1    2    3    4                                    NX-1  NX
+  !    !----!----!----!----!----!--             --!----!----!----!
+  !         !               \  /                                 !
+  !         !                dx = TWOPI / (nx-2)                 !
+  !    x=-PI!<---------------------- TWOPI --------------------->!x=+PI
+  !         !                                                    !
+  !         !                                                    !
+  !  --!----!                                                !---!--
+  !  NX-1  NX                                                1   2
 
 
   call namelist__read
 
   nx = namelist__get_integer('Nx')
-  dx = TWOPI / (nx-2)
+  dx = TWOPI / (nx-2)  ! See above fig.
   dt = dx**2 / namelist__get_double('Diffusion_coeff') * CFL_FACTOR
 
   allocate(xpos(nx),psi(nx))
@@ -62,47 +62,47 @@ program main
   dpsi04(:) = 0.0_DR
 
   do i = 1 , nx
-     xpos(i) = -PI + dx*(i-2)    ! Grid location
+    xpos(i) = -PI + dx*(i-2)  ! Grid location
   end do
 
   do i = 1 , nx
-     x = xpos(i)
-     psi(i) = 0.8+0.2*cos(x)     ! Initial condition
+    x = xpos(i)
+    psi(i) = 0.8_DR+0.2_DR*cos(x)     ! Initial condition
   end do
 
-  call ut__message('initial check:    nx = ', nx)
-  call ut__message('initial check:    dx = ', dx)
+  call ut__message('initial check: nx = ', nx)
+  call ut__message('initial check: dx = ', dx)
 
   time = 0.0_DR
 
-  call iSave     ! Save the initial condition profile on the disk.
+  call iSave     ! Save the initial condition profile to the disk.
 
   do nloop = 1 , nloop_max
-     !--< Runge-Kutta step 1 >--!
-     dpsi01(:) = rk4__step('1st',dt,dx,psi)
-     call iBoundary_condition(dpsi01)
+    !--< Runge-Kutta step 1 >--!
+    dpsi01(:) = rk4__step('1st',dt,dx,psi)
+    call iBoundary_condition(dpsi01)
 
-     !--< Runge-Kutta step 2 >--!
-     dpsi02(:) = rk4__step('2nd',dt,dx,psi,dpsi01)
-     call iBoundary_condition(dpsi02)
+    !--< Runge-Kutta step 2 >--!
+    dpsi02(:) = rk4__step('2nd',dt,dx,psi,dpsi01)
+    call iBoundary_condition(dpsi02)
 
-     !--< Runge-Kutta step 3 >--!
-     dpsi03(:) = rk4__step('3rd',dt,dx,psi,dpsi02)
-     call iBoundary_condition(dpsi03)
+    !--< Runge-Kutta step 3 >--!
+    dpsi03(:) = rk4__step('3rd',dt,dx,psi,dpsi02)
+    call iBoundary_condition(dpsi03)
 
-     !--< Runge-Kutta step 4 >--!
-     dpsi04(:) = rk4__step('4th',dt,dx,psi,dpsi03)
-     call iBoundary_condition(dpsi04)
+    !--< Runge-Kutta step 4 >--!
+    dpsi04(:) = rk4__step('4th',dt,dx,psi,dpsi03)
+    call iBoundary_condition(dpsi04)
 
-     time = time + dt
-     psi(:) = psi(:) + ONE_SIXTH*(dpsi01(:)      &
-                               +2*dpsi02(:)      &
-                               +2*dpsi03(:)      &
-                                 +dpsi04(:))
+    time = time + dt
+    psi(:) = psi(:) + ONE_SIXTH*(dpsi01(:)      &
+                              +2*dpsi02(:)      &
+                              +2*dpsi03(:)      &
+                                +dpsi04(:))
 
-     if ( mod(nloop,4)==0 ) then
-        call iSave  ! Save the profile on the disk.
-     end if
+    if ( mod(nloop,4)==0 ) then
+      call iSave  ! Save the profile to the disk.
+    end if
   end do
 
 contains
@@ -123,11 +123,8 @@ contains
          write(10,*) xpos(i), psi(i)
       end do
     close(10)
-
     counter = counter + 1
-
     call ut__message(" Data saved at nloop, time = ", nloop, time)
-
   end subroutine iSave
 
 end program main
