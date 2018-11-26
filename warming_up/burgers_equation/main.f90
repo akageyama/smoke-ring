@@ -1,27 +1,34 @@
-!-----------------------------------------------------------------------------
-! 200708_LesHouches/src/BurgersEquation
-!                                       Akira Kageyama
-!                                       kage@jamstec.go.jp
-!                                       Earth Simulator Center, JAMSTEC, Japan
-!-----------------------------------------------------------------------------
-! main.f90
-!              2007.07.20: Created by Akira Kageyama
-!-----------------------------------------------------------------------------
-program main                !
-  use constants             !                              numerical constants
-  use ut                    !                                utility functions
-  use namelist              !                                  namelist loader
-  use rk4                   !               4th runge-kutta integration method
-  implicit none             !-------------------------------------------------
+!-------------------------------------------------------------------
+! class-hpc-smoke-ring: A simple sample field solver.
+!
+!    by Akira Kageyama, Kobe University, Japan.
+!       email: sgks@mac.com
+!
+!    Copyright 2018 Akira Kageyama
+!
+!    This software is released under the MIT License.
+!
+!-------------------------------------------------------------------
+!    warming_up/burgers_equation/main.f90
+!-------------------------------------------------------------------
 
-  real(DP), dimension(:), allocatable :: xpos   ! grid position, size=nx
-  real(DP), dimension(:), allocatable :: psi    ! size=nx
-  real(DP), dimension(:), allocatable :: dpsi01, dpsi02,  &   ! used for RK4.
+program main
+  use constants_m
+  use ut_m
+  use namelist_m
+  use rk4_m
+  implicit none
+
+  real(DR), dimension(:), allocatable :: xpos   ! grid position, size=nx
+  real(DR), dimension(:), allocatable :: psi    ! size=nx
+  real(DR), dimension(:), allocatable :: dpsi01, dpsi02,  &   ! used for RK4.
                                          dpsi03, dpsi04
-  integer :: i, nx, nloop
-  integer :: nloop_max = 1000
-  real(DP) :: dx, dt, time, x
-  real(DP), parameter :: ONE_SIXTH = 1.0_DP / 6.0_DP
+  integer(SI) :: i, nx
+  integer(DI) :: nloop
+  integer(DI) :: nloop_max = 1000
+  real(DR) :: dx, dt, time, x
+  real(DR), parameter :: ONE_SIXTH = 1.0_DR / 6.0_DR
+  real(DR), parameter :: CFL_FACTOR = 0.4_DR
 
 
   !    1   2   3   4                                              NX-1 NX
@@ -32,15 +39,14 @@ program main                !
   !        !                                                           !
   !        !                                                           !
   !  --!---!                                                       !---!--
-  !  NX-1  NX                                                      1   2   
+  !  NX-1  NX                                                      1   2
 
 
   call namelist__read
 
-  nx = namelist__integer('Nx')
+  nx = namelist__get_integer('Nx')
   dx = TWOPI / (nx-2)
-  dt = dx**2 / namelist__double('Diffusion_coeff')     &
-             * namelist__double('Cfl_factor')
+  dt = dx**2 / namelist__get_double('Diffusion_coeff') * CFL_FACTOR
 
   allocate(xpos(nx),psi(nx))
   allocate(dpsi01(nx))
@@ -48,13 +54,13 @@ program main                !
   allocate(dpsi03(nx))
   allocate(dpsi04(nx))
 
-  xpos(:) = 0.0_DP
-  psi(:)  = 0.0_DP
-  dpsi01(:) = 0.0_DP
-  dpsi02(:) = 0.0_DP
-  dpsi03(:) = 0.0_DP
-  dpsi04(:) = 0.0_DP
-  
+  xpos(:) = 0.0_DR
+  psi(:)  = 0.0_DR
+  dpsi01(:) = 0.0_DR
+  dpsi02(:) = 0.0_DR
+  dpsi03(:) = 0.0_DR
+  dpsi04(:) = 0.0_DR
+
   do i = 1 , nx
      xpos(i) = -PI + dx*(i-2)    ! Grid location
   end do
@@ -67,10 +73,10 @@ program main                !
   call ut__message('initial check:    nx = ', nx)
   call ut__message('initial check:    dx = ', dx)
 
-  time = 0.0_DP
+  time = 0.0_DR
 
   call iSave     ! Save the initial condition profile on the disk.
-  
+
   do nloop = 1 , nloop_max
      !--< Runge-Kutta step 1 >--!
      dpsi01(:) = rk4__step('1st',dt,dx,psi)
@@ -87,7 +93,7 @@ program main                !
      !--< Runge-Kutta step 4 >--!
      dpsi04(:) = rk4__step('4th',dt,dx,psi,dpsi03)
      call iBoundary_condition(dpsi04)
-     
+
      time = time + dt
      psi(:) = psi(:) + ONE_SIXTH*(dpsi01(:)      &
                                +2*dpsi02(:)      &
@@ -95,27 +101,27 @@ program main                !
                                  +dpsi04(:))
 
      if ( mod(nloop,4)==0 ) then
-        call iSave                      ! Save the profile on the disk.
+        call iSave  ! Save the profile on the disk.
      end if
   end do
 
 contains
 
   subroutine iBoundary_condition(psi)
-    real(DP), dimension(nx), intent(inout) :: psi
+    real(DR), dimension(nx), intent(inout) :: psi
 
     psi(1)    = psi(nx-1)
     psi(nx)   = psi(2)
   end subroutine iBoundary_condition
-  
-  subroutine iSave
-    integer, save :: counter = 0 
-    integer :: i
 
-    open(10,file=trim(namelist__string('Filename'))//'.'//ut__i2c3(counter))
-    do i = 1 , nx
-       write(10,*) xpos(i), psi(i)
-    end do
+  subroutine iSave
+    integer(SI), save :: counter = 0
+    integer(SI) :: i
+
+    open(10,file="output.data" // '.' // ut__i2c3(counter))
+      do i = 1 , nx
+         write(10,*) xpos(i), psi(i)
+      end do
     close(10)
 
     counter = counter + 1

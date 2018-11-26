@@ -9,9 +9,7 @@ A gas contained in a rectangular box is driven by a localized force.
 
 
 ## Prerequisite
-
-- [KVS-osmesa](https://github.com/vizlab-kobe/KVS.osmesa), for simulation run and (3-D) in-situ visualization.
-- ImageMagic, for post-process (2-D) visualization.
+- ImageMagic (convert command), for post-process (2-D) visualization.
 
 ## Usage
 
@@ -47,6 +45,8 @@ Periodic boundary condition in all (three) dimensions.
 Fortran95.
 
 ## Author
-
 Akira Kageyama, Kobe Univ., Japan
- email: kage@port.kobe-u.ac.jp
+ email: sgks@mac.com, kage@port.kobe-u.ac.jp
+
+## License
+This software is released under the MIT License, see LICENSE.txt.

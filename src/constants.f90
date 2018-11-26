@@ -1,20 +1,27 @@
-!-----------------------------------------------------------------------------
-! smoke-ring: A simple 3-D Fluid Solver by FDM on Cartesian Grid.
+!-------------------------------------------------------------------
+! class-hpc-smoke-ring: A simple sample field solver.
 !
-!    by Akira Kageyama,
-!       Department of Computational Science,
-!       Kobe University, Japan.
-!       email: kage@port.kobe-u.ac.jp or sgks@mac.com
-!-----------------------------------------------------------------------------
+!    by Akira Kageyama, Kobe University, Japan.
+!       email: sgks@mac.com
+!
+!    Copyright 2018 Akira Kageyama
+!
+!    This software is released under the MIT License.
+!
+!-------------------------------------------------------------------
+!    src/constants.f90
+!-------------------------------------------------------------------
 module constants_m
   implicit none
 
   ! << f90 constants >>
-  integer, parameter :: SP = kind(1.0)
-  integer, parameter :: DP = selected_real_kind(2*precision(1.0_SP))
+  integer, parameter :: SI = selected_int_kind(6)
+  integer, parameter :: DI = selected_int_kind(15)
+  integer, parameter :: SR = selected_real_kind(6)
+  integer, parameter :: DR = selected_real_kind(15)
 
   ! << Mathematical constants >>
-  real(DP), parameter :: PI = 3.14159265358979323846264338_DP
+  real(DP), parameter :: PI = 3.1415926535897932_DP
   real(DP), parameter :: TWOPI = PI*2
 
   ! << Job karte >>

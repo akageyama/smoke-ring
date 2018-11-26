@@ -4,7 +4,7 @@
 !    by Akira Kageyama,
 !       Department of Computational Science,
 !       Kobe University, Japan.
-!       email: kage@port.kobe-u.ac.jp / sgks@mac.com
+!       email: kage@port.kobe-u.ac.jp
 !-----------------------------------------------------------------------------
 module job_m
   implicit none
