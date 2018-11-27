@@ -379,21 +379,21 @@ contains
 
     do k = 2 , NZ-1
       do j = 2 , NY-1
-         do i = 2 , NX-1
-           operator_laplacian_vector%x(i,j,k)  &
-                = dx2*(a%x(i+1,j,k)-2*a%x(i,j,k)+a%x(i-1,j,k))  &
-                + dy2*(a%x(i,j+1,k)-2*a%x(i,j,k)+a%x(i,j-1,k))  &
-                + dz2*(a%x(i,j,k+1)-2*a%x(i,j,k)+a%x(i,j,k-1))
-           operator_laplacian_vector%y(i,j,k)  &
-                = dx2*(a%y(i+1,j,k)-2*a%y(i,j,k)+a%y(i-1,j,k))  &
-                + dy2*(a%y(i,j+1,k)-2*a%y(i,j,k)+a%y(i,j-1,k))  &
-                + dz2*(a%y(i,j,k+1)-2*a%y(i,j,k)+a%y(i,j,k-1))
-           operator_laplacian_vector%z(i,j,k)  &
-                = dx2*(a%z(i+1,j,k)-2*a%z(i,j,k)+a%z(i-1,j,k))  &
-                + dy2*(a%z(i,j+1,k)-2*a%z(i,j,k)+a%z(i,j-1,k))  &
-                + dz2*(a%z(i,j,k+1)-2*a%z(i,j,k)+a%z(i,j,k-1))
-         end do
-      end do
+        do i = 2 , NX-1
+          operator_laplacian_vector%x(i,j,k)  &
+               = dx2*(a%x(i+1,j,k)-2*a%x(i,j,k)+a%x(i-1,j,k))  &
+               + dy2*(a%x(i,j+1,k)-2*a%x(i,j,k)+a%x(i,j-1,k))  &
+               + dz2*(a%x(i,j,k+1)-2*a%x(i,j,k)+a%x(i,j,k-1))
+          operator_laplacian_vector%y(i,j,k)  &
+               = dx2*(a%y(i+1,j,k)-2*a%y(i,j,k)+a%y(i-1,j,k))  &
+               + dy2*(a%y(i,j+1,k)-2*a%y(i,j,k)+a%y(i,j-1,k))  &
+               + dz2*(a%y(i,j,k+1)-2*a%y(i,j,k)+a%y(i,j,k-1))
+          operator_laplacian_vector%z(i,j,k)  &
+               = dx2*(a%z(i+1,j,k)-2*a%z(i,j,k)+a%z(i-1,j,k))  &
+               + dy2*(a%z(i,j+1,k)-2*a%z(i,j,k)+a%z(i,j-1,k))  &
+               + dz2*(a%z(i,j,k+1)-2*a%z(i,j,k)+a%z(i,j,k-1))
+        end do
+     end do
     end do
 
     call boundary_condition_vector(operator_laplacian_vector)

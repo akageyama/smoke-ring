@@ -23,15 +23,15 @@ module solver_m
   implicit none
 
   private
-  public :: solver__advance,       &
-            solver__diagnosis,     &
+  public :: solver__advance,  &
+            solver__diagnosis,  &
             solver__get_subfield,  &
-            solver__initialize,    &
+            solver__initialize,  &
             solver__set_time_step
 
   interface solver__get_subfield
-    module procedure subfield_vel,         &
-                     subfield_vel_tm,      &
+    module procedure subfield_vel,  &
+                     subfield_vel_tm,  &
                      subfield_vel_tm_divv
   end interface
 
@@ -68,24 +68,24 @@ contains
     real(DR), parameter :: ONE  = 1.0_DR
     real(DR), parameter :: ZERO = 0.0_DR
 
-    call ut__assert( T_START < T0 .and. T0 < T1 .and. T1 < T_END,     &
+    call ut__assert( T_START < T0 .and. T0 < T1 .and. T1 < T_END,  &
                     "<solver/drive_force_factor> Time inconsistent.")
 
     if ( time <= T_START ) then
-       drive_force_factor = ZERO
+      drive_force_factor = ZERO
     else if ( time <= T0 ) then
-       drive_force_factor = (time-T_START) / (T0-T_START)
+      drive_force_factor = (time-T_START) / (T0-T_START)
     else if ( time <= T1 ) then
-       drive_force_factor = ONE
+      drive_force_factor = ONE
     else if ( time <= T_END ) then
-       drive_force_factor = ONE - (time-T1) / (T_END-T1)
+      drive_force_factor = ONE - (time-T1) / (T_END-T1)
     else
-       drive_force_factor = ZERO
+      drive_force_factor = ZERO
     end if
 
-    call ut__assert(drive_force_factor >=0.0_DR                        &
-                              .and.                                    &
-                    drive_force_factor <=1.0_DR,                       &
+    call ut__assert(drive_force_factor >=0.0_DR  &
+                              .and.  &
+                    drive_force_factor <=1.0_DR,  &
                     "<solver/drive_force_factor> strange value.")
   end function drive_force_factor
 
@@ -125,7 +125,7 @@ contains
           if ( (yy**2+zz**2) < force_cylinder_radius_sq  &
                         .and.  &
                (xx > force_region_x_min)  &
-                        .and. &
+                        .and.  &
                (xx < force_region_x_max) ) then
             Drive_force%x(i,j,k) = THE_FORCE
             Drive_force%y(i,j,k) = 0.0_DR
@@ -210,13 +210,10 @@ contains
     call ut__assert(Initialize_done, "<solver/the_equation> Forgot init?")
 
     factor = drive_force_factor(t)
-
-    !_______________________________________________________________
     !
     ! Since the following do-loops are the most time consuming
     ! part in this simulation, we do not use fancy operators
-    ! such as .div., to make the optimization easy.
-    !______________________________________________________________/
+    ! such as .div., for the easiy optimization in future.
     !
     do k = 2 , NZ-1
       do j = 2 , NY-1
@@ -268,32 +265,32 @@ contains
 
           the_equation%density(i,j,k) = -divf*dt
 
-          the_equation%flux%x(i,j,k) =                               &
-               ( - divfvx                                            &
-                 - gradpx                                            &
-                 + Drive_force%x(i,j,k)*factor                       &
-                 + Viscosity * ( lapvx + ONE_THIRD*gdivvx )          &
+          the_equation%flux%x(i,j,k) =  &
+               ( - divfvx  &
+                 - gradpx  &
+                 + Drive_force%x(i,j,k)*factor  &
+                 + Viscosity * ( lapvx + ONE_THIRD*gdivvx )  &
                ) * dt
-          the_equation%flux%y(i,j,k) =                               &
-               ( - divfvy                                            &
-                 - gradpy                                            &
-                 + Drive_force%y(i,j,k)*factor                       &
-                 + Viscosity * ( lapvy + ONE_THIRD*gdivvy )          &
+          the_equation%flux%y(i,j,k) =  &
+               ( - divfvy  &
+                 - gradpy  &
+                 + Drive_force%y(i,j,k)*factor  &
+                 + Viscosity * ( lapvy + ONE_THIRD*gdivvy )  &
                ) * dt
-          the_equation%flux%z(i,j,k) =                               &
-               ( - divfvz                                            &
-                 - gradpz                                            &
-                 + Drive_force%z(i,j,k)*factor                       &
-                 + Viscosity * ( lapvz + ONE_THIRD*gdivvz )          &
+          the_equation%flux%z(i,j,k) =  &
+               ( - divfvz  &
+                 - gradpz  &
+                 + Drive_force%z(i,j,k)*factor  &
+                 + Viscosity * ( lapvz + ONE_THIRD*gdivvz )  &
                ) * dt
 
-          the_equation%pressure(i,j,k) =                             &
-              ( - ( vx(i,j,k)*gradpx                                 &
-                  + vy(i,j,k)*gradpy                                 &
-                  + vz(i,j,k)*gradpz                                 &
-                  )                                                  &
-                + Gamma1_kappa * laptm                               &
-                - GAMMA * ps(i,j,k) * divv(i,j,k)                    &
+          the_equation%pressure(i,j,k) =  &
+              ( - ( vx(i,j,k)*gradpx  &
+                  + vy(i,j,k)*gradpy  &
+                  + vz(i,j,k)*gradpz  &
+                  )  &
+                + Gamma1_kappa * laptm  &
+                - GAMMA * ps(i,j,k) * divv(i,j,k)  &
               ) * dt
         end do
       end do
@@ -332,9 +329,9 @@ contains
 
     !--< step 1 >--!
     call subfield_vel_tm_divv(fluid,vel,tm,divv)
-    dfluid01 = the_equation(t, dt,                                      &
-                            vel%x, vel%y, vel%z, tm, divv,              &
-                            fluid%flux%x, fluid%flux%y, fluid%flux%z,   &
+    dfluid01 = the_equation(t, dt,  &
+                            vel%x, vel%y, vel%z, tm, divv,  &
+                            fluid%flux%x, fluid%flux%y, fluid%flux%z,  &
                             fluid%pressure)
 
     t = t + dt/2
@@ -344,9 +341,9 @@ contains
     gluid    = operator_fluid_add(fluid,dfluid01)
 
     call subfield_vel_tm_divv(gluid,vel,tm,divv)
-    dfluid02 = the_equation(t, dt,                                      &
-                            vel%x, vel%y, vel%z, tm, divv,              &
-                            gluid%flux%x, gluid%flux%y, gluid%flux%z,   &
+    dfluid02 = the_equation(t, dt,  &
+                            vel%x, vel%y, vel%z, tm, divv,  &
+                            gluid%flux%x, gluid%flux%y, gluid%flux%z,  &
                             gluid%pressure)
 
     !--< step 3 >--!
@@ -355,9 +352,9 @@ contains
     gluid    = operator_fluid_add(fluid,dfluid02)
 
     call subfield_vel_tm_divv(gluid,vel,tm,divv)
-    dfluid03 = the_equation(t, dt,                                      &
-                            vel%x, vel%y, vel%z, tm, divv,              &
-                            gluid%flux%x, gluid%flux%y, gluid%flux%z,   &
+    dfluid03 = the_equation(t, dt,  &
+                            vel%x, vel%y, vel%z, tm, divv,  &
+                            gluid%flux%x, gluid%flux%y, gluid%flux%z,  &
                             gluid%pressure)
 
     t = t + dt/2
