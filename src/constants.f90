@@ -16,21 +16,14 @@ module constants_m
   implicit none
 
   ! << f90 constants >>
-  integer, parameter :: SI = selected_int_kind(6)
-  integer, parameter :: DI = selected_int_kind(15)
+  integer, parameter :: SI = selected_int_kind(8)
+  integer, parameter :: DI = selected_int_kind(16)
   integer, parameter :: SR = selected_real_kind(6)
-  integer, parameter :: DR = selected_real_kind(15)
+  integer, parameter :: DR = selected_real_kind(12)
 
   ! << Mathematical constants >>
   real(DR), parameter :: PI = 3.1415926535897932_DR
   real(DR), parameter :: TWOPI = PI*2
-
-  ! << Job karte >>
-  integer(SI), parameter :: KARTE_FINE      =  0
-  integer(SI), parameter :: KARTE_TIME_OUT  =  1
-  integer(SI), parameter :: KARTE_LOOP_MAX  =  2
-  integer(SI), parameter :: KARTE_OVERFLOW  =  3
-  integer(SI), parameter :: KARTE_UNDERFLOW =  4
 
   ! << Grid Size >>
   integer(SI), parameter :: NX =  92

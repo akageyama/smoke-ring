@@ -15,7 +15,7 @@
 module slicedata_m
   use ut_m
   use field_m
-  use namelist_m
+  use params_m
   use debug_m
   use solver_m
   implicit none
@@ -78,7 +78,7 @@ contains
     call debug__print('Slice data allocated.')
 
     open(FILE_SLICEDATA,                                &
-         file=trim(namelist__get_string('Slicedata_tag')),  &
+         file=trim(params__get_string('Slicedata_tag')),  &
          form='unformatted')
 
     Initialize_done = .true.
@@ -94,12 +94,12 @@ contains
 
     type(field__vector3d_t) :: vel
 
-    if ( namelist__get_integer('Slicedata_nskip') <= 0 ) return
+    if ( params__get_integer('Slicedata_nskip') <= 0 ) return
                                       ! Set zero or negative integer
                                       ! when you don't want to
                                       ! save any slice data.
 
-    if ( mod(nloop,namelist__get_integer('Slicedata_nskip')) /= 0 ) return
+    if ( mod(nloop,params__get_integer('Slicedata_nskip')) /= 0 ) return
 
 
     call ut__assert(Initialize_done,"<slicedata__write> Forgot init?")

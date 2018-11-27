@@ -16,9 +16,10 @@ module solver_m
   use constants_m
   use grid_m
   use ut_m
-  use namelist_m
+  use params_m
   use field_m
   use debug_m
+  use job_m
   implicit none
 
   private
@@ -116,11 +117,11 @@ contains
     force_cylinder_radius_sq = (force_cylinder_diameter/2)**2
 
     do k = 2 , NZ-1
-      zz = grid__pos%z(k) - force_center_z
+      zz = grid%pos%z(k) - force_center_z
       do j = 2 , NY-1
-        yy = grid__pos%y(j) - force_center_y
+        yy = grid%pos%y(j) - force_center_y
         do i = 2 , NX-1
-          xx = grid__pos%x(i)
+          xx = grid%pos%x(i)
           if ( (yy**2+zz**2) < force_cylinder_radius_sq  &
                         .and.  &
                (xx > force_region_x_min)  &
@@ -220,50 +221,50 @@ contains
     do k = 2 , NZ-1
       do j = 2 , NY-1
         do i = 2 , NX-1
-          gradpx = ( ps(i+1,j,k)-ps(i-1,j,k) ) * grid__d1%x
-          gradpy = ( ps(i,j+1,k)-ps(i,j-1,k) ) * grid__d1%y
-          gradpz = ( ps(i,j,k+1)-ps(i,j,k-1) ) * grid__d1%z
+          gradpx = ( ps(i+1,j,k)-ps(i-1,j,k) ) * grid%d1%x
+          gradpy = ( ps(i,j+1,k)-ps(i,j-1,k) ) * grid%d1%y
+          gradpz = ( ps(i,j,k+1)-ps(i,j,k-1) ) * grid%d1%z
 
-          gdivvx = ( divv(i+1,j,k)-divv(i-1,j,k) ) * grid__d1%x
-          gdivvy = ( divv(i,j+1,k)-divv(i,j-1,k) ) * grid__d1%y
-          gdivvz = ( divv(i,j,k+1)-divv(i,j,k-1) ) * grid__d1%z
+          gdivvx = ( divv(i+1,j,k)-divv(i-1,j,k) ) * grid%d1%x
+          gdivvy = ( divv(i,j+1,k)-divv(i,j-1,k) ) * grid%d1%y
+          gdivvz = ( divv(i,j,k+1)-divv(i,j,k-1) ) * grid%d1%z
 
-          divfvx = ( fx(i+1,j,k)*vx(i+1,j,k)                         &
-                    -fx(i-1,j,k)*vx(i-1,j,k) ) * grid__d1%x          &
-                 + ( fx(i,j+1,k)*vy(i,j+1,k)                         &
-                    -fx(i,j-1,k)*vy(i,j-1,k) ) * grid__d1%y          &
-                 + ( fx(i,j,k+1)*vz(i,j,k+1)                         &
-                    -fx(i,j,k-1)*vz(i,j,k-1) ) * grid__d1%z
-          divfvy = ( fy(i+1,j,k)*vx(i+1,j,k)                         &
-                    -fy(i-1,j,k)*vx(i-1,j,k) ) * grid__d1%x          &
-                 + ( fy(i,j+1,k)*vy(i,j+1,k)                         &
-                    -fy(i,j-1,k)*vy(i,j-1,k) ) * grid__d1%y          &
-                 + ( fy(i,j,k+1)*vz(i,j,k+1)                         &
-                    -fy(i,j,k-1)*vz(i,j,k-1) ) * grid__d1%z
-          divfvz = ( fz(i+1,j,k)*vx(i+1,j,k)                         &
-                    -fz(i-1,j,k)*vx(i-1,j,k) ) * grid__d1%x          &
-                 + ( fz(i,j+1,k)*vy(i,j+1,k)                         &
-                    -fz(i,j-1,k)*vy(i,j-1,k) ) * grid__d1%y          &
-                 + ( fz(i,j,k+1)*vz(i,j,k+1)                         &
-                    -fz(i,j,k-1)*vz(i,j,k-1) ) * grid__d1%z
+          divfvx = ( fx(i+1,j,k)*vx(i+1,j,k)  &
+                    -fx(i-1,j,k)*vx(i-1,j,k) ) * grid%d1%x  &
+                 + ( fx(i,j+1,k)*vy(i,j+1,k)  &
+                    -fx(i,j-1,k)*vy(i,j-1,k) ) * grid%d1%y  &
+                 + ( fx(i,j,k+1)*vz(i,j,k+1)  &
+                    -fx(i,j,k-1)*vz(i,j,k-1) ) * grid%d1%z
+          divfvy = ( fy(i+1,j,k)*vx(i+1,j,k)  &
+                    -fy(i-1,j,k)*vx(i-1,j,k) ) * grid%d1%x  &
+                 + ( fy(i,j+1,k)*vy(i,j+1,k)  &
+                    -fy(i,j-1,k)*vy(i,j-1,k) ) * grid%d1%y  &
+                 + ( fy(i,j,k+1)*vz(i,j,k+1)  &
+                    -fy(i,j,k-1)*vz(i,j,k-1) ) * grid%d1%z
+          divfvz = ( fz(i+1,j,k)*vx(i+1,j,k)  &
+                    -fz(i-1,j,k)*vx(i-1,j,k) ) * grid%d1%x  &
+                 + ( fz(i,j+1,k)*vy(i,j+1,k)  &
+                    -fz(i,j-1,k)*vy(i,j-1,k) ) * grid%d1%y  &
+                 + ( fz(i,j,k+1)*vz(i,j,k+1)  &
+                    -fz(i,j,k-1)*vz(i,j,k-1) ) * grid%d1%z
 
-          lapvx = ( vx(i+1,j,k)-2*vx(i,j,k)+vx(i-1,j,k) )*grid__d2%x &
-                + ( vx(i,j+1,k)-2*vx(i,j,k)+vx(i,j-1,k) )*grid__d2%y &
-                + ( vx(i,j,k+1)-2*vx(i,j,k)+vx(i,j,k-1) )*grid__d2%z
-          lapvy = ( vy(i+1,j,k)-2*vy(i,j,k)+vy(i-1,j,k) )*grid__d2%x &
-                + ( vy(i,j+1,k)-2*vy(i,j,k)+vy(i,j-1,k) )*grid__d2%y &
-                + ( vy(i,j,k+1)-2*vy(i,j,k)+vy(i,j,k-1) )*grid__d2%z
-          lapvz = ( vz(i+1,j,k)-2*vz(i,j,k)+vz(i-1,j,k) )*grid__d2%x &
-                + ( vz(i,j+1,k)-2*vz(i,j,k)+vz(i,j-1,k) )*grid__d2%y &
-                + ( vz(i,j,k+1)-2*vz(i,j,k)+vz(i,j,k-1) )*grid__d2%z
+          lapvx = ( vx(i+1,j,k)-2*vx(i,j,k)+vx(i-1,j,k) )*grid%d2%x &
+                + ( vx(i,j+1,k)-2*vx(i,j,k)+vx(i,j-1,k) )*grid%d2%y &
+                + ( vx(i,j,k+1)-2*vx(i,j,k)+vx(i,j,k-1) )*grid%d2%z
+          lapvy = ( vy(i+1,j,k)-2*vy(i,j,k)+vy(i-1,j,k) )*grid%d2%x &
+                + ( vy(i,j+1,k)-2*vy(i,j,k)+vy(i,j-1,k) )*grid%d2%y &
+                + ( vy(i,j,k+1)-2*vy(i,j,k)+vy(i,j,k-1) )*grid%d2%z
+          lapvz = ( vz(i+1,j,k)-2*vz(i,j,k)+vz(i-1,j,k) )*grid%d2%x &
+                + ( vz(i,j+1,k)-2*vz(i,j,k)+vz(i,j-1,k) )*grid%d2%y &
+                + ( vz(i,j,k+1)-2*vz(i,j,k)+vz(i,j,k-1) )*grid%d2%z
 
-          laptm = ( tm(i+1,j,k)-2*tm(i,j,k)+tm(i-1,j,k) )*grid__d2%x &
-                + ( tm(i,j+1,k)-2*tm(i,j,k)+tm(i,j-1,k) )*grid__d2%y &
-                + ( tm(i,j,k+1)-2*tm(i,j,k)+tm(i,j,k-1) )*grid__d2%z
+          laptm = ( tm(i+1,j,k)-2*tm(i,j,k)+tm(i-1,j,k) )*grid%d2%x &
+                + ( tm(i,j+1,k)-2*tm(i,j,k)+tm(i,j-1,k) )*grid%d2%y &
+                + ( tm(i,j,k+1)-2*tm(i,j,k)+tm(i,j,k-1) )*grid%d2%z
 
-          divf = ( fx(i+1,j,k)-fx(i-1,j,k) ) * grid__d1%x            &
-               + ( fy(i,j+1,k)-fy(i,j-1,k) ) * grid__d1%y            &
-               + ( fz(i,j,k+1)-fz(i,j,k-1) ) * grid__d1%z
+          divf = ( fx(i+1,j,k)-fx(i-1,j,k) ) * grid%d1%x  &
+               + ( fy(i,j+1,k)-fy(i,j-1,k) ) * grid%d1%y  &
+               + ( fz(i,j,k+1)-fz(i,j,k-1) ) * grid%d1%z
 
           the_equation%density(i,j,k) = -divf*dt
 
@@ -387,11 +388,10 @@ contains
   end subroutine solver__advance
 
 
-  subroutine solver__diagnosis(nloop,time,fluid,karte)
+  subroutine solver__diagnosis(nloop,time,fluid)
     integer(DI),          intent(in)    :: nloop
     real(DR),             intent(in)    :: time
     type(field__fluid_t), intent(in)    :: fluid
-    integer(SI),          intent(inout) :: karte
 
     integer(SI), parameter :: SKIP = 100
     real(DR), parameter :: ABNORMALLY_LARGE = 1.e5_DR
@@ -400,47 +400,47 @@ contains
 
     if ( mod(nloop,SKIP) /= 0 ) return
 
-    if ( karte /= KARTE_FINE ) return    ! Already error state.
+    if ( job__karte%state /= "fine" ) return ! Already in error state.
 
     if ( maxval(fluid%flux%x) > ABNORMALLY_LARGE ) then
       call ut__message("<solver__diagnosis> Massflux_x overflow.")
-      karte = KARTE_OVERFLOW
+      call job__karte%set("over_flow")
       return
     end if
 
     if ( maxval(fluid%flux%y) > ABNORMALLY_LARGE ) then
       call ut__message("<solver__diagnosis> Massflux_y overflow.")
-      karte = KARTE_OVERFLOW
+      call job__karte%set("over_flow")
       return
     end if
 
     if ( maxval(fluid%flux%z) > ABNORMALLY_LARGE ) then
       call ut__message("<solver__diagnosis> Massflux_z overflow.")
-      karte = KARTE_OVERFLOW
+      call job__karte%set("over_flow")
       return
     end if
 
     if ( maxval(fluid%density) > ABNORMALLY_LARGE ) then
       call ut__message("<solver__diagnosis> Density overflow.")
-      karte = KARTE_OVERFLOW
+      call job__karte%set("over_flow")
       return
     end if
 
     if ( maxval(fluid%pressure) > ABNORMALLY_LARGE ) then
       call ut__message("<solver__diagnosis> Pressure overflow.")
-      karte = KARTE_OVERFLOW
+      call job__karte%set("over_flow")
       return
     end if
 
     if ( minval(fluid%pressure) < 0.0_DR ) then
       call ut__message("<solver__diagnosis> Negative pressure.")
-      karte = KARTE_UNDERFLOW
+      call job__karte%set("negative_anormaly")
       return
     end if
 
     if ( minval(fluid%density) < 0.0_DR ) then
       call ut__message("<solver__diagnosis> Negative density.")
-      karte = KARTE_UNDERFLOW
+      call job__karte%set("negative_anormaly")
       return
     end if
 
@@ -466,8 +466,8 @@ contains
     real(DR) :: kappa
 
     !<< Physical parameters >>!
-    Viscosity = namelist__get_double('Viscosity')
-    kappa     = namelist__get_double('Kappa')         ! Thermal diffusivity
+    Viscosity = params__get_double('Viscosity')
+    kappa     = params__get_double('Kappa')         ! Thermal diffusivity
 
     Gamma1_kappa = (Gamma-1)*kappa
 
@@ -518,14 +518,14 @@ contains
 
       call ut__assert(sound_v > ALMOST_ZERO,"<solver__time_step> sound_v=0?")
 
-      dt_vel     = 0.8_DR*grid__delta_min/vmax
-      dt_sound   = 0.8_DR*grid__delta_min/sound_v
-      dt_viscous = 0.2_DR*(grid__delta_min**2)/Viscosity
-      dt_kappa   = 0.2_DR*(grid__delta_min**2)/Gamma1_kappa    ! A rough estimate.
+      dt_vel     = 0.8_DR*grid%delta_min/vmax
+      dt_sound   = 0.8_DR*grid%delta_min/sound_v
+      dt_viscous = 0.2_DR*(grid%delta_min**2)/Viscosity
+      dt_kappa   = 0.2_DR*(grid%delta_min**2)/Gamma1_kappa    ! A rough estimate.
 
       dt = min(dt_vel, dt_sound, dt_viscous, dt_kappa)
 
-      if ( namelist__get_logical('Debug') ) then
+      if ( params__get_logical('Debug') ) then
         call ut__message('<solver__time_step> vmax = ', vmax       )
         call ut__message('                  dt_vel = ', dt_vel     )
         call ut__message('                dt_sound = ', dt_sound   )

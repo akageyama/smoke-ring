@@ -212,9 +212,9 @@ contains
     integer(SI) :: i, j, k
     real(DR) :: dx1, dy1, dz1
 
-    dx1 = grid__d1%x
-    dy1 = grid__d1%y
-    dz1 = grid__d1%z
+    dx1 = grid%d1%x
+    dy1 = grid%d1%y
+    dz1 = grid%d1%z
 
     do k = 2 , NZ-1
       do j = 2 , NY-1
@@ -240,9 +240,9 @@ contains
     integer(SI) :: i, j, k
     real(DR) :: dx1, dy1, dz1
 
-    dx1 = grid__d1%x
-    dy1 = grid__d1%y
-    dz1 = grid__d1%z
+    dx1 = grid%d1%x
+    dy1 = grid%d1%y
+    dz1 = grid%d1%z
 
     do k = 2 , NZ-1
       do j = 2 , NY-1
@@ -275,7 +275,7 @@ contains
     real(DR) :: dvol
     real(DR), dimension(NX,NY,NZ) :: flux_sq
 
-    dvol = (grid__delta%x)*(grid__delta%y)*(grid__delta%z)
+    dvol = (grid%delta%x)*(grid%delta%y)*(grid%delta%z)
          !  Here we suppose that the grid spacings are uniform.
          !_______________________________________________________/
 
@@ -347,9 +347,9 @@ contains
     integer(SI) :: i, j, k
     real(DR) :: dx2, dy2, dz2
 
-    dx2 = grid__d2%x
-    dy2 = grid__d2%y
-    dz2 = grid__d2%z
+    dx2 = grid%d2%x
+    dy2 = grid%d2%y
+    dz2 = grid%d2%z
 
     do k = 2 , NZ-1
       do j = 2 , NY-1
@@ -373,9 +373,9 @@ contains
     integer(SI) :: i, j, k
     real(DR) :: dx2, dy2, dz2
 
-    dx2 = grid__d2%x
-    dy2 = grid__d2%y
-    dz2 = grid__d2%z
+    dx2 = grid%d2%x
+    dy2 = grid%d2%y
+    dz2 = grid%d2%z
 
     do k = 2 , NZ-1
       do j = 2 , NY-1
@@ -441,7 +441,7 @@ contains
 
     real(DR) :: dvol
 
-    dvol = (grid__delta%x)*(grid__delta%y)*(grid__delta%z)
+    dvol = (grid%delta%x)*(grid%delta%y)*(grid%delta%z)
          !
          !  Here we suppose that the grid spacings are uniform.
          !
