@@ -1,12 +1,18 @@
-!-----------------------------------------------------------------------------
-! constants.f90
-!     2008.06.02: Copied from ../code. Added FILE_FOR_TURTLE.
-!-----------------------------------------------------------------------------
+!-------------------------------------------------------------------
+! class-hpc-smoke-ring: A simple sample field solver.
+!
+!    by Akira Kageyama, Kobe University, Japan.
+!       email: sgks@mac.com
+!
+!    Copyright 2018 Akira Kageyama
+!
+!    This software is released under the MIT License.
+!
+!-------------------------------------------------------------------
+!    slice_grapher/constants.f90
+!-------------------------------------------------------------------
 
-module constants      
-!*****************************************************************************
-! MODULE CONSTANTS                                         Numerical Constants
-!*****************************************************************************
+module constants
   implicit none
 
   ! << f90 constants >>
