@@ -15,7 +15,6 @@
 module grid_m
   use constants_m
   use ut_m
-  use debug_m
   implicit none
   private
 ! public :: & !<< type >>!
@@ -102,12 +101,8 @@ contains
     self%delta%x = dx
     self%delta%y = dy
     self%delta%z = dz
-    call debug__print('grid%delta%x = ', self%delta%x)
-    call debug__print('grid%delta%y = ', self%delta%y)
-    call debug__print('grid%delta%z = ', self%delta%z)
 
     self%delta_min = min(self%delta%x,self%delta%y,self%delta%z)
-    call debug__print('grid%delta_min = ', self%delta_min)
 
     self%d1%x = 1.0_DR/(2*dx)   ! factor for 1st derivative
     self%d1%y = 1.0_DR/(2*dy)
@@ -119,17 +114,14 @@ contains
 
     do i = 1 , NX
       self%pos%x(i) = XMIN + dx*(real(i,DR)-1.5_DR)
-      call debug__print('grid_x: i, x = ', i, self%pos%x(i))
     end do
 
     do j = 1 , NY
       self%pos%y(j) = YMIN + dy*(real(j,DR)-1.5_DR)
-      call debug__print('grid_y: j, y = ', j, self%pos%y(j))
     end do
 
     do k = 1 , NZ
       self%pos%z(k) = ZMIN + dz*(real(k,DR)-1.5_DR)
-      call debug__print('grid_z: k, z = ', k, self%pos%z(k))
     end do
 
     call ut__assert(abs(self%pos%x( 1)-XMIN+dx/2) +                 &
@@ -139,8 +131,6 @@ contains
                     abs(self%pos%z( 1)-ZMIN+dz/2) +                 &
                     abs(self%pos%z(NZ)-ZMAX-dz/2)  < NEARLY_ZERO,   &
                    "<grid__initialize> grid min/max inconsistent?")
-
-    call debug__print('called grid__initialize.')
   end subroutine grid__initialize
 
 end module grid_m

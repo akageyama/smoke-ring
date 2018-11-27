@@ -1,6 +1,5 @@
-module target
+module target_m
 
   character(len=*), parameter :: TARGET__FILENAME = "../src/_data_slice"
-!!  character(len=*), parameter :: TARGET__FILENAME = "../job_scalar/test00_slice"
 
-end module target
+end module target_m
