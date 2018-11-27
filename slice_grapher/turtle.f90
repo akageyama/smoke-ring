@@ -25,8 +25,8 @@
 !-----------------------------------------------------------------------------
 
 module turtle
-  use constants
-  use ut
+  use constants_m
+  use ut_m
   implicit none
   private
   public :: & !<< routines >>!

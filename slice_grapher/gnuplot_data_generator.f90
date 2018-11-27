@@ -1,23 +1,23 @@
-!-----------------------------------------------------------------------------
-! gnuplot_data_generator.f90
-!  
-!    Createdy by:  Akira Kageyama, kage@jamstec.go.jp, 
-!                  Earth Simulator Center,
-!                  JAMSTEC, Japan
-!             on:  2007.07.12
-!            for:  Les Houches Summer School "Dynamos". The kindanb code.
+!-------------------------------------------------------------------
+! class-hpc-smoke-ring: A simple sample field solver.
 !
-!    Minor revision by Akira Kageyama (kage@jamstec.go.jp)
-!             on:  2008.06.04.
-!            for:  Simulation School, Kobe. Used for data of fluidbox.
-!-----------------------------------------------------------------------------
+!    by Akira Kageyama, Kobe University, Japan.
+!       email: sgks@mac.com
+!
+!    Copyright 2018 Akira Kageyama
+!
+!    This software is released under the MIT License.
+!
+!-------------------------------------------------------------------
+!    slice_grapher/gnuplot_data_generator.f90
+!-------------------------------------------------------------------
 
 program main
-  use target
-  use constants
-  use ut
-  use grid
-  use turtle
+  use target_m
+  use constants_m
+  use ut_m
+  use grid_m
+  use turtle_m
   implicit none
 
   ! - 2-D single precision real arrays.

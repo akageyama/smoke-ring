@@ -1,21 +1,17 @@
 program main
-  use target
-  use constants
+  use target_m
+  use constants_m
   implicit none
 
   integer :: nloop, io
 
-  open(FILE_SLICEDATA,                &
-       file=trim(TARGET__FILENAME),   &
-       form='unformatted',            &
+  open(10, file=trim(TARGET__FILENAME),  &
+       form='unformatted',  &
        status='old')
-
-  do
-     read(FILE_SLICEDATA,iostat=io) nloop
-     if ( io/=0 ) exit
-     print *, '  nloop', nloop
-  end do
-
-  close(FILE_SLICEDATA)
-
+    do
+       read(10,iostat=io) nloop
+       if ( io/=0 ) exit
+       print *, '  nloop', nloop
+    end do
+  close(10)
 end program main

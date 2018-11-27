@@ -19,7 +19,6 @@ module slicedata_m
   use debug_m
   use solver_m
   implicit none
-
   private
   public :: slicedata__initialize,  &
             slicedata__write
