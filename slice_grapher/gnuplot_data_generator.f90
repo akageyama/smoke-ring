@@ -20,12 +20,15 @@ program main
   use turtle_m
   implicit none
 
+  integer, parameter :: FILE_FOR_TURTLE = 70
+  integer, parameter :: FILE_SLICEDATA = 20
+
   ! - 2-D single precision real arrays.
-  real(SP), dimension(:,:), allocatable :: Slice_vx  ! x-comp. of velocity
-  real(SP), dimension(:,:), allocatable :: Slice_vy  ! y-comp.
-  real(SP), dimension(:,:), allocatable :: Slice_vz  ! z-comp.
-  real(SP), dimension(:,:), allocatable :: Slice_ps  ! Pressure
-  real(SP), dimension(:,:), allocatable :: Slice_en  ! Enstrophy
+  real(SR), dimension(:,:), allocatable :: Slice_vx  ! x-comp. of velocity
+  real(SR), dimension(:,:), allocatable :: Slice_vy  ! y-comp.
+  real(SR), dimension(:,:), allocatable :: Slice_vz  ! z-comp.
+  real(SR), dimension(:,:), allocatable :: Slice_ps  ! Pressure
+  real(SR), dimension(:,:), allocatable :: Slice_en  ! Enstrophy
 
   integer :: draw_loop
 
@@ -34,11 +37,11 @@ program main
 
   type contour_info_
      integer  :: nlevels
-     real(SP) :: vmin
-     real(SP) :: vmax
+     real(SR) :: vmin
+     real(SR) :: vmax
   end type contour_info_
 
-  call grid__initialize
+  call grid%initialize
 
   allocate(Slice_vx(NX,NZ),   &
            Slice_vy(NX,NZ),   &
@@ -74,11 +77,11 @@ contains
 !
     type(turtle__pos_) :: corner_southwest, corner_northeast
 
-    corner_southwest%x = grid__pos%x(1)
-    corner_southwest%y = grid__pos%y(1)
+    corner_southwest%x = grid%pos%x(1)
+    corner_southwest%y = grid%pos%y(1)
 
-    corner_northeast%x = grid__pos%x(NX)
-    corner_northeast%y = grid__pos%y(NY)
+    corner_northeast%x = grid%pos%x(NX)
+    corner_northeast%y = grid%pos%y(NY)
 
     open(FILE_FOR_TURTLE,                                               &
          file=trim(turtle__filename_for_lines("boundary_box")))
@@ -118,7 +121,7 @@ contains
 !________________________________________________________________________
 !                                                                        !
   subroutine draw_zxplane_contour(field)                                 !
-    real(SP), intent(in), dimension(:,:) :: field                        !
+    real(SR), intent(in), dimension(:,:) :: field                        !
 !________________________________________________________________________!
 !
     type(turtle__scalar2d_cartesian_) :: work
@@ -131,8 +134,8 @@ contains
     work%nx = NX
     work%ny = NZ
 
-    work%xpos(:) = grid__pos%x(:)
-    work%ypos(:) = grid__pos%z(:)
+    work%xpos(:) = grid%pos%x(:)
+    work%ypos(:) = grid%pos%z(:)
     work%f(:,:)  = field(:,:)
 
     call turtle__contour_cartesian(work,contour_levels,         &
@@ -147,7 +150,7 @@ contains
 !_______________________________________________________________private__
 !                                                                        !
   subroutine draw_zxplane_vector(vector_x,vector_z)                      !
-    real(SP), dimension(:,:), intent(in) :: vector_x, vector_z           !
+    real(SR), dimension(:,:), intent(in) :: vector_x, vector_z           !
 !________________________________________________________________________!
 !
     type(turtle__vector2d_cartesian_) :: vec
@@ -160,8 +163,8 @@ contains
     vec%nx = NX
     vec%ny = NZ
 
-    vec%xpos(:) = grid__pos%x(:)
-    vec%ypos(:) = grid__pos%z(:)
+    vec%xpos(:) = grid%pos%x(:)
+    vec%ypos(:) = grid%pos%z(:)
 
     vec%x(:,:)  = vector_x(:,:)
     vec%y(:,:)  = vector_z(:,:)
@@ -181,7 +184,7 @@ contains
 !________________________________________________________________________!
 !
     integer  :: dummy_nloop
-    real(SP) :: dummy_time
+    real(SR) :: dummy_time
 
     print *,'Opening ', trim(TARGET__FILENAME)
 

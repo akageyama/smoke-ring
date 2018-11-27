@@ -28,6 +28,7 @@ module ut_m
                       message_decorated_str_sint,     &
                       message_str,                    &
                       message_str_double,             &
+                      message_str_float,              &
                       message_str_dint,               &
                       message_str_dint_double,        &
                       message_str_dint_double_double, &
@@ -104,6 +105,14 @@ contains
 
     write(6,*) string, double
   end subroutine message_str_double
+
+
+  subroutine message_str_float(string, float)
+    character(len=*), intent(in) :: string
+    real(SR), intent(in)         :: float
+
+    write(6,*) string, float
+  end subroutine message_str_float
 
 
   subroutine message_str_dint(string, int)

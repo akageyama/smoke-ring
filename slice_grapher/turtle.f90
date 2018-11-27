@@ -24,7 +24,7 @@
 ! FILE_FOR_TURTLE which is defined in constants.f90.
 !-----------------------------------------------------------------------------
 
-module turtle
+module turtle_m
   use constants_m
   use ut_m
   implicit none
@@ -58,35 +58,36 @@ module turtle
 
   type turtle__scalar2d_cartesian_
      integer                           :: nx, ny
-     real(SP), dimension(:) ,  pointer :: xpos, ypos
-     real(SP), dimension(:,:), pointer :: f
+     real(SR), dimension(:) ,  pointer :: xpos, ypos
+     real(SR), dimension(:,:), pointer :: f
   end type turtle__scalar2d_cartesian_
 
   type turtle__scalar2d_polar_
      integer                           :: nr, nt
-     real(SP), dimension(:),   pointer :: rpos
-     real(SP), dimension(:),   pointer :: tpos
-     real(SP), dimension(:,:), pointer :: f
+     real(SR), dimension(:),   pointer :: rpos
+     real(SR), dimension(:),   pointer :: tpos
+     real(SR), dimension(:,:), pointer :: f
   end type turtle__scalar2d_polar_
 
   type turtle__vector2d_polar_
      integer                           :: nr, nt
-     real(SP), dimension(:),   pointer :: rpos, tpos
-     real(SP), dimension(:,:), pointer :: x, y
-     real(SP)                          :: vmax, vmin
+     real(SR), dimension(:),   pointer :: rpos, tpos
+     real(SR), dimension(:,:), pointer :: x, y
+     real(SR)                          :: vmax, vmin
   end type turtle__vector2d_polar_
 
   type turtle__vector2d_cartesian_
      integer                           :: nx, ny
-     real(SP), dimension(:),   pointer :: xpos, ypos
-     real(SP), dimension(:,:), pointer :: x, y
-     real(SP)                          :: vmax, vmin
+     real(SR), dimension(:),   pointer :: xpos, ypos
+     real(SR), dimension(:,:), pointer :: x, y
+     real(SR)                          :: vmax, vmin
   end type turtle__vector2d_cartesian_
 
   type turtle__pos_
-     real(SP) :: x, y
+     real(SR) :: x, y
   end type turtle__pos_
 
+  integer, parameter :: FILE_FOR_TURTLE = 70
 
   interface operator (*)
      module procedure operator_real_times_typepos
@@ -153,7 +154,7 @@ module turtle
      type(turtle__pos_) :: corner_south_west
      type(turtle__pos_) :: corner_south_east
      type(turtle__pos_) :: origin
-     real(SP)           :: diag_length
+     real(SR)           :: diag_length
   end type draw_area_
 
   type(draw_area_) :: Draw_area
@@ -192,15 +193,15 @@ contains
 !                              /
 !                             r
 !
-    real(SP), parameter :: ALPHA = 3.0_SP / 4.0_SP
-    real(SP), parameter :: BETA  = 1.0_SP/12.0_SP
+    real(SR), parameter :: ALPHA = 3.0_SR / 4.0_SR
+    real(SR), parameter :: BETA  = 1.0_SR/12.0_SR
 !
     type(turtle__pos_)  :: stt, end, p, q, r
 
-!!$    if ( (vec%x)**2+(vec%y)**2 < 1.e-3_SP ) return   ! too short
+!!$    if ( (vec%x)**2+(vec%y)**2 < 1.e-3_SR ) return   ! too short
 
-    stt = center - (0.5_SP*vec)
-    end = center + (0.5_SP*vec)
+    stt = center - (0.5_SR*vec)
+    end = center + (0.5_SR*vec)
 
     q = stt + (ALPHA*vec)
 
@@ -221,7 +222,7 @@ contains
 !_______________________________________________________________private__
 !                                                                        !
   subroutine broken_line(x,y,new)                                        !
-    real(SP),           intent(in) :: x, y                               !
+    real(SR),           intent(in) :: x, y                               !
     logical, optional,  intent(in) :: new                                !
 !________________________________________________________________________!
 !
@@ -251,17 +252,17 @@ contains
 !     1994.06.07: modified
 !     2005.11.23: re-written in f90 by A. Kageyama.
 !
-      real(SP), parameter      :: UNIT1_FACTOR = 0.01_SP
-      real(SP), parameter      :: UNIT2_FACTOR = 0.0025_SP
-      real(SP), save           :: amari = 0.0_SP  ! i know it's automatic save.
+      real(SR), parameter      :: UNIT1_FACTOR = 0.01_SR
+      real(SR), parameter      :: UNIT2_FACTOR = 0.0025_SR
+      real(SR), save           :: amari = 0.0_SR  ! i know it's automatic save.
       type(turtle__pos_)       :: pos, pos0, pos1, vnormd
-      real(SP)                 :: dist, rmaind
+      real(SR)                 :: dist, rmaind
       integer                  :: i
 
-      real(SP)                 :: unit1, unit2, unit
+      real(SR)                 :: unit1, unit2, unit
       type(turtle__pos_), save :: pos_prev
 
-      if ( Draw_area%diag_length < 1.e-5_SP )   &
+      if ( Draw_area%diag_length < 1.e-5_SR )   &
          call ut__fatal('<turtle/broken_line> Draw_area%diag_length = 0 ?')
 
       unit1 = UNIT1_FACTOR*Draw_area%diag_length
@@ -270,7 +271,7 @@ contains
 
       if ( present(new) ) then
          pos_prev = pos_in
-         amari = 0.0_SP
+         amari = 0.0_SR
          return
       end if
 
@@ -279,7 +280,7 @@ contains
 
       dist = turtle__distance(pos0,pos)
 
-      if( dist < 1.e-5_SP ) return
+      if( dist < 1.e-5_SR ) return
 
       vnormd = (pos-pos0)/dist
 !
@@ -363,7 +364,7 @@ contains
 !     2005.11.23: Converted into f90 by Akira Kageyama.
 !________________________________________________________________________
 !
-      real(SP) :: xxx, yyy
+      real(SR) :: xxx, yyy
 
       if ( iside==1 .or. iside==4 ) then
         if ( field%f(i,j)*field%f(i+1,j) <= 0. ) then
@@ -444,7 +445,7 @@ contains
 !     2005.11.24: Converted into f90 by Akira Kageyama.
 !________________________________________________________________________
 !
-      real(SP)           :: rad, tht
+      real(SR)           :: rad, tht
       type(turtle__pos_) :: pos
 
       if ( iside==1 .or. iside==4 ) then
@@ -514,20 +515,20 @@ contains
 !_______________________________________________________________private__
 !                                                                        !
   subroutine circle(center_x,center_y,radius,angle_from,angle_to)        !
-    real(SP), intent(in) :: center_x, center_y, radius                   !
-    real(SP), intent(in), optional :: angle_from, angle_to               !
+    real(SR), intent(in) :: center_x, center_y, radius                   !
+    real(SR), intent(in), optional :: angle_from, angle_to               !
 !________________________________________________________________________!
 !
     integer,  parameter :: NDIV = 100
-    real(SP) :: x, y, tht
+    real(SR) :: x, y, tht
     integer  :: i
-    real(SP) :: tht_from, tht_to, dtht
+    real(SR) :: tht_from, tht_to, dtht
 
     if ( present(angle_from) .and. present(angle_to) ) then
        tht_from = angle_from
        tht_to   = angle_to
     else
-       tht_from = 0.0_SP
+       tht_from = 0.0_SR
        tht_to   = TWOPI
     end if
 
@@ -551,8 +552,8 @@ contains
 !                                                                        !
   subroutine circle_structure(center,radius,tht_from,tht_to)             !
     type(turtle__pos_), intent(in) :: center                             !
-    real(SP),           intent(in) :: radius                             !
-    real(SP), intent(in), optional :: tht_from, tht_to                   !
+    real(SR),           intent(in) :: radius                             !
+    real(SR), intent(in), optional :: tht_from, tht_to                   !
 !________________________________________________________________________!
 !
     if (present(tht_from) .and. present(tht_to)) then
@@ -586,10 +587,10 @@ contains
 !
     integer                              :: nx, ny, i, j
     integer, dimension(:,:), allocatable :: flagx, flagy
-    real(SP)                             :: xxx, yyy
+    real(SR)                             :: xxx, yyy
     integer                              :: ienter, inow, jnow, karte
 
-    real(SP) :: x, y, rsq
+    real(SR) :: x, y, rsq
 
     nx = field%nx
     ny = field%ny
@@ -725,7 +726,7 @@ contains
 !
     integer                              :: nr, nt, i, j
     integer, dimension(:,:), allocatable :: flagr, flagt
-    real(SP)                             :: rad, tht
+    real(SR)                             :: rad, tht
     integer                              :: ienter, inow, jnow, karte
 
     type(turtle__pos_) :: pos
@@ -854,7 +855,7 @@ contains
 !_______________________________________________________________private__
 !                                                                        !
   function coords_trans_polar_to_cartesian(rad,tht)                      !
-    real(SP), intent(in) :: rad, tht                                     !
+    real(SR), intent(in) :: rad, tht                                     !
     type(turtle__pos_)   :: coords_trans_polar_to_cartesian              !
 !________________________________________________________________________!
 !
@@ -867,8 +868,8 @@ contains
 !_______________________________________________________________private__
 !                                                                        !
   function distance(x1,y1,x2,y2)                                         !
-    real(SP), intent(in) :: x1, y1, x2, y2                               !
-    real(SP)             :: distance                                     !
+    real(SR), intent(in) :: x1, y1, x2, y2                               !
+    real(SR)             :: distance                                     !
 !________________________________________________________________________!
 !
     type(turtle__pos_) :: pos1, pos2
@@ -887,7 +888,7 @@ contains
 !                                                                        !
   function distance_structure(pos1, pos2)                                !
     type(turtle__pos_), intent(in) :: pos1, pos2                         !
-    real(SP)                       :: distance_structure                 !
+    real(SR)                       :: distance_structure                 !
 !________________________________________________________________________!
 !
     distance_structure = sqrt((pos1%x-pos2%x)**2+(pos1%y-pos2%y)**2)
@@ -1067,10 +1068,10 @@ contains
 !_______________________________________________________________private__
 !                                                                        !
   subroutine line(xp,yp)                                                 !
-    real(SP), intent(in) :: xp, yp                                       !
+    real(SR), intent(in) :: xp, yp                                       !
 !________________________________________________________________________!
 !
-    real(SP) :: ox, oy
+    real(SR) :: ox, oy
 
     if (.not.Initialization_done)       &
        call ut__fatal("turtle: You forgot initialization.")
@@ -1098,10 +1099,10 @@ contains
 !_______________________________________________________________private__
 !                                                                        !
   subroutine move(xp,yp)                                                 !
-    real(SP), intent(in) :: xp, yp                                       !
+    real(SR), intent(in) :: xp, yp                                       !
 !________________________________________________________________________!
 !
-    real(SP) :: ox, oy
+    real(SR) :: ox, oy
 
     if (.not.Initialization_done)       &
        call ut__fatal("turtle: You forgot initialization.")
@@ -1119,11 +1120,11 @@ contains
 !_______________________________________________________________private__
 !                                                                        !
   subroutine move_other_coords(rad,tht,coords)                           !
-    real(SP),         intent(in) :: rad, tht                             !
+    real(SR),         intent(in) :: rad, tht                             !
     character(len=*), intent(in) :: coords                               !
 !________________________________________________________________________!
 !
-    real(SP) :: x, y
+    real(SR) :: x, y
 
     if (coords=='polar') then
        x = rad*cos(tht)
@@ -1153,7 +1154,7 @@ contains
 !_______________________________________________________________private__
 !                                                                        !
   function operator_real_times_typepos(realsp,typepos)                   !
-    real(SP),            intent(in) :: realsp                            !
+    real(SR),            intent(in) :: realsp                            !
     type(turtle__pos_) , intent(in) :: typepos                           !
     type(turtle__pos_) :: operator_real_times_typepos                    !
 !________________________________________________________________________!
@@ -1168,7 +1169,7 @@ contains
 !                                                                        !
   function operator_typepos_div_real(pos,div)                            !
     type(turtle__pos_), intent(in) :: pos                                !
-    real(SP),           intent(in) :: div                                !
+    real(SR),           intent(in) :: div                                !
     type(turtle__pos_) :: operator_typepos_div_real                      !
 !________________________________________________________________________!
 !
@@ -1207,10 +1208,10 @@ contains
 !_______________________________________________________________private__
 !                                                                        !
   subroutine point(xp,yp)                                                !
-    real(SP), intent(in) :: xp, yp                                       !
+    real(SR), intent(in) :: xp, yp                                       !
 !________________________________________________________________________!
 !
-    real(SP) :: ox, oy
+    real(SR) :: ox, oy
 
     if (.not.Initialization_done)       &
        call ut__fatal("turtle: You forgot initialization.")
@@ -1259,7 +1260,7 @@ contains
 !_______________________________________________________________private__
 !                                                                        !
   subroutine rectangle(xsw,ysw,xne,yne)         ! sw means south-west    !
-    real(SP), intent(in) :: xsw, ysw, xne, yne  ! ne means north-east    !
+    real(SR), intent(in) :: xsw, ysw, xne, yne  ! ne means north-east    !
 !________________________________________________________________________!
 !
 !                               (xne,yne)
@@ -1304,7 +1305,7 @@ contains
                                        vmax_,vmin_)                      !
     type(turtle__scalar2d_cartesian_), intent(in) :: field               !
     integer, intent(in) :: nlevels                                       !
-    real(SP), intent(in), optional :: vmax_, vmin_                       !
+    real(SR), intent(in), optional :: vmax_, vmin_                       !
 !________________________________________________________________________!
 !
 !
@@ -1327,11 +1328,11 @@ contains
 !     2005.11.23: Converted into f90 by Akira Kageyama
 !________________________________________________________________________!
 !
-    real(SP) :: vmax, vmin
+    real(SR) :: vmax, vmin
     integer  :: l
     type(turtle__scalar2d_cartesian_) :: field0
-    real(SP) :: dval
-    real(SP), dimension(:), allocatable :: level
+    real(SR) :: dval
+    real(SR), dimension(:), allocatable :: level
     integer :: nx, ny
 
     nx = field%nx
@@ -1415,7 +1416,7 @@ contains
   subroutine turtle__contour_polar(field,nlevels,vmax_,vmin_)            !
     type(turtle__scalar2d_polar_), intent(in) :: field                   !
     integer, intent(in) :: nlevels                                       !
-    real(SP), intent(in), optional :: vmax_, vmin_                       !
+    real(SR), intent(in), optional :: vmax_, vmin_                       !
 !________________________________________________________________________!
 !
 !
@@ -1430,11 +1431,11 @@ contains
 !     2005.11.24: Converted into f90 by Akira Kageyama
 !________________________________________________________________________!
 !
-    real(SP) :: vmax, vmin
+    real(SR) :: vmax, vmin
     integer  :: l
     type(turtle__scalar2d_polar_) :: field0
-    real(SP) :: dval
-    real(SP), dimension(:), allocatable :: level
+    real(SR) :: dval
+    real(SR), dimension(:), allocatable :: level
     integer :: nr, nt
 
     nr = field%nr
@@ -1525,13 +1526,13 @@ contains
     print *,' Draw_area%origin%y = ', Draw_area%origin%y
 
   end subroutine turtle__coords_shift
-  
+
 
 !________________________________________________________________public__
 !                                                                        !
   function turtle__filename_for_lines(tag)                               !
     character(len=*), intent(in) :: tag                                  !
-    character(len=TAG_STRING_LENGTH_MAX) :: turtle__filename_for_lines   !
+    character(len=200) :: turtle__filename_for_lines                     !
 !________________________________________________________________________!
 !
     !<< e.g., file = "./lines.temp.tt" >>!
@@ -1553,7 +1554,7 @@ contains
                                       window_upper_rite                  !
 !________________________________________________________________________!
 !
-    real(SP) :: xmin, xmax, ymin, ymax
+    real(SR) :: xmin, xmax, ymin, ymax
 
     xmin = window_lower_left%x
     xmax = window_upper_rite%x
@@ -1589,20 +1590,20 @@ contains
 !                                                                        !
   subroutine turtle__vector_cartesian(vector,norm)                       !
     type(turtle__vector2d_cartesian_), intent(in) :: vector              !
-    real(SP), optional,                intent(in) :: norm                !
+    real(SR), optional,                intent(in) :: norm                !
 !________________________________________________________________________!
 !
     integer  :: i, j
-    real(SP) :: max_vec_amp
+    real(SR) :: max_vec_amp
     type(turtle__pos_) :: place, arrow
-    real(SP) :: factor
+    real(SR) :: factor
 
     if (present(norm)) then
-       factor = 1.0_SP / norm
+       factor = 1.0_SR / norm
     else
        max_vec_amp = iCalc_amplitude()
        call ut__message("# max vel = ", max_vec_amp)
-       factor = 0.1_SP / max_vec_amp
+       factor = 0.1_SR / max_vec_amp
     end if
 
     do i = 1 , vector%nx 
@@ -1618,7 +1619,7 @@ contains
   contains
 
     function iCalc_amplitude()
-      real(SP) :: iCalc_amplitude
+      real(SR) :: iCalc_amplitude
 
       iCalc_amplitude = maxval(sqrt(vector%x(:,:)**2 + vector%y(:,:)**2))
     end function iCalc_amplitude
@@ -1630,24 +1631,24 @@ contains
 !                                                                        !
   subroutine turtle__vector_polar(vector,norm)                           !
     type(turtle__vector2d_polar_), intent(in) :: vector                  !
-    real(SP), optional,            intent(in) :: norm                    !
+    real(SR), optional,            intent(in) :: norm                    !
 !________________________________________________________________________!
 !
     integer  :: i, j
-    real(SP) :: rad, tht, max_vec_amp
+    real(SR) :: rad, tht, max_vec_amp
     type(turtle__pos_) :: place, arrow
-    real(SP) :: factor
+    real(SR) :: factor
 
     if (present(norm)) then
-       if ( norm > 0.0_SP ) then
-          factor = 1.0_SP / norm
+       if ( norm > 0.0_SR ) then
+          factor = 1.0_SR / norm
        else
           max_vec_amp = iCalc_amplitude()
           call ut__message("# max vel = ", max_vec_amp)
-          factor = 0.1_SP / max_vec_amp
+          factor = 0.1_SR / max_vec_amp
        end if
     else
-       factor = 1.0_SP
+       factor = 1.0_SR
     end if
 
     do i = 5 , vector%nr , 5
@@ -1665,11 +1666,11 @@ contains
   contains
 
     function iCalc_amplitude()
-      real(SP) :: iCalc_amplitude
+      real(SR) :: iCalc_amplitude
 
       iCalc_amplitude = maxval(sqrt(vector%x(:,:)**2 + vector%y(:,:)**2))
     end function iCalc_amplitude
 
   end subroutine turtle__vector_polar
 
-end module turtle
+end module turtle_m
