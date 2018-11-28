@@ -32,7 +32,7 @@ program main
   real(SR), dimension(:,:), allocatable :: Slice_ps  ! Pressure
   real(SR), dimension(:,:), allocatable :: Slice_en  ! Enstrophy
 
-  integer :: draw_loop
+  integer(DI) :: draw_loop
 
   type(turtle__pos_t) :: window_lower_left, window_upper_right
   type(turtle__pos_t) :: shift
@@ -162,9 +162,9 @@ contains
 
 
   subroutine read_slice_data(target_nloop)
-    integer, intent(in) :: target_nloop
+    integer(DI), intent(in) :: target_nloop
 
-    integer  :: dummy_nloop
+    integer(DI)  :: dummy_nloop
     real(SR) :: dummy_time
 
     print *,'Opening ', trim(FILE_NAME_SLICE)

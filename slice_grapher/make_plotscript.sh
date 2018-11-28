@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #-------------------------------------------------------------------
 # class-hpc-smoke-ring: A simple sample field solver.
 #
@@ -14,32 +14,41 @@
 #-------------------------------------------------------------------
 #
 
-function zeropad () {
-  #      6 ==> 000006
-  #     56 ==> 000056
-  #    456 ==> 000456
-  #   3456 ==> 003456
-  #  23456 ==> 023456
-  # 123456 ==> 123456
+function count_keta() {
+  #
+  # called from pad_zero()
+  #
+  i=$1 # integer to be counted
+  keta=0
+  while [ $i -gt 0 ]
+  do
+    i=$((i/10))
+    ((keta++))
+  done
+  echo $keta
+}
 
-  if [ $1 -lt 10 ]
-  then
-    echo 00000$1
-  elif [ $1 -lt 100 ]
-  then
-    echo 0000$1
-  elif [ $1 -lt 1000 ]
-  then
-    echo 000$1
-  elif [ $1 -lt 10000 ]
-  then
-    echo 00$1
-  elif [ $1 -lt 100000 ]
-  then
-    echo 0$1
-  else
-    echo $1
-  fi
+function pad_zero() {
+  # zero padding for an integer
+  #
+  # when total_keta=7
+  #      6 ==> 0000006
+  #     56 ==> 0000056
+  #    456 ==> 0000456
+  #   3456 ==> 0003456
+  #  23456 ==> 0023456
+  # 123456 ==> 0123456
+  #
+  input_integer=$1
+  keta_total=10
+  keta_input_integer=`count_keta $input_integer`
+  num_of_zeros=$((keta_total-keta_input_integer))
+
+  for i in `seq 1 $num_of_zeros`
+  do
+    echo -n '0'
+  done
+  echo $input_integer
 }
 
 if [ $# -eq 0 ]
@@ -48,7 +57,7 @@ then
   exit
 fi
 
-nloop=`zeropad $1`
+nloop=`pad_zero $1`
 
 echo $nloop | ./gnuplot_data_generator
 
