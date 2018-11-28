@@ -33,7 +33,7 @@ Fortran 2003.
 
 ## Author
 Akira Kageyama, Kobe Univ., Japan
-email: sgks@mac.com, kage@port.kobe-u.ac.jp
+email: sgks@mac.com | kage@port.kobe-u.ac.jp
 
 ## License
 This software is released under the MIT License, see LICENSE.txt.

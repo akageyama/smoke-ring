@@ -12,11 +12,20 @@ or smoke-ring.
 
 ## Program structure
 
---+--src (Simulation code. The output is a file "_data_slice".)
-  |
-  +--slice_grapher (Visualization code. It reads "_data_slice"
-                    and makes an animated gif of the flow in a
-                    a cross section.)
+    --+--src (For the smoke-ring simulation. The output is a file
+      |       named "_data_slice".)
+      |
+      +--slice_grapher (For visualization. It reads "_data_slice"
+      |                 and makes an animated gif of the flow in a
+      |                 a cross section.)
+      |
+      +--warming_up (A supplementary, simple, sample, and stand-alone,
+                     simulation program. It solves 1-D Burgers
+                     equation with the same numerical scheme (finite
+                     difference + Runge-Kutta integration) and with
+                     the same visualization method (gnuplot). Read
+                     and run this program before you proceed to the
+                     main smoke-ring ring codes (src and slice_grapher).
 
 ## Prerequisite
 
@@ -31,7 +40,7 @@ or smoke-ring.
     3. cd ../slice_grapher
     4. make (for visualization)
 
-## Easy parametes survey
+## Easy experiments
 
 - Change the grid size (NX,NY,NZ) in src/constants.f90
 - Change dissipation params in src/params.namelist
