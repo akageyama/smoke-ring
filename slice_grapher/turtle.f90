@@ -1,28 +1,32 @@
-!-----------------------------------------------------------------------------
+!-------------------------------------------------------------------
 ! turtle.f90
 !
-! - Basic draw library.
+! - A simple 2D draw library for
+!         - points
+!         - lines
+!         - curves
+!         - contours
+!         - vector arrows
+!   in the cartesian and polar coordinate systems.
 !
-! - You can draw points, lines (curves), contours, and vector arrows
-!   in 2-d cartesian and polar coordinates.
+! - This library does not produce images, instead, it writes
+!   points and line segments in a file as a text data.
 !
-! - The outuput is text data of (x,y) positions. It is supposed that
-!   you use gnuplot, for example, to get the figure output from
-!   this text data file. See 'turtle.gp' for an example script
-!   for gnuplot.
+! - Use gnuplot, for example, to convert the text data into
+!   images.
 !
 !                                           Akira Kageyama, kage@jamstec.go.jp
 !                                              Earth Simulator Center, JAMSTEC
-!-----------------------------------------------------------------------------
+!-------------------------------------------------------------------
 ! 2007.08.12: Minor revision for Les Houches Summer School "Dynamos".
 ! 2005.11.22: Development start. Most part of contour comes from my old glib.
 ! 2005.11.23: Finished. Beautiful!
 ! 2005.11.24: Added select_file_for_lines and _points.
 ! 2005.11.24: Minor change in vector_polar.
-!-----------------------------------------------------------------------------
+!-------------------------------------------------------------------
 ! This module write plot data on a file with unit number
 ! FILE_FOR_TURTLE which is defined in constants.f90.
-!-----------------------------------------------------------------------------
+!-------------------------------------------------------------------
 
 module turtle_m
   use constants_m

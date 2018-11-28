@@ -27,8 +27,7 @@ else if ( $nloop < 100000 ) then
   set nloop = 0${nloop}
 endif
 
-echo $nloop | ./plot_data_generator
-
+echo $nloop | ./gnuplot_data_generator
 
 foreach i (Workfiles/*.tt)
   set size = `ls -l $i | awk '{print $5}'` >> /dev/null

@@ -3,10 +3,9 @@ program main
   implicit none
 
   integer :: nloop, io
-  character(len=*), parameter :: INPUT = "../src/_data_slice"
-                               ! output is stdout
+  character(len=*), parameter :: FILE_NAME_SLICE = "../src/_data_slice"
 
-  open(10, file=trim(INPUT),  &
+  open(10, file=trim(FILE_NAME_SLICE),  &
        form='unformatted',  &
        status='old')
     do

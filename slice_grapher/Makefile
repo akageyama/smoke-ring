@@ -26,7 +26,7 @@ OBJS =	constants.o	\
 	turtle.o
 
 
-figs: nloop_list.txt plot_data_generator Workfiles
+figs: nloop_list.txt gnuplot_data_generator Workfiles
 	./plots.csh
 
 
@@ -34,24 +34,22 @@ Workfiles:
 	mkdir -p Workfiles
 
 
-nloop_list.txt: grepper
-	./grepper > nloop_list.txt
+nloop_list.txt: extract_nloop_list
+	./extract_nloop_list > nloop_list.txt
 
-grepper: grep_nloop_list.o
-	$(FC) $(FFLAGS) -o grepper		\
-	 	constants.o			\
-		target.o			\
-		grep_nloop_list.o
-
+extract_nloop_list: extract_nloop_list.o
+	$(FC) $(FFLAGS) -o extract_nloop_list  \
+		constants.o  \
+		extract_nloop_list.o
 
 
-plot_data_generator: gnuplot_data_generator.o
-	$(FC) $(FFLAGS) -o plot_data_generator	\
-		constants.o	\
-	 	target.o	\
-		ut.o		\
-		grid.o		\
-		turtle.o	\
+
+gnuplot_data_generator: gnuplot_data_generator.o
+	$(FC) $(FFLAGS) -o gnuplot_data_generator  \
+		constants.o  \
+		ut.o  \
+		grid.o  \
+		turtle.o  \
 		gnuplot_data_generator.o
 
 
@@ -63,9 +61,9 @@ view:
 
 
 
-gnuplot_data_generator.o: constants.o ut.o grid.o turtle.o target.o
+gnuplot_data_generator.o: constants.o ut.o grid.o turtle.o
 
-grep_nloop_list.o: constants.o target.o
+extract_nloop_list.o: constants.o
 
 ut.o: constants.o
 
@@ -75,6 +73,6 @@ grid.o:	constants.o ut.o
 
 clean:
 	rm -f *.o *.mod 
-	rm -f gnuplot_data_generator grepper nloop_list.txt
-	rm -f plot_data_generator
+	rm -f gnuplot_data_generator extract_nloop_list nloop_list.txt
+	rm -f gnuplot_data_generator
 	rm -rf Workfiles

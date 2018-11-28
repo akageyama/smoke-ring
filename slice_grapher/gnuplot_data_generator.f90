@@ -13,17 +13,19 @@
 !-------------------------------------------------------------------
 
 program main
-  use target_m
   use constants_m
   use ut_m
   use grid_m
   use turtle_m
   implicit none
 
-  integer, parameter :: FILE_FOR_TURTLE = 70
-  integer, parameter :: FILE_SLICEDATA = 20
+  character(len=*), parameter :: FILE_NAME_SLICE = "../src/_data_slice"
+  integer, parameter :: UNIT_NUM_TURTLE = 10
+  integer, parameter :: UNIT_NUM_SLICE = 11
 
-  ! - 2-D single precision real arrays.
+  character(len=20) :: draw_loop_str
+
+  ! To store the slice data produced by the smoke-ring simulation.
   real(SR), dimension(:,:), allocatable :: Slice_vx  ! x-comp. of velocity
   real(SR), dimension(:,:), allocatable :: Slice_vy  ! y-comp.
   real(SR), dimension(:,:), allocatable :: Slice_vz  ! z-comp.
@@ -36,9 +38,9 @@ program main
   type(turtle__pos_) :: shift
 
   type contour_info_
-     integer  :: nlevels
-     real(SR) :: vmin
-     real(SR) :: vmax
+    integer  :: nlevels
+    real(SR) :: vmin
+    real(SR) :: vmax
   end type contour_info_
 
   call grid%initialize
@@ -49,18 +51,18 @@ program main
   allocate(Slice_ps(NX,NZ),   &
            Slice_en(NX,NZ))
 
-  window_lower_left%x  = -1.7
+  window_lower_left%x  = -1.7  ! in units of XMIN, etc.
   window_lower_left%y  = -0.7
   window_upper_right%x =  1.7
   window_upper_right%y =  0.7
 
   call turtle__initialize(window_lower_left, window_upper_right)
 
-!  shift%x = 0.0 
+!  shift%x = 0.0
 !  shift%y = 0.0
 !  call turtle__coords_shift(shift)
 
-  read(5,*) draw_loop                 ! Get from stdin
+  read(5,*) draw_loop   ! Get from stdin
 
   call read_slice_data(draw_loop)
   call draw_zxplane
@@ -70,11 +72,7 @@ program main
 contains
 
 
-!________________________________________________________________________
-!                                                                        !
-  subroutine draw_boundary_box                                           !
-!________________________________________________________________________!
-!
+  subroutine draw_boundary_box
     type(turtle__pos_) :: corner_southwest, corner_northeast
 
     corner_southwest%x = grid%pos%x(1)
@@ -83,47 +81,37 @@ contains
     corner_northeast%x = grid%pos%x(NX)
     corner_northeast%y = grid%pos%y(NY)
 
-    open(FILE_FOR_TURTLE,                                               &
+    open(UNIT_NUM_TURTLE,                                               &
          file=trim(turtle__filename_for_lines("boundary_box")))
 
     call turtle__rectangle(corner_southwest,corner_northeast)
 
-    close(FILE_FOR_TURTLE)
-
+    close(UNIT_NUM_TURTLE)
   end subroutine draw_boundary_box
 
 
-!________________________________________________________________________
-!                                                                        !
-  subroutine draw_zxplane                                                !
-!________________________________________________________________________!
-!
-
-    open(FILE_FOR_TURTLE,                              &
+  subroutine draw_zxplane
+    open(UNIT_NUM_TURTLE,  &
          file=trim(turtle__filename_for_lines("zxplane_contour_en")))
     call draw_zxplane_contour(Slice_en)
-    close(FILE_FOR_TURTLE)
+    close(UNIT_NUM_TURTLE)
 
-    open(FILE_FOR_TURTLE,                              &
+    open(UNIT_NUM_TURTLE,  &
          file=trim(turtle__filename_for_lines("zxplane_contour_ps")))
     call draw_zxplane_contour(Slice_ps)
-    close(FILE_FOR_TURTLE)
+    close(UNIT_NUM_TURTLE)
 
-    open(FILE_FOR_TURTLE,                              &
+    open(UNIT_NUM_TURTLE,  &
          file=trim(turtle__filename_for_lines("zxplane_vector_vel")))
-    call draw_zxplane_vector(Slice_vx,                 &
+    call draw_zxplane_vector(Slice_vx,  &
                              Slice_vz)
-    close(FILE_FOR_TURTLE)
-
+    close(UNIT_NUM_TURTLE)
   end subroutine draw_zxplane
 
 
-!________________________________________________________________________
-!                                                                        !
-  subroutine draw_zxplane_contour(field)                                 !
-    real(SR), intent(in), dimension(:,:) :: field                        !
-!________________________________________________________________________!
-!
+  subroutine draw_zxplane_contour(field)
+    real(SR), intent(in), dimension(:,:) :: field
+
     type(turtle__scalar2d_cartesian_) :: work
     integer :: contour_levels
 
@@ -138,21 +126,16 @@ contains
     work%ypos(:) = grid%pos%z(:)
     work%f(:,:)  = field(:,:)
 
-    call turtle__contour_cartesian(work,contour_levels,         &
-                                   maxval(work%f),              &
+    call turtle__contour_cartesian(work,contour_levels,  &
+                                   maxval(work%f),  &
                                    minval(work%f))
 
     deallocate(work%f,work%xpos,work%ypos)
-
   end subroutine draw_zxplane_contour
 
 
-!_______________________________________________________________private__
-!                                                                        !
-  subroutine draw_zxplane_vector(vector_x,vector_z)                      !
-    real(SR), dimension(:,:), intent(in) :: vector_x, vector_z           !
-!________________________________________________________________________!
-!
+  subroutine draw_zxplane_vector(vector_x,vector_z)
+    real(SR), dimension(:,:), intent(in) :: vector_x, vector_z
     type(turtle__vector2d_cartesian_) :: vec
 
     allocate(vec%x(NX,NZ))
@@ -168,44 +151,39 @@ contains
 
     vec%x(:,:)  = vector_x(:,:)
     vec%y(:,:)  = vector_z(:,:)
-    
+
 !    call turtle__vector_cartesian(vec,norm=arrow_norm)
     call turtle__vector_cartesian(vec)
 
     deallocate(vec%x,vec%y,vec%xpos,vec%ypos)
-
   end subroutine draw_zxplane_vector
 
 
-!________________________________________________________________________
-!                                                                        !
-  subroutine read_slice_data(target_nloop)                               !
-    integer, intent(in) :: target_nloop                                  !
-!________________________________________________________________________!
-!
+  subroutine read_slice_data(target_nloop)
+    integer, intent(in) :: target_nloop
+
     integer  :: dummy_nloop
     real(SR) :: dummy_time
 
-    print *,'Opening ', trim(TARGET__FILENAME)
+    print *,'Opening ', trim(FILE_NAME_SLICE)
 
-    open(FILE_SLICEDATA,                &
-         file=trim(TARGET__FILENAME),   &
-         form='unformatted',            &
+    open(UNIT_NUM_SLICE,  &
+         file=trim(FILE_NAME_SLICE),  &
+         form='unformatted',  &
          status='old')
 
     do
-       read(FILE_SLICEDATA) dummy_nloop, dummy_time,            &
-                            Slice_vx, Slice_vy, Slice_vz,       &
-                            Slice_ps, Slice_en
-       print *, ' dummy_nloop = ', dummy_nloop
-       if (dummy_nloop==target_nloop) exit
+      read(UNIT_NUM_SLICE) dummy_nloop, dummy_time,  &
+                           Slice_vx, Slice_vy, Slice_vz,  &
+                           Slice_ps, Slice_en
+      print *, ' dummy_nloop = ', dummy_nloop
+      if (dummy_nloop==target_nloop) exit
     end do
 
-    if (dummy_nloop/=target_nloop)                              &
-         call ut__fatal('Could not find the target data.')
+    call ut__assert(dummy_nloop==target_nloop,  &
+                    'Could not find the target data.')
 
-    close(FILE_SLICEDATA)
-
+    close(UNIT_NUM_SLICE)
   end subroutine read_slice_data
 
 end program main
