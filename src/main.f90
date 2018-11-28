@@ -46,9 +46,10 @@ program main_m
     call solver__advance(time,dt,fluid)
     dt = solver__set_time_step(nloop,fluid)
     nloop = nloop + 1
-    if (nloop>=params__get_integer('Total_nloop')) call job__karte%set("loop_max")
     call solver__diagnosis(nloop,time,fluid)
     call slicedata__write(nloop,time,fluid)
+    if (nloop>=params__get_integer('Total_nloop'))  &
+      call job__karte%set("loop_max")
   end do
 
   call job__finalize(nloop)
