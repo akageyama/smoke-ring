@@ -34,8 +34,8 @@ program main
 
   integer :: draw_loop
 
-  type(turtle__pos_) :: window_lower_left, window_upper_right
-  type(turtle__pos_) :: shift
+  type(turtle__pos_t) :: window_lower_left, window_upper_right
+  type(turtle__pos_t) :: shift
 
   type contour_info_
     integer  :: nlevels
@@ -56,7 +56,9 @@ program main
   window_upper_right%x =  1.7
   window_upper_right%y =  0.7
 
-  call turtle__initialize(window_lower_left, window_upper_right)
+  call turtle__initialize(UNIT_NUM_TURTLE,  &
+                          window_lower_left,  &
+                          window_upper_right)
 
 !  shift%x = 0.0
 !  shift%y = 0.0
@@ -73,7 +75,7 @@ contains
 
 
   subroutine draw_boundary_box
-    type(turtle__pos_) :: corner_southwest, corner_northeast
+    type(turtle__pos_t) :: corner_southwest, corner_northeast
 
     corner_southwest%x = grid%pos%x(1)
     corner_southwest%y = grid%pos%y(1)
@@ -112,7 +114,7 @@ contains
   subroutine draw_zxplane_contour(field)
     real(SR), intent(in), dimension(:,:) :: field
 
-    type(turtle__scalar2d_cartesian_) :: work
+    type(turtle__scalar2d_cartesian_t) :: work
     integer :: contour_levels
 
     contour_levels = 20
@@ -136,7 +138,7 @@ contains
 
   subroutine draw_zxplane_vector(vector_x,vector_z)
     real(SR), dimension(:,:), intent(in) :: vector_x, vector_z
-    type(turtle__vector2d_cartesian_) :: vec
+    type(turtle__vector2d_cartesian_t) :: vec
 
     allocate(vec%x(NX,NZ))
     allocate(vec%y(NX,NZ))
