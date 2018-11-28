@@ -1,30 +1,74 @@
-!-----------------------------------------------------------------------------
-! smoke-ring: A simple 3-D Fluid Solver by FDM on Cartesian Grid.
+!-------------------------------------------------------------------
+! class-hpc-smoke-ring: A simple sample field solver.
 !
-!    by Akira Kageyama,
-!       Department of Computational Science,
-!       Kobe University, Japan.
-!       email: kage@port.kobe-u.ac.jp
-!-----------------------------------------------------------------------------
+!    by Akira Kageyama, Kobe University, Japan.
+!       email: sgks@mac.com
+!
+!    Copyright 2018 Akira Kageyama
+!
+!    This software is released under the MIT License.
+!
+!-------------------------------------------------------------------
+!    src/job.f90
+!-------------------------------------------------------------------
+
 module job_m
+  use constants_m
+  use ut_m
   implicit none
   private
-  public :: &
-            JOB__ARRIVED_LOOP_MAX, &
-            JOB__ARRIVED_TIME_MAX, &
-            JOB__ERROR_NEGATIVE, &
-            JOB__ERROR_OVERFLOW, &
-            JOB__NO_PROBLEM
+  public :: & !<variable>
+            job__karte
+  public :: & !<routines>
+            job__finalize
 
-  integer, parameter :: JOB__NO_PROBLEM       = 0
-                           ! Must be zero. Since
-                           ! mpi_allreduce_sum or
-                           ! ..._max will be taken.
-  integer, parameter :: JOB__ARRIVED_LOOP_MAX = 1
-                           ! Others are arbitrary
-                           ! integer larger than 0.
-  integer, parameter :: JOB__ARRIVED_TIME_MAX = 2
-  integer, parameter :: JOB__ERROR_NEGATIVE   = 3
-  integer, parameter :: JOB__ERROR_OVERFLOW   = 4
+  type, public :: job__karte_t
+    character(len=20) :: state = "fine"
+  contains
+    procedure :: set => job__karte_set
+  end type job__karte_t
+
+  type(job__karte_t) :: job__karte
+
+
+contains
+
+
+  subroutine job__finalize(nloop)
+    integer(DI), intent(in) :: nloop
+
+    select case (trim(job__karte%state))
+      case ("fine", "loop_max")
+        call ut__message('#',"Successfully finished.")
+      case ("time_out")
+        call ut__message('-',"Time out at nloop = ", nloop)
+      case ("over_flow")
+        call ut__message('%',"Overflow at nloop = ", nloop)
+      case ("negative_anormaly")
+        call ut__message('%',"Underflow at nloop = ",nloop)
+      case default
+        call ut__message('?',"Stopped at nloop = ",  nloop)
+    end select
+  end subroutine job__finalize
+
+
+  subroutine job__karte_set(self, state_)
+    class(job__karte_t), intent(out) :: self
+    character(len=*), intent(in) :: state_
+    select case (trim(state_))
+      case ("fine")
+        self%state = "fine"
+      case ("time_out")
+        self%state = "time_out"
+      case ("loop_max")
+        self%state = "loop_max"
+      case ("over_flow")
+        self%state = "over_flow"
+      case ("negative_anormaly")
+        self%state = "negative_anormaly"
+      case default
+        call ut__fatal("<job__karte_set> case error.")
+    end select
+  end subroutine job__karte_set
 
 end module job_m

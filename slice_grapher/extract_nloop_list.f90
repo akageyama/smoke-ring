@@ -9,19 +9,23 @@
 !    This software is released under the MIT License.
 !
 !-------------------------------------------------------------------
-!    warming_up/bergurs_equation/constants.f90
+!    slice_grapher/extract_nloop_list.f90
 !-------------------------------------------------------------------
-
-module constants_m
+program main
+  use constants_m
   implicit none
 
-  ! << f90 constants >>
-  integer, parameter :: SI = selected_int_kind(8)
-  integer, parameter :: DI = selected_int_kind(16)
-  integer, parameter :: SR = selected_real_kind(6)
-  integer, parameter :: DR = selected_real_kind(12)
+  integer(DI) :: nloop
+  integer :: io
+  character(len=*), parameter :: FILE_NAME_SLICE = "../src/_data_slice"
 
-  ! << Mathematical constants >>
-  real(DR), parameter :: PI = 3.1415926535897932_DR
-  real(DR), parameter :: TWOPI = PI*2
-end module constants_m
+  open(10, file=trim(FILE_NAME_SLICE),  &
+       form='unformatted',  &
+       status='old')
+    do
+      read(10,iostat=io) nloop
+      if ( io/=0 ) exit
+      print *, '  nloop', nloop
+    end do
+  close(10)
+end program main

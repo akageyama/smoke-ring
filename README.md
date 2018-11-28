@@ -1,15 +1,21 @@
 # class-hpc-smoke-ring
 
-Will be used in the class "HPC", Department of Engineering, Kobe University.
-A simple CFD code to solve a smoke ring formation and propagation.
-This is for education.
+A simple sample field solver, or a CFD (Computational Fluid Dynamics)
+code for the class "HPC", which is for undergraduate students of 
+Department of Engineering, 
+Kobe University, Japan.
 
 ## Physical Model
-A gas contained in a rectangular box is driven by a localized force.
+A gas contained in a rectangular box is driven by a localized force
+near the end of box. The force drives the gas to flow toward
+the other end, rsulting in the formation of the well-known vortex-ring,
+or smoke-ring.
 
 
 ## Prerequisite
-- ImageMagic (convert command), for post-process (2-D) visualization.
+- Fortran compiler
+- gnuplot, for the post-process (2-D) visualization.
+- ImageMagic (convert command), for the post-process (2-D) visualization.
 
 ## Usage
 

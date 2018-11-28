@@ -1,92 +1,99 @@
-!-----------------------------------------------------------------------------
+!-------------------------------------------------------------------
+! class-hpc-smoke-ring: A simple sample field solver.
+!
+!    by Akira Kageyama, Kobe University, Japan.
+!       email: sgks@mac.com
+!
+!    Copyright 2018 Akira Kageyama
+!
+!    This software is released under the MIT License.
+!
+!-------------------------------------------------------------------
+!    slice_grapher/turtle.f90
+!-------------------------------------------------------------------
+!
+!-------------------------------------------------------------------
 ! turtle.f90
 !
-! - Basic draw library.
+! - A simple 2D draw library for
+!         - points
+!         - lines
+!         - curves
+!         - contours
+!         - vector arrows
+!   in the cartesian and polar coordinate systems.
 !
-! - You can draw points, lines (curves), contours, and vector arrows
-!   in 2-d cartesian and polar coordinates.
+! - This library does not produce images, instead, it writes
+!   points and line segments in a file as a text data.
 !
-! - The outuput is text data of (x,y) positions. It is supposed that
-!   you use gnuplot, for example, to get the figure output from
-!   this text data file. See 'turtle.gp' for an example script
-!   for gnuplot.
+! - Use gnuplot, for example, to convert the text data into
+!   images.
 !
-!                                           Akira Kageyama, kage@jamstec.go.jp
-!                                              Earth Simulator Center, JAMSTEC
-!-----------------------------------------------------------------------------
-! 2007.08.12: Minor revision for Les Houches Summer School "Dynamos".
-! 2005.11.22: Development start. Most part of contour comes from my old glib.
+!       Akira Kageyama (sgks@mac.com)
+!-------------------------------------------------------------------
+! 2005.11.22: Development start.
+!             Most part of contour comes from my old "glib".
 ! 2005.11.23: Finished. Beautiful!
 ! 2005.11.24: Added select_file_for_lines and _points.
 ! 2005.11.24: Minor change in vector_polar.
-!-----------------------------------------------------------------------------
-! This module write plot data on a file with unit number
-! FILE_FOR_TURTLE which is defined in constants.f90.
-!-----------------------------------------------------------------------------
+! 2007.08.12: Minor revision for Les Houches Summer School "Dynamos".
+! 2018.11.28: Minor revision for "smoke-ring" for the class "HPC".
+!-------------------------------------------------------------------
 
-module turtle
-  use constants
-  use ut
+module turtle_m
+  use constants_m
+  use ut_m
   implicit none
   private
   public :: & !<< routines >>!
-            turtle__arrow,                      &
-            turtle__broken_line,                &
-            turtle__circle,                     &
-            turtle__contour_cartesian,          &
-            turtle__contour_polar,              &
-            turtle__coords_shift,               &
-            turtle__distance,                   &
-            turtle__filename_for_lines,         &
-            turtle__initialize,                 &
-            turtle__line,                       &
-            turtle__move,                       &
-            turtle__point,                      &
-            turtle__rectangle,                  &
-            turtle__vector_cartesian,           &
+            turtle__arrow,  &
+            turtle__broken_line,  &
+            turtle__circle,  &
+            turtle__contour_cartesian,  &
+            turtle__contour_polar,  &
+            turtle__coords_shift,  &
+            turtle__distance,  &
+            turtle__filename_for_lines,  &
+            turtle__initialize,  &
+            turtle__line,  &
+            turtle__move,  &
+            turtle__point,  &
+            turtle__rectangle,  &
+            turtle__vector_cartesian,  &
             turtle__vector_polar
-
-  public :: turtle__pos_
-
-  public :: turtle__scalar2d_cartesian_,        &
-            turtle__scalar2d_polar_
-
-  public :: turtle__vector2d_cartesian_,        &
-            turtle__vector2d_polar_
 
   logical, save :: Initialization_done = .false.
 
-  type turtle__scalar2d_cartesian_
-     integer                           :: nx, ny
-     real(SP), dimension(:) ,  pointer :: xpos, ypos
-     real(SP), dimension(:,:), pointer :: f
-  end type turtle__scalar2d_cartesian_
+  type, public :: turtle__scalar2d_cartesian_t
+     integer :: nx, ny
+     real(SR), dimension(:) ,  pointer :: xpos, ypos
+     real(SR), dimension(:,:), pointer :: f
+  end type turtle__scalar2d_cartesian_t
 
-  type turtle__scalar2d_polar_
-     integer                           :: nr, nt
-     real(SP), dimension(:),   pointer :: rpos
-     real(SP), dimension(:),   pointer :: tpos
-     real(SP), dimension(:,:), pointer :: f
-  end type turtle__scalar2d_polar_
+  type, public :: turtle__scalar2d_polar_t
+     integer :: nr, nt
+     real(SR), dimension(:),   pointer :: rpos
+     real(SR), dimension(:),   pointer :: tpos
+     real(SR), dimension(:,:), pointer :: f
+  end type turtle__scalar2d_polar_t
 
-  type turtle__vector2d_polar_
-     integer                           :: nr, nt
-     real(SP), dimension(:),   pointer :: rpos, tpos
-     real(SP), dimension(:,:), pointer :: x, y
-     real(SP)                          :: vmax, vmin
-  end type turtle__vector2d_polar_
+  type, public :: turtle__vector2d_polar_t
+     integer :: nr, nt
+     real(SR), dimension(:),   pointer :: rpos, tpos
+     real(SR), dimension(:,:), pointer :: x, y
+     real(SR) :: vmax, vmin
+  end type turtle__vector2d_polar_t
 
-  type turtle__vector2d_cartesian_
-     integer                           :: nx, ny
-     real(SP), dimension(:),   pointer :: xpos, ypos
-     real(SP), dimension(:,:), pointer :: x, y
-     real(SP)                          :: vmax, vmin
-  end type turtle__vector2d_cartesian_
+  type, public :: turtle__vector2d_cartesian_t
+     integer :: nx, ny
+     real(SR), dimension(:),   pointer :: xpos, ypos
+     real(SR), dimension(:,:), pointer :: x, y
+     real(SR) :: vmax, vmin
+  end type turtle__vector2d_cartesian_t
 
-  type turtle__pos_
-     real(SP) :: x, y
-  end type turtle__pos_
-
+  type, public :: turtle__pos_t
+     real(SR) :: x, y
+  end type turtle__pos_t
 
   interface operator (*)
      module procedure operator_real_times_typepos
@@ -109,51 +116,51 @@ module turtle
   end interface
 
   interface turtle__broken_line
-     module procedure broken_line,              &
+     module procedure broken_line,  &
                       broken_line_structure
   end interface
 
   interface turtle__circle
-     module procedure circle,                   &
+     module procedure circle,  &
                       circle_structure
   end interface
 
 
   interface turtle__distance
-     module procedure distance,                 &
+     module procedure distance,  &
                       distance_structure
   end interface
 
   interface turtle__line
-     module procedure line,                     &
+     module procedure line,  &
                       line_structure
 
   end interface
 
   interface turtle__point
-     module procedure point,                    &
+     module procedure point,  &
                       point_structure
   end interface
 
   interface turtle__move
-     module procedure move,                     &
-                      move_other_coords,        &
+     module procedure move,  &
+                      move_other_coords,  &
                       move_structure
   end interface
 
   interface turtle__rectangle
-     module procedure rectangle,                &
+     module procedure rectangle,  &
                       rectangle_structure
   end interface
 
 
   type draw_area_
-     type(turtle__pos_) :: corner_north_west
-     type(turtle__pos_) :: corner_north_east
-     type(turtle__pos_) :: corner_south_west
-     type(turtle__pos_) :: corner_south_east
-     type(turtle__pos_) :: origin
-     real(SP)           :: diag_length
+     type(turtle__pos_t) :: corner_north_west
+     type(turtle__pos_t) :: corner_north_east
+     type(turtle__pos_t) :: corner_south_west
+     type(turtle__pos_t) :: corner_south_east
+     type(turtle__pos_t) :: origin
+     real(SR)           :: diag_length
   end type draw_area_
 
   type(draw_area_) :: Draw_area
@@ -163,6 +170,8 @@ module turtle
   character(len=*), parameter :: DIR_FOR_PLOT_DATA = "Workfiles/"
   character(len=*), parameter :: EXT_FOR_PLOT_DATA = "tt"
 
+  integer :: Unit_num_for_turtle  ! will be set in initialize
+
   character, parameter :: CHAR_SLASH = '/'
   character, parameter :: CHAR_DOT   = '.'
 
@@ -170,17 +179,12 @@ module turtle
 contains
 
 
-!===============
-!    Private
-!===============
-
-
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine arrow_structure(center,vec)                                 !
-    type(turtle__pos_), intent(in) :: center                             !
-    type(turtle__pos_), intent(in) :: vec                                !
-!________________________________________________________________________!
+!
+  subroutine arrow_structure(center,vec)
+    type(turtle__pos_t), intent(in) :: center
+    type(turtle__pos_t), intent(in) :: vec
+!________________________________________________________________________
 !
 !                             p
 !                              \
@@ -192,15 +196,15 @@ contains
 !                              /
 !                             r
 !
-    real(SP), parameter :: ALPHA = 3.0_SP / 4.0_SP
-    real(SP), parameter :: BETA  = 1.0_SP/12.0_SP
+    real(SR), parameter :: ALPHA = 3.0_SR / 4.0_SR
+    real(SR), parameter :: BETA  = 1.0_SR/12.0_SR
 !
-    type(turtle__pos_)  :: stt, end, p, q, r
+    type(turtle__pos_t)  :: stt, end, p, q, r
 
-!!$    if ( (vec%x)**2+(vec%y)**2 < 1.e-3_SP ) return   ! too short
+!!$    if ( (vec%x)**2+(vec%y)**2 < 1.e-3_SR ) return   ! too short
 
-    stt = center - (0.5_SP*vec)
-    end = center + (0.5_SP*vec)
+    stt = center - (0.5_SR*vec)
+    end = center + (0.5_SR*vec)
 
     q = stt + (ALPHA*vec)
 
@@ -219,13 +223,13 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine broken_line(x,y,new)                                        !
-    real(SP),           intent(in) :: x, y                               !
-    logical, optional,  intent(in) :: new                                !
-!________________________________________________________________________!
 !
-    type(turtle__pos_) :: pos
+  subroutine broken_line(x,y,new)
+    real(SR), intent(in) :: x, y
+    logical, optional, intent(in) :: new
+!________________________________________________________________________
+!
+    type(turtle__pos_t) :: pos
 
     pos%x = x
     pos%y = y
@@ -240,28 +244,28 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine broken_line_structure(pos_in,new)                           !
-    type(turtle__pos_), intent(in) :: pos_in                             !
-    logical, optional,  intent(in) :: new                                !
-!________________________________________________________________________!
+!
+  subroutine broken_line_structure(pos_in,new)
+    type(turtle__pos_t), intent(in) :: pos_in
+    logical, optional, intent(in) :: new
+!________________________________________________________________________
 !
 !     Original code developed by A. Kageyama in early 1990s in f77.
 !
 !     1994.06.07: modified
 !     2005.11.23: re-written in f90 by A. Kageyama.
 !
-      real(SP), parameter      :: UNIT1_FACTOR = 0.01_SP
-      real(SP), parameter      :: UNIT2_FACTOR = 0.0025_SP
-      real(SP), save           :: amari = 0.0_SP  ! i know it's automatic save.
-      type(turtle__pos_)       :: pos, pos0, pos1, vnormd
-      real(SP)                 :: dist, rmaind
-      integer                  :: i
+      real(SR), parameter :: UNIT1_FACTOR = 0.01_SR
+      real(SR), parameter :: UNIT2_FACTOR = 0.0025_SR
+      real(SR), save :: amari = 0.0_SR  ! i know it's automatic save.
+      type(turtle__pos_t) :: pos, pos0, pos1, vnormd
+      real(SR) :: dist, rmaind
+      integer :: i
 
-      real(SP)                 :: unit1, unit2, unit
-      type(turtle__pos_), save :: pos_prev
+      real(SR) :: unit1, unit2, unit
+      type(turtle__pos_t), save :: pos_prev
 
-      if ( Draw_area%diag_length < 1.e-5_SP )   &
+      if ( Draw_area%diag_length < 1.e-5_SR )   &
          call ut__fatal('<turtle/broken_line> Draw_area%diag_length = 0 ?')
 
       unit1 = UNIT1_FACTOR*Draw_area%diag_length
@@ -270,7 +274,7 @@ contains
 
       if ( present(new) ) then
          pos_prev = pos_in
-         amari = 0.0_SP
+         amari = 0.0_SR
          return
       end if
 
@@ -279,7 +283,7 @@ contains
 
       dist = turtle__distance(pos0,pos)
 
-      if( dist < 1.e-5_SP ) return
+      if( dist < 1.e-5_SR ) return
 
       vnormd = (pos-pos0)/dist
 !
@@ -344,15 +348,15 @@ contains
     end subroutine broken_line_structure
 
 !_______________________________________________________________private__
-!                                                                        !
-    subroutine check_and_draw_cartesian(i,j,iside,ifound,karte,lineid,  &!
-                                        field,flagx,flagy)               !
-      integer,                 intent(in)    :: i,j,iside                !
-      integer,                 intent(inout) :: ifound, karte            !
-      character(len=5),        intent(in)    :: lineid                   !
-      type(turtle__scalar2d_cartesian_), intent(in)   :: field           !
-      integer, dimension(:,:), intent(inout) :: flagx, flagy             !
-!________________________________________________________________________!
+!
+    subroutine check_and_draw_cartesian(i,j,iside,ifound,karte,lineid,  &
+                                        field,flagx,flagy)
+      integer, intent(in) :: i,j,iside
+      integer, intent(inout) :: ifound, karte
+      character(len=5), intent(in) :: lineid
+      type(turtle__scalar2d_cartesian_t), intent(in) :: field
+      integer, dimension(:,:), intent(inout) :: flagx, flagy
+!________________________________________________________________________
 !
 !     purpose : check and draw a contour line segment
 !               in cartesian corrdinate.
@@ -363,7 +367,7 @@ contains
 !     2005.11.23: Converted into f90 by Akira Kageyama.
 !________________________________________________________________________
 !
-      real(SP) :: xxx, yyy
+      real(SR) :: xxx, yyy
 
       if ( iside==1 .or. iside==4 ) then
         if ( field%f(i,j)*field%f(i+1,j) <= 0. ) then
@@ -372,8 +376,8 @@ contains
            if ( field%f(i,j) == field%f(i+1,j) ) then
               xxx = ( field%xpos(i)+field%xpos(i+1) ) / 2.
            else
-              xxx = field%xpos(i)                                       &
-                  - field%f(i,j)*(field%xpos(i+1)-field%xpos(i))        &
+              xxx = field%xpos(i)  &
+                  - field%f(i,j)*(field%xpos(i+1)-field%xpos(i))  &
                                 /(field%f(i+1,j)-field%f(i,j))
            end if
            yyy = field%ypos(j)
@@ -399,8 +403,8 @@ contains
            if ( field%f(i,j)==field%f(i,j+1) ) then
               yyy = ( field%ypos(j)+field%ypos(j+1) ) / 2.
            else
-              yyy = field%ypos(j)                                       &
-                  - field%f(i,j)*(field%ypos(j+1)-field%ypos(j))        &
+              yyy = field%ypos(j)  &
+                  - field%f(i,j)*(field%ypos(j+1)-field%ypos(j))  &
                                 /(field%f(i,j+1)-field%f(i,j))
            end if
            xxx = field%xpos(i)
@@ -425,15 +429,15 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-    subroutine check_and_draw_polar(i,j,iside,ifound,karte,lineid,  &    !
-                                    field,flagr,flagt)                   !
-      integer,                 intent(in)    :: i,j,iside                !
-      integer,                 intent(inout) :: ifound, karte            !
-      character(len=5),        intent(in)    :: lineid                   !
-      type(turtle__scalar2d_polar_), intent(in)   :: field               !
-      integer, dimension(:,:), intent(inout) :: flagr, flagt             !
-!________________________________________________________________________!
+!
+    subroutine check_and_draw_polar(i,j,iside,ifound,karte,lineid,  &
+                                    field,flagr,flagt)
+      integer, intent(in)    :: i,j,iside
+      integer, intent(inout) :: ifound, karte
+      character(len=5), intent(in)    :: lineid
+      type(turtle__scalar2d_polar_t), intent(in) :: field
+      integer, dimension(:,:), intent(inout) :: flagr, flagt
+!________________________________________________________________________
 !
 !     purpose : check and draw a contour line segment
 !               in the polar-corrdinates.
@@ -444,8 +448,8 @@ contains
 !     2005.11.24: Converted into f90 by Akira Kageyama.
 !________________________________________________________________________
 !
-      real(SP)           :: rad, tht
-      type(turtle__pos_) :: pos
+      real(SR) :: rad, tht
+      type(turtle__pos_t) :: pos
 
       if ( iside==1 .or. iside==4 ) then
         if ( field%f(i,j)*field%f(i+1,j) <= 0. ) then
@@ -454,8 +458,8 @@ contains
            if ( field%f(i,j) == field%f(i+1,j) ) then
               rad = ( field%rpos(i)+field%rpos(i+1) ) / 2.
            else
-              rad = field%rpos(i)                                       &
-                  - field%f(i,j)*(field%rpos(i+1)-field%rpos(i))        &
+              rad = field%rpos(i)  &
+                  - field%f(i,j)*(field%rpos(i+1)-field%rpos(i))  &
                                 /(field%f(i+1,j)-field%f(i,j))
            end if
            tht = field%tpos(j)
@@ -484,8 +488,8 @@ contains
            if ( field%f(i,j)==field%f(i,j+1) ) then
               tht = ( field%tpos(j)+field%tpos(j+1) ) / 2.
            else
-              tht = field%tpos(j)                                       &
-                  - field%f(i,j)*(field%tpos(j+1)-field%tpos(j))        &
+              tht = field%tpos(j)  &
+                  - field%f(i,j)*(field%tpos(j+1)-field%tpos(j))  &
                                 /(field%f(i,j+1)-field%f(i,j))
            end if
            rad = field%rpos(i)
@@ -512,22 +516,22 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine circle(center_x,center_y,radius,angle_from,angle_to)        !
-    real(SP), intent(in) :: center_x, center_y, radius                   !
-    real(SP), intent(in), optional :: angle_from, angle_to               !
-!________________________________________________________________________!
+!
+  subroutine circle(center_x,center_y,radius,angle_from,angle_to)
+    real(SR), intent(in) :: center_x, center_y, radius
+    real(SR), intent(in), optional :: angle_from, angle_to
+!________________________________________________________________________
 !
     integer,  parameter :: NDIV = 100
-    real(SP) :: x, y, tht
+    real(SR) :: x, y, tht
     integer  :: i
-    real(SP) :: tht_from, tht_to, dtht
+    real(SR) :: tht_from, tht_to, dtht
 
     if ( present(angle_from) .and. present(angle_to) ) then
        tht_from = angle_from
        tht_to   = angle_to
     else
-       tht_from = 0.0_SP
+       tht_from = 0.0_SR
        tht_to   = TWOPI
     end if
 
@@ -548,12 +552,12 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine circle_structure(center,radius,tht_from,tht_to)             !
-    type(turtle__pos_), intent(in) :: center                             !
-    real(SP),           intent(in) :: radius                             !
-    real(SP), intent(in), optional :: tht_from, tht_to                   !
-!________________________________________________________________________!
+!
+  subroutine circle_structure(center,radius,tht_from,tht_to)
+    type(turtle__pos_t), intent(in) :: center
+    real(SR), intent(in) :: radius
+    real(SR), intent(in), optional :: tht_from, tht_to
+!________________________________________________________________________
 !
     if (present(tht_from) .and. present(tht_to)) then
        call circle(center%x,center%y,radius,tht_from,tht_to)
@@ -565,11 +569,11 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine cont0_cartesian(field,lineid)                               !
-    type(turtle__scalar2d_cartesian_), intent(in) :: field               !
-    character(len=5), intent(in) :: lineid                               !
-!________________________________________________________________________!
+!
+  subroutine cont0_cartesian(field,lineid)
+    type(turtle__scalar2d_cartesian_t), intent(in) :: field
+    character(len=5), intent(in) :: lineid
+!________________________________________________________________________
 !
 !     purpose : draw a contour line of height 0 in cartesian coordinate.
 !
@@ -582,14 +586,14 @@ contains
 !     by a. kageyama    91.06.18
 !
 !     2005.11.23: Converted into f90 by Akira Kageyama.
-!________________________________________________________________________!
+!_______________________________________________________________________/
 !
-    integer                              :: nx, ny, i, j
+    integer :: nx, ny, i, j
     integer, dimension(:,:), allocatable :: flagx, flagy
-    real(SP)                             :: xxx, yyy
-    integer                              :: ienter, inow, jnow, karte
+    real(SR) :: xxx, yyy
+    integer :: ienter, inow, jnow, karte
 
-    real(SP) :: x, y, rsq
+    real(SR) :: x, y, rsq
 
     nx = field%nx
     ny = field%ny
@@ -614,7 +618,7 @@ contains
                 ! 0 on both points.
                 yyy = ( field%ypos(j)+field%ypos(j+1) ) / 2.
              else
-                yyy = field%ypos(j)                                  &
+                yyy = field%ypos(j)  &
                      - field%f(i,j)*(field%ypos(j+1)-field%ypos(j))  &
                      /(field%f(i,j+1)-field%f(i,j))
              end if
@@ -665,8 +669,8 @@ contains
                 !    0 on both points.
                 xxx = ( field%xpos(i)+field%xpos(i+1) ) / 2.
              else
-                xxx = field%xpos(i)                                    &
-                     - field%f(i,j)*(field%xpos(i+1)-field%xpos(i))    &
+                xxx = field%xpos(i)  &
+                     - field%f(i,j)*(field%xpos(i+1)-field%xpos(i))  &
                                    /(field%f(i+1,j)-field%f(i,j))
              end if
              yyy = field%ypos(j)
@@ -679,7 +683,7 @@ contains
                 jnow = j
                 karte = 0
                 do while ( karte==0 )
-                   call lnfolw_cartesian(inow,jnow,ienter,karte,lineid,        &
+                   call lnfolw_cartesian(inow,jnow,ienter,karte,lineid,  &
                                          field,flagx,flagy)
                 end do
              end if
@@ -693,7 +697,7 @@ contains
                 jnow = j
                 karte = 0
                 do while ( karte==0 )
-                   call lnfolw_cartesian(inow,jnow,ienter,karte,lineid,        &
+                   call lnfolw_cartesian(inow,jnow,ienter,karte,lineid,  &
                                          field,flagx,flagy)
                 end do
              end if
@@ -707,11 +711,11 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine cont0_polar(field,lineid)                                   !
-    type(turtle__scalar2d_polar_), intent(in) :: field                   !
-    character(len=5), intent(in) :: lineid                               !
-!________________________________________________________________________!
+!
+  subroutine cont0_polar(field,lineid)
+    type(turtle__scalar2d_polar_t), intent(in) :: field
+    character(len=5), intent(in) :: lineid
+!________________________________________________________________________
 !
 !     purpose : draw a contour line of height 0 in the polar-coords.
 !     note    :
@@ -721,14 +725,14 @@ contains
 !     by a. kageyama    91.06.18
 !
 !     2005.11.24: Converted into f90 by Akira Kageyama.
-!________________________________________________________________________
+!_______________________________________________________________________/
 !
-    integer                              :: nr, nt, i, j
+    integer :: nr, nt, i, j
     integer, dimension(:,:), allocatable :: flagr, flagt
-    real(SP)                             :: rad, tht
-    integer                              :: ienter, inow, jnow, karte
+    real(SR) :: rad, tht
+    integer :: ienter, inow, jnow, karte
 
-    type(turtle__pos_) :: pos
+    type(turtle__pos_t) :: pos
 
     nr = field%nr
     nt = field%nt
@@ -753,7 +757,7 @@ contains
                 ! 0 on both points.
                 tht = ( field%tpos(j)+field%tpos(j+1) ) / 2.
              else
-                tht = field%tpos(j)                                  &
+                tht = field%tpos(j)  &
                      - field%f(i,j)*(field%tpos(j+1)-field%tpos(j))  &
                                    /(field%f(i,j+1)-field%f(i,j))
              end if
@@ -806,8 +810,8 @@ contains
                 !    0 on both points.
                 rad = ( field%rpos(i)+field%rpos(i+1) ) / 2.
              else
-                rad = field%rpos(i)                                    &
-                     - field%f(i,j)*(field%rpos(i+1)-field%rpos(i))    &
+                rad = field%rpos(i)  &
+                     - field%f(i,j)*(field%rpos(i+1)-field%rpos(i))  &
                                    /(field%f(i+1,j)-field%f(i,j))
              end if
              tht = field%tpos(j)
@@ -823,7 +827,7 @@ contains
                 jnow = j
                 karte = 0
                 do while ( karte==0 )
-                   call lnfolw_polar(inow,jnow,ienter,karte,lineid,        &
+                   call lnfolw_polar(inow,jnow,ienter,karte,lineid,  &
                                      field,flagr,flagt)
                 end do
              end if
@@ -837,7 +841,7 @@ contains
                 jnow = j
                 karte = 0
                 do while ( karte==0 )
-                   call lnfolw_polar(inow,jnow,ienter,karte,lineid,        &
+                   call lnfolw_polar(inow,jnow,ienter,karte,lineid,  &
                                      field,flagr,flagt)
                 end do
              end if
@@ -852,11 +856,11 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  function coords_trans_polar_to_cartesian(rad,tht)                      !
-    real(SP), intent(in) :: rad, tht                                     !
-    type(turtle__pos_)   :: coords_trans_polar_to_cartesian              !
-!________________________________________________________________________!
+!
+  function coords_trans_polar_to_cartesian(rad,tht)
+    real(SR), intent(in) :: rad, tht
+    type(turtle__pos_t) :: coords_trans_polar_to_cartesian
+!________________________________________________________________________
 !
     coords_trans_polar_to_cartesian%x = rad*cos(tht)
     coords_trans_polar_to_cartesian%y = rad*sin(tht)
@@ -865,13 +869,13 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  function distance(x1,y1,x2,y2)                                         !
-    real(SP), intent(in) :: x1, y1, x2, y2                               !
-    real(SP)             :: distance                                     !
-!________________________________________________________________________!
 !
-    type(turtle__pos_) :: pos1, pos2
+  function distance(x1,y1,x2,y2)
+    real(SR), intent(in) :: x1, y1, x2, y2
+    real(SR) :: distance
+!________________________________________________________________________
+!
+    type(turtle__pos_t) :: pos1, pos2
 
     pos1%x = x1
     pos1%y = y1
@@ -884,11 +888,11 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  function distance_structure(pos1, pos2)                                !
-    type(turtle__pos_), intent(in) :: pos1, pos2                         !
-    real(SP)                       :: distance_structure                 !
-!________________________________________________________________________!
+!
+  function distance_structure(pos1, pos2)
+    type(turtle__pos_t), intent(in) :: pos1, pos2
+    real(SR) :: distance_structure
+!________________________________________________________________________
 !
     distance_structure = sqrt((pos1%x-pos2%x)**2+(pos1%y-pos2%y)**2)
 
@@ -896,14 +900,15 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine lnfolw_cartesian(i,j,ienter,karte,lineid,field,flagx,flagy) !
-    integer,                           intent(inout) :: i, j, ienter     !
-    integer,                           intent(inout) :: karte            !
-    character(len=5),                  intent(in)    :: lineid           !
-    type(turtle__scalar2d_cartesian_), intent(in)    :: field            !
-    integer, dimension(:,:),           intent(inout) :: flagx, flagy     !
-!________________________________________________________________________!
+!
+  subroutine lnfolw_cartesian(i,j,ienter,karte,lineid,field,flagx,flagy)
+    integer, intent(inout) :: i, j, ienter
+    integer, intent(inout) :: karte
+    character(len=5), intent(in) :: lineid
+    type(turtle__scalar2d_cartesian_t), intent(in) :: field
+    integer, dimension(:,:), intent(inout) :: flagx, flagy
+!________________________________________________________________________
+!
 !     purpose : elementally step for draw a contour line in
 !               cartesian coordinanate.
 !     note    : effectively recursive routine.
@@ -912,11 +917,11 @@ contains
 !
 !     originally developed by Akira Kageyama in early 1990s in f77.
 !     2005.11.23: Converted into f90 by Akira Kageyama.
-!________________________________________________________________________
+!_______________________________________________________________________/
 !
     integer, dimension(4,4), save :: iadd, jadd
-    logical                       :: first = .true.
-    integer                       :: i1, j1, iside, ifound
+    logical :: first = .true.
+    integer :: i1, j1, iside, ifound
 
     if (first) then
        call iInit
@@ -980,14 +985,15 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine lnfolw_polar(i,j,ienter,karte,lineid,field,flagr,flagt)     !
-    integer,                           intent(inout) :: i, j, ienter     !
-    integer,                           intent(inout) :: karte            !
-    character(len=5),                  intent(in)    :: lineid           !
-    type(turtle__scalar2d_polar_), intent(in)    :: field                !
-    integer, dimension(:,:),           intent(inout) :: flagr, flagt     !
-!________________________________________________________________________!
+!
+  subroutine lnfolw_polar(i,j,ienter,karte,lineid,field,flagr,flagt)
+    integer, intent(inout) :: i, j, ienter
+    integer, intent(inout) :: karte
+    character(len=5), intent(in) :: lineid
+    type(turtle__scalar2d_polar_t), intent(in) :: field
+    integer, dimension(:,:), intent(inout) :: flagr, flagt
+!________________________________________________________________________
+!
 !     purpose : elementally step for draw a contour line in
 !               the polar-coordinanates.
 !     note    : effectively recursive routine.
@@ -997,11 +1003,11 @@ contains
 !     originally developed by Akira Kageyama in early 1990s in f77.
 !
 !     2005.11.24: Converted into f90 by Akira Kageyama.
-!________________________________________________________________________
+!_______________________________________________________________________/
 !
     integer, dimension(4,4), save :: iadd, jadd
-    logical                       :: first = .true.
-    integer                       :: i1, j1, iside, ifound
+    logical :: first = .true.
+    integer :: i1, j1, iside, ifound
 
     if (first) then
        call iInit
@@ -1065,30 +1071,29 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine line(xp,yp)                                                 !
-    real(SP), intent(in) :: xp, yp                                       !
-!________________________________________________________________________!
 !
-    real(SP) :: ox, oy
+  subroutine line(xp,yp)
+    real(SR), intent(in) :: xp, yp
+!________________________________________________________________________
+!
+    real(SR) :: ox, oy
 
-    if (.not.Initialization_done)       &
+    if (.not.Initialization_done)  &
        call ut__fatal("turtle: You forgot initialization.")
 
     ox = Draw_area%origin%x
     oy = Draw_area%origin%y
 
-    write(FILE_FOR_TURTLE,*) ox+xp, oy+yp
+    write(Unit_num_for_turtle,*) ox+xp, oy+yp
 
   end subroutine line
 
 
-
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine line_structure(pos)                                         !
-    type(turtle__pos_), intent(in) :: pos                                !
-!________________________________________________________________________!
+!
+  subroutine line_structure(pos)
+    type(turtle__pos_t), intent(in) :: pos
+!________________________________________________________________________
 !
     call line(pos%x,pos%y)
 
@@ -1096,34 +1101,33 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine move(xp,yp)                                                 !
-    real(SP), intent(in) :: xp, yp                                       !
-!________________________________________________________________________!
 !
-    real(SP) :: ox, oy
+  subroutine move(xp,yp)
+    real(SR), intent(in) :: xp, yp
+!________________________________________________________________________
+!
+    real(SR) :: ox, oy
 
-    if (.not.Initialization_done)       &
+    if (.not.Initialization_done)  &
        call ut__fatal("turtle: You forgot initialization.")
-
 
     ox = Draw_area%origin%x
     oy = Draw_area%origin%y
 
-    write(FILE_FOR_TURTLE,*) ""
-    write(FILE_FOR_TURTLE,*) ox+xp, oy+yp
+    write(Unit_num_for_turtle,*) ""
+    write(Unit_num_for_turtle,*) ox+xp, oy+yp
 
   end subroutine move
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine move_other_coords(rad,tht,coords)                           !
-    real(SP),         intent(in) :: rad, tht                             !
-    character(len=*), intent(in) :: coords                               !
-!________________________________________________________________________!
 !
-    real(SP) :: x, y
+  subroutine move_other_coords(rad,tht,coords)
+    real(SR), intent(in) :: rad, tht
+    character(len=*), intent(in) :: coords
+!________________________________________________________________________
+!
+    real(SR) :: x, y
 
     if (coords=='polar') then
        x = rad*cos(tht)
@@ -1131,7 +1135,7 @@ contains
 
        call move(x,y)
     else
-       call ut__fatal('<turtle/move(_other_coords)>'//               &
+       call ut__fatal('<turtle/move(_other_coords)>'//  &
                       ' This coordinate system is not supported:'//  &
                       coords)
     end if
@@ -1140,10 +1144,10 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine move_structure(pos)                                         !
-    type(turtle__pos_), intent(in) :: pos                                !
-!________________________________________________________________________!
+!
+  subroutine move_structure(pos)
+    type(turtle__pos_t), intent(in) :: pos
+!________________________________________________________________________
 !
     call move(pos%x,pos%y)
 
@@ -1151,12 +1155,12 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  function operator_real_times_typepos(realsp,typepos)                   !
-    real(SP),            intent(in) :: realsp                            !
-    type(turtle__pos_) , intent(in) :: typepos                           !
-    type(turtle__pos_) :: operator_real_times_typepos                    !
-!________________________________________________________________________!
+!
+  function operator_real_times_typepos(realsp,typepos)
+    real(SR), intent(in) :: realsp
+    type(turtle__pos_t), intent(in) :: typepos
+    type(turtle__pos_t) :: operator_real_times_typepos
+!________________________________________________________________________
 !
     operator_real_times_typepos%x = realsp*(typepos%x)
     operator_real_times_typepos%y = realsp*(typepos%y)
@@ -1165,12 +1169,12 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  function operator_typepos_div_real(pos,div)                            !
-    type(turtle__pos_), intent(in) :: pos                                !
-    real(SP),           intent(in) :: div                                !
-    type(turtle__pos_) :: operator_typepos_div_real                      !
-!________________________________________________________________________!
+!
+  function operator_typepos_div_real(pos,div)
+    type(turtle__pos_t), intent(in) :: pos
+    real(SR), intent(in) :: div
+    type(turtle__pos_t) :: operator_typepos_div_real
+!________________________________________________________________________
 !
     operator_typepos_div_real%x = pos%x / div
     operator_typepos_div_real%y = pos%y / div
@@ -1179,11 +1183,11 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  function operator_typepos_minus(a,b)                                   !
-    type(turtle__pos_), intent(in) :: a, b                               !
-    type(turtle__pos_) :: operator_typepos_minus                         !
-!________________________________________________________________________!
+!
+  function operator_typepos_minus(a,b)
+    type(turtle__pos_t), intent(in) :: a, b
+    type(turtle__pos_t) :: operator_typepos_minus
+!________________________________________________________________________
 !
     operator_typepos_minus%x = a%x - b%x
     operator_typepos_minus%y = a%y - b%y
@@ -1192,11 +1196,11 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  function operator_typepos_plus(a,b)                                    !
-    type(turtle__pos_), intent(in) :: a, b                               !
-    type(turtle__pos_) :: operator_typepos_plus                          !
-!________________________________________________________________________!
+!
+  function operator_typepos_plus(a,b)
+    type(turtle__pos_t), intent(in) :: a, b
+    type(turtle__pos_t) :: operator_typepos_plus
+!________________________________________________________________________
 !
     operator_typepos_plus%x = a%x + b%x
     operator_typepos_plus%y = a%y + b%y
@@ -1205,29 +1209,29 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine point(xp,yp)                                                !
-    real(SP), intent(in) :: xp, yp                                       !
-!________________________________________________________________________!
 !
-    real(SP) :: ox, oy
+  subroutine point(xp,yp)
+    real(SR), intent(in) :: xp, yp
+!________________________________________________________________________
+!
+    real(SR) :: ox, oy
 
-    if (.not.Initialization_done)       &
+    if (.not.Initialization_done)  &
        call ut__fatal("turtle: You forgot initialization.")
 
     ox = Draw_area%origin%x
     oy = Draw_area%origin%y
 
-    write(FILE_FOR_TURTLE,*) ox+xp, oy+yp
+    write(Unit_num_for_turtle,*) ox+xp, oy+yp
 
   end subroutine point
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine point_structure(pos)                                        !
-    type(turtle__pos_), intent(in) :: pos                                !
-!________________________________________________________________________!
+!
+  subroutine point_structure(pos)
+    type(turtle__pos_t), intent(in) :: pos
+!________________________________________________________________________
 !
     call point(pos%x,pos%y)
 
@@ -1235,10 +1239,10 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine rectangle_structure(pos_sw,pos_ne)                          !
-    type(turtle__pos_), intent(in) :: pos_sw, pos_ne                     !
-!________________________________________________________________________!
+!
+  subroutine rectangle_structure(pos_sw,pos_ne)
+    type(turtle__pos_t), intent(in) :: pos_sw, pos_ne
+!________________________________________________________________________
 !
 !                               pos_ne
 !           +--------------------+
@@ -1257,10 +1261,10 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine rectangle(xsw,ysw,xne,yne)         ! sw means south-west    !
-    real(SP), intent(in) :: xsw, ysw, xne, yne  ! ne means north-east    !
-!________________________________________________________________________!
+!
+  subroutine rectangle(xsw,ysw,xne,yne)         ! sw means south-west
+    real(SR), intent(in) :: xsw, ysw, xne, yne  ! ne means north-east
+!________________________________________________________________________
 !
 !                               (xne,yne)
 !           +--------------------+
@@ -1274,7 +1278,7 @@ contains
 !
 !
 !
-    type(turtle__pos_) :: nw, ne, sw, se
+    type(turtle__pos_t) :: nw, ne, sw, se
 
     sw%x = xsw
     sw%y = ysw
@@ -1294,18 +1298,21 @@ contains
   end subroutine rectangle
 
 
-!==============
-!    Public
-!==============
+!
+! Private
+!===============
+! Public
+!
+
 
 !________________________________________________________________public__
-!                                                                        !
-  subroutine turtle__contour_cartesian(field,nlevels,              &     !
-                                       vmax_,vmin_)                      !
-    type(turtle__scalar2d_cartesian_), intent(in) :: field               !
-    integer, intent(in) :: nlevels                                       !
-    real(SP), intent(in), optional :: vmax_, vmin_                       !
-!________________________________________________________________________!
+!
+  subroutine turtle__contour_cartesian(field,nlevels,  &
+                                       vmax_,vmin_)
+    type(turtle__scalar2d_cartesian_t), intent(in) :: field
+    integer, intent(in) :: nlevels
+    real(SR), intent(in), optional :: vmax_, vmin_
+!________________________________________________________________________
 !
 !
 !     purpose : draw a contour line in x-y coordinate.
@@ -1325,13 +1332,13 @@ contains
 !
 !-----
 !     2005.11.23: Converted into f90 by Akira Kageyama
-!________________________________________________________________________!
+!_______________________________________________________________________/
 !
-    real(SP) :: vmax, vmin
+    real(SR) :: vmax, vmin
     integer  :: l
-    type(turtle__scalar2d_cartesian_) :: field0
-    real(SP) :: dval
-    real(SP), dimension(:), allocatable :: level
+    type(turtle__scalar2d_cartesian_t) :: field0
+    real(SR) :: dval
+    real(SR), dimension(:), allocatable :: level
     integer :: nx, ny
 
     nx = field%nx
@@ -1411,13 +1418,12 @@ contains
 
 
 !________________________________________________________________public__
-!                                                                        !
-  subroutine turtle__contour_polar(field,nlevels,vmax_,vmin_)            !
-    type(turtle__scalar2d_polar_), intent(in) :: field                   !
-    integer, intent(in) :: nlevels                                       !
-    real(SP), intent(in), optional :: vmax_, vmin_                       !
-!________________________________________________________________________!
 !
+  subroutine turtle__contour_polar(field,nlevels,vmax_,vmin_)
+    type(turtle__scalar2d_polar_t), intent(in) :: field
+    integer, intent(in) :: nlevels
+    real(SR), intent(in), optional :: vmax_, vmin_
+!________________________________________________________________________
 !
 !     purpose : draw a contour line in the polar-coordinates.
 !     note    :
@@ -1428,13 +1434,13 @@ contains
 !
 !-----
 !     2005.11.24: Converted into f90 by Akira Kageyama
-!________________________________________________________________________!
+!________________________________________________________________________
 !
-    real(SP) :: vmax, vmin
+    real(SR) :: vmax, vmin
     integer  :: l
-    type(turtle__scalar2d_polar_) :: field0
-    real(SP) :: dval
-    real(SP), dimension(:), allocatable :: level
+    type(turtle__scalar2d_polar_t) :: field0
+    real(SR) :: dval
+    real(SR), dimension(:), allocatable :: level
     integer :: nr, nt
 
     nr = field%nr
@@ -1513,10 +1519,10 @@ contains
 
 
 !_______________________________________________________________private__
-!                                                                        !
-  subroutine turtle__coords_shift(shift)                                 !
-    type(turtle__pos_), intent(in) :: shift                              !
-!________________________________________________________________________!
+!
+  subroutine turtle__coords_shift(shift)
+    type(turtle__pos_t), intent(in) :: shift
+!________________________________________________________________________
 !
     Draw_area%origin%x = Draw_area%origin%x + shift%x
     Draw_area%origin%y = Draw_area%origin%y + shift%y
@@ -1525,35 +1531,40 @@ contains
     print *,' Draw_area%origin%y = ', Draw_area%origin%y
 
   end subroutine turtle__coords_shift
-  
+
 
 !________________________________________________________________public__
-!                                                                        !
-  function turtle__filename_for_lines(tag)                               !
-    character(len=*), intent(in) :: tag                                  !
-    character(len=TAG_STRING_LENGTH_MAX) :: turtle__filename_for_lines   !
-!________________________________________________________________________!
+!
+  function turtle__filename_for_lines(tag)
+    character(len=*), intent(in) :: tag
+    character(len=200) :: turtle__filename_for_lines
+!________________________________________________________________________
 !
     !<< e.g., file = "./lines.temp.tt" >>!
-    turtle__filename_for_lines = trim(DIR_FOR_PLOT_DATA)        &
-                               //CHAR_SLASH                     &
-                               //"lines"                        &
-                               //CHAR_DOT                       &
-                               //trim(tag)                      &
-                               //CHAR_DOT                       &
+    turtle__filename_for_lines = trim(DIR_FOR_PLOT_DATA)  &
+                               //CHAR_SLASH  &
+                               //"lines"  &
+                               //CHAR_DOT  &
+                               //trim(tag)  &
+                               //CHAR_DOT  &
                                //EXT_FOR_PLOT_DATA
 
   end function turtle__filename_for_lines
 
 
 !________________________________________________________________public__
-!                                                                        !
-  subroutine turtle__initialize(window_lower_left,window_upper_rite)     !
-    type(turtle__pos_), intent(in) :: window_lower_left,               & !
-                                      window_upper_rite                  !
-!________________________________________________________________________!
 !
-    real(SP) :: xmin, xmax, ymin, ymax
+  subroutine turtle__initialize(unit_num,  &
+                                window_lower_left, &
+                                window_upper_rite)
+    integer, intent(in) :: unit_num
+    type(turtle__pos_t), intent(in) :: window_lower_left,  &
+                                       window_upper_rite
+!________________________________________________________________________
+!
+    real(SR) :: xmin, xmax, ymin, ymax
+
+    Unit_num_for_turtle = unit_num
 
     xmin = window_lower_left%x
     xmax = window_upper_rite%x
@@ -1586,23 +1597,23 @@ contains
 
 
 !________________________________________________________________public__
-!                                                                        !
-  subroutine turtle__vector_cartesian(vector,norm)                       !
-    type(turtle__vector2d_cartesian_), intent(in) :: vector              !
-    real(SP), optional,                intent(in) :: norm                !
-!________________________________________________________________________!
+!
+  subroutine turtle__vector_cartesian(vector,norm)
+    type(turtle__vector2d_cartesian_t), intent(in) :: vector
+    real(SR), optional, intent(in) :: norm
+!________________________________________________________________________
 !
     integer  :: i, j
-    real(SP) :: max_vec_amp
-    type(turtle__pos_) :: place, arrow
-    real(SP) :: factor
+    real(SR) :: max_vec_amp
+    type(turtle__pos_t) :: place, arrow
+    real(SR) :: factor
 
     if (present(norm)) then
-       factor = 1.0_SP / norm
+       factor = 1.0_SR / norm
     else
        max_vec_amp = iCalc_amplitude()
        call ut__message("# max vel = ", max_vec_amp)
-       factor = 0.1_SP / max_vec_amp
+       factor = 0.1_SR / max_vec_amp
     end if
 
     do i = 1 , vector%nx 
@@ -1618,7 +1629,7 @@ contains
   contains
 
     function iCalc_amplitude()
-      real(SP) :: iCalc_amplitude
+      real(SR) :: iCalc_amplitude
 
       iCalc_amplitude = maxval(sqrt(vector%x(:,:)**2 + vector%y(:,:)**2))
     end function iCalc_amplitude
@@ -1627,27 +1638,27 @@ contains
 
 
 !________________________________________________________________public__
-!                                                                        !
-  subroutine turtle__vector_polar(vector,norm)                           !
-    type(turtle__vector2d_polar_), intent(in) :: vector                  !
-    real(SP), optional,            intent(in) :: norm                    !
-!________________________________________________________________________!
+!
+  subroutine turtle__vector_polar(vector,norm)
+    type(turtle__vector2d_polar_t), intent(in) :: vector
+    real(SR), optional, intent(in) :: norm
+!________________________________________________________________________
 !
     integer  :: i, j
-    real(SP) :: rad, tht, max_vec_amp
-    type(turtle__pos_) :: place, arrow
-    real(SP) :: factor
+    real(SR) :: rad, tht, max_vec_amp
+    type(turtle__pos_t) :: place, arrow
+    real(SR) :: factor
 
     if (present(norm)) then
-       if ( norm > 0.0_SP ) then
-          factor = 1.0_SP / norm
+       if ( norm > 0.0_SR ) then
+          factor = 1.0_SR / norm
        else
           max_vec_amp = iCalc_amplitude()
           call ut__message("# max vel = ", max_vec_amp)
-          factor = 0.1_SP / max_vec_amp
+          factor = 0.1_SR / max_vec_amp
        end if
     else
-       factor = 1.0_SP
+       factor = 1.0_SR
     end if
 
     do i = 5 , vector%nr , 5
@@ -1665,11 +1676,11 @@ contains
   contains
 
     function iCalc_amplitude()
-      real(SP) :: iCalc_amplitude
+      real(SR) :: iCalc_amplitude
 
       iCalc_amplitude = maxval(sqrt(vector%x(:,:)**2 + vector%y(:,:)**2))
     end function iCalc_amplitude
 
   end subroutine turtle__vector_polar
 
-end module turtle
+end module turtle_m
