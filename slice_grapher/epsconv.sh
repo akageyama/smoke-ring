@@ -1,11 +1,11 @@
-#!/bin/csh
+#!/bin/sh
 
 cd Workfiles
 
-foreach i (*.eps)
+for i in `ls *.eps`; do
   echo converting $i
   convert -alpha Remove -density 300x300 $i ${i}conv.gif
-end
+done
 
 #
 # make a gif-animation
