@@ -1,42 +1,46 @@
 # class-hpc-smoke-ring
 
 A simple sample field solver, or a CFD (Computational Fluid Dynamics)
-code for the class "HPC", which is for undergraduate students of 
-Department of Engineering, 
-Kobe University, Japan.
+code for the class "HPC", which is for undergraduate students of
+Department of Engineering, Kobe University, Japan.
 
 ## Physical Model
 A gas contained in a rectangular box is driven by a localized force
-near the end of box. The force drives the gas to flow toward
-the other end, rsulting in the formation of the well-known vortex-ring,
+near a side plane of the box. The force drives the gas fluid toward
+the other side, rsulting in the formation of well-known vortex-ring,
 or smoke-ring.
 
+## Program structure
+
+--+--src (Simulation code. The output is a file "_data_slice".)
+  |
+  +--slice_grapher (Visualization code. It reads "_data_slice"
+                    and makes an animated gif of the flow in a
+                    a cross section.)
 
 ## Prerequisite
-- Fortran compiler
-- gnuplot, for the post-process (2-D) visualization.
-- ImageMagic (convert command), for the post-process (2-D) visualization.
+
+- Fortran 2003 compiler, for the simulation.
+- gnuplot and ImageMagic (convert command), for the visualization.
+- An animated gif viewer Here we use Safari.
 
 ## Usage
 
-    cd src
-    kvsmake -g smoke-ring
-    kvsmake
-    ./smoke-ring < sample.namelist
-    cd ../slice_grapher
-    make
-    make gif  # ImageMagic (convert command) is used.
-    make view  # Here we use Safari browser for gif animation.
+    1. cd src
+    2. make  (for simulation)
+    3. cd ../slice_grapher
+    4. make (for visualization)
 
-## Parameters
+## Easy parametes survey
 
-- Change (NX,NY,NZ) in src/constants.f90 and slice_grapher/constants.f90
-- Change values in src/sample.namelist
+- Change the grid size (NX,NY,NZ) in src/constants.f90
+- Change dissipation params in src/params.namelist
 
 
 ## Basic equation
 
 Compressible Navier-Stokes equations for an ideal gas.
+
 
 ## Numerical method
 
@@ -44,15 +48,16 @@ Second-order central difference with 4-th order Runge-Kutta integration.
 
 ## Boundary condition
 
-Periodic boundary condition in all (three) dimensions.
+Periodic boundary in all (three) dimensions.
 
 ## Programing language
 
-Fortran95.
+Fortran 2003.
 
 ## Author
 Akira Kageyama, Kobe Univ., Japan
- email: sgks@mac.com, kage@port.kobe-u.ac.jp
+ email: sgks@mac.com | kage@port.kobe-u.ac.jp
 
 ## License
+
 This software is released under the MIT License, see LICENSE.txt.
