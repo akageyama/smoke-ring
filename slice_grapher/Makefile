@@ -5,6 +5,9 @@
 #   revised on: 2018.04.12 for smoke-ring.
 #
 
+
+.PHONY: figs clean
+
 .SUFFIXES:
 .SUFFIXES: .f90 .o
 
@@ -20,14 +23,14 @@ FC = gfortran
 	$(FC) $(FFLAGS) -c $<
 
 
-OBJS =	constants.o	\
-	ut.o		\
-	grid.o		\
-	turtle.o
-
 
 figs: nloop_list.txt gnuplot_data_generator Workfiles
-	./plots.csh
+	for i in `awk '{print $$2}' nloop_list.txt`; \
+        do \
+          ./make_plotscript.sh $$i; \
+          gnuplot 'Workfiles/plot.gp'; \
+        done
+
 
 
 Workfiles:
@@ -54,7 +57,14 @@ gnuplot_data_generator: gnuplot_data_generator.o
 
 
 gif:
-	./epsconv.csh
+	cd Workfiles; \
+        for i in `ls *.eps`; \
+        do \
+          echo converting $$i; \
+          convert -alpha Remove -density 300x300 $$i $$i.gif; \
+        done; \
+        echo 'making animation.gif'; \
+        convert -delay 10 *.eps.gif animation.gif
 
 view:
 	open -a Safari Workfiles/animation.gif
