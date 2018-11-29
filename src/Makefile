@@ -18,7 +18,7 @@
 .SUFFIXES: .f90 .o
 
 FC = gfortran
-FFLAGS =
+FFLAGS = -Ofast
 
 
 .f90.o:

@@ -48,7 +48,7 @@ Workfiles:
 	mkdir -p Workfiles
 
 
-nloop_list.txt: extract_nloop_list
+nloop_list.txt: extract_nloop_list ../src/_data_slice
 	./extract_nloop_list > nloop_list.txt
 
 extract_nloop_list: extract_nloop_list.o
