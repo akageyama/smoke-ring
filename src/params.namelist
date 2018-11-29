@@ -1,7 +1,5 @@
 &simulation      Total_nloop = 2000 /
 &visualization   Slicedata_nskip  = 100, Slicedata_tag = '_data_slice' /
-!&fluid_property Viscosity = 5.0e-5, Kappa = 5.e-5 /
-                     ! works fine when NX*NY*NZ=152*52*52
-&fluid_property  Viscosity = 1.0e-4, Kappa = 1.e-4 /
+&fluid_property  Viscosity = 3.0e-2, Kappa = 3.e-2 /
                      ! works fine when NX*NY*NZ=92*32*32
 &flags           Debug = .false. /

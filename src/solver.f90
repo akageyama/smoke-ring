@@ -36,6 +36,9 @@ module solver_m
   end interface
 
   real(DR), parameter :: GAMMA = 5.0_DR / 3.0_DR ! ratio of specific heats.
+  real(DR), parameter :: GASS_CONST_FOR_AIR = 2.87e2_DR
+  !  Equation of state for the air:
+  !     Pressure = 287 * Mass_density * Temperature
 
   logical,  save :: Initialize_done = .false.
   real(DR), save :: Viscosity
@@ -60,10 +63,11 @@ contains
     !          t_start         t_end
     !
     real(DR), parameter :: T_START =  0.0_DR
-    real(DR), parameter :: T_END   =  5.0_DR
+!   real(DR), parameter :: T_END   =  5.0_DR
+    real(DR), parameter :: T_END   =  0.01_DR
                                    ! Find proper value by trials & erros.
-    real(DR), parameter :: T0 = T_START + (T_END-T_START)/10
-    real(DR), parameter :: T1 = T_END   - (T_END-T_START)/10
+    real(DR), parameter :: T0 = T_START + (T_END-T_START)/4
+    real(DR), parameter :: T1 = T_END   - (T_END-T_START)/4
 
     real(DR), parameter :: ONE  = 1.0_DR
     real(DR), parameter :: ZERO = 0.0_DR
@@ -97,7 +101,7 @@ contains
     real(DR) :: force_center_y, force_center_z
     real(DR) :: force_cylinder_diameter, force_cylinder_radius_sq
 
-    real(DR), parameter :: THE_FORCE = 0.02_DR
+    real(DR), parameter :: THE_FORCE = 3.e3_DR
                                      ! Find proper value by trials & erros.
     !
     !     +--------------------------------------+ ZMAX
@@ -166,7 +170,7 @@ contains
 
 !>   vel = fluid%flux     / fluid%density ! operator defined in field.f90.
      vel = operator_vector_divby_scalar(fluid%flux, fluid%density)
-      tm = fluid%pressure / fluid%density
+      tm = fluid%pressure / (GASS_CONST_FOR_AIR*fluid%density)
 
     call debug__print("called solver/subfield_vel_tm.")
   end subroutine subfield_vel_tm
@@ -391,7 +395,7 @@ contains
     type(field__fluid_t), intent(in)    :: fluid
 
     integer(SI), parameter :: SKIP = 100
-    real(DR), parameter :: ABNORMALLY_LARGE = 1.e5_DR
+    real(DR), parameter :: ABNORMALLY_LARGE = 1.e20_DR
 
     type(field__vector3d_t) :: vel
 
@@ -469,8 +473,8 @@ contains
     Gamma1_kappa = (Gamma-1)*kappa
 
     !<< Initial condition of the fluid >>!
-    fluid%pressure = 1.0_DR
-    fluid%density  = 1.0_DR      ! uniform p, T, and rho.
+    fluid%pressure = 1.013e5_DR  ! 1013 hPa (air pressure)
+    fluid%density  = 1.293_DR    ! kg/m^3 (air density)
 !>  fluid%flux     = 0.0_DR      ! no flow at t=0
     fluid%flux%x   = 0.0_DR      ! no flow at t=0
     fluid%flux%y   = 0.0_DR      ! no flow at t=0
@@ -511,7 +515,7 @@ contains
       vmax = maxval(sqrt(vel%x**2+vel%y**2+vel%z**2))
       vmax = max(vmax,ALMOST_ZERO)             ! For case of no flow, at t=0.
 
-      sound_v = GAMMA*maxval(sqrt(tm))         ! Speed of sound.
+      sound_v = GAMMA*maxval(sqrt(GASS_CONST_FOR_AIR*tm)) ! Speed of sound.
 
       call ut__assert(sound_v > ALMOST_ZERO,"<solver__time_step> sound_v=0?")
 
