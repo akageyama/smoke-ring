@@ -35,7 +35,7 @@ module solver_m
                      subfield_vel_tm_divv
   end interface
 
-  real(DR), parameter :: GAMMA = 5.0_DR / 3.0_DR ! ratio of specific heats.
+  real(DR), parameter :: GAMMA = 1.4_DR ! air's ratio of the specific heats.
   real(DR), parameter :: GASS_CONST_FOR_AIR = 2.87e2_DR
   !  Equation of state for the air:
   !     Pressure = 287 * Mass_density * Temperature
@@ -63,7 +63,6 @@ contains
     !          t_start         t_end
     !
     real(DR), parameter :: T_START =  0.0_DR
-!   real(DR), parameter :: T_END   =  5.0_DR
     real(DR), parameter :: T_END   =  0.01_DR
                                    ! Find proper value by trials & erros.
     real(DR), parameter :: T0 = T_START + (T_END-T_START)/4
