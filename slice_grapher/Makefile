@@ -12,7 +12,7 @@
 #    src/constants.f90
 #-------------------------------------------------------------------
 
-.PHONY: epsfigs clean view
+.PHONY: link epsfigs clean view
 
 .SUFFIXES:
 .SUFFIXES: .f90 .o
@@ -51,14 +51,13 @@ Workfiles:
 nloop_list.txt: extract_nloop_list ../src/_data_slice
 	./extract_nloop_list > nloop_list.txt
 
-extract_nloop_list: extract_nloop_list.o
+extract_nloop_list: link extract_nloop_list.o
 	$(FC) $(FFLAGS) -o extract_nloop_list  \
 		constants.o  \
 		extract_nloop_list.o
 
 
-
-gnuplot_data_generator: gnuplot_data_generator.o
+gnuplot_data_generator: link gnuplot_data_generator.o
 	$(FC) $(FFLAGS) -o gnuplot_data_generator  \
 		constants.o  \
 		ut.o  \
@@ -67,13 +66,23 @@ gnuplot_data_generator: gnuplot_data_generator.o
 		gnuplot_data_generator.o
 
 
+link:
+	ln -sf ../src/constants.f90 .
+	ln -sf ../src/ut.f90 .
+	ln -sf ../src/grid.f90 .
+	$(FC) $(FFLAGS) -c constants.f90
+	$(FC) $(FFLAGS) -c ut.f90
+	$(FC) $(FFLAGS) -c grid.f90
+
 gnuplot_data_generator.o: constants.o ut.o grid.o turtle.o
 extract_nloop_list.o: constants.o
 ut.o: constants.o
 turtle.o: constants.o ut.o
 grid.o:	constants.o ut.o
 
+
 clean:
 	rm -f *.o *.mod
+	rm constants.f90 ut.f90 grid.f90  # Remove links
 	rm -f gnuplot_data_generator extract_nloop_list nloop_list.txt
 	rm -rf Workfiles
