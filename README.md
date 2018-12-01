@@ -1,5 +1,7 @@
 # class-hpc-smoke-ring
 
+テストてすと
+
 A simple sample field solver, or a CFD (Computational Fluid Dynamics)
 code for the class "HPC", which is for undergraduate students of
 Department of Engineering, Kobe University, Japan.
