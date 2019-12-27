@@ -26,8 +26,8 @@ echo ' '
 maxfilenum=`ls -1 $filebase.??? | tail -1 | rev | cut -d. -f1 | rev`
 
 echo "do for [i=0:$maxfilenum] {"
-echo "  num = sprintf("%03d", i)"
-echo "  filename = sprintf("output.data.%03d", i)"
+echo "  num = sprintf(\"%03d\", i)"
+echo "  filename = sprintf(\"output.data.%03d\", i)"
 echo "  plot filename w lp t num"
 echo "  if (i==0) {"
 echo "    pause 4.9"
