@@ -400,25 +400,10 @@
 <polygon fill="none" stroke="black" points="54,-34.41 0,-34.41 0,-12.4 54,-12.4 54,-34.41"/>
 <text text-anchor="middle" x="27" y="-20.25" font-family="Helvetica,sans-Serif" font-size="10.50">ut_m</text>
 </g>
-<!-- module~namelist_m -->
-<g id="module~~ut_m~~UsedByGraph_node2" class="node">
-<title>module~namelist_m</title>
-<g id="a_module~~ut_m~~UsedByGraph_node2"><a xlink:href=".././module/namelist_m.html" xlink:title="namelist_m">
-<polygon fill="#337ab7" stroke="#337ab7" points="155.53,-34.41 90.16,-34.41 90.16,-12.4 155.53,-12.4 155.53,-34.41"/>
-<text text-anchor="middle" x="122.84" y="-20.25" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">namelist_m</text>
-</a>
-</g>
-</g>
-<!-- module~namelist_m&#45;&gt;module~ut_m -->
-<g id="module~~ut_m~~UsedByGraph_edge2" class="edge">
-<title>module~namelist_m&#45;&gt;module~ut_m</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M90.07,-23.4C81.75,-23.4 72.73,-23.4 64.2,-23.4"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="64.12,-19.9 54.12,-23.4 64.12,-26.9 64.12,-19.9"/>
-</g>
 <!-- program~main -->
-<g id="module~~ut_m~~UsedByGraph_node3" class="node">
+<g id="module~~ut_m~~UsedByGraph_node2" class="node">
 <title>program~main</title>
-<g id="a_module~~ut_m~~UsedByGraph_node3"><a xlink:href=".././program/main.html" xlink:title="main">
+<g id="a_module~~ut_m~~UsedByGraph_node2"><a xlink:href=".././program/main.html" xlink:title="main">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="335.68,-53.41 281.68,-53.41 281.68,-31.4 335.68,-31.4 335.68,-53.41"/>
 <text text-anchor="middle" x="308.68" y="-39.25" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
 </a>
@@ -430,12 +415,21 @@
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M217.68,-62.4C160.31,-62.92 145.86,-56.48 90,-43.4 81.45,-41.4 72.39,-38.78 63.9,-36.09"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="64.87,-32.72 54.28,-32.94 62.7,-39.37 64.87,-32.72"/>
 </g>
+<!-- module~namelist_m -->
+<g id="module~~ut_m~~UsedByGraph_node3" class="node">
+<title>module~namelist_m</title>
+<g id="a_module~~ut_m~~UsedByGraph_node3"><a xlink:href=".././module/namelist_m.html" xlink:title="namelist_m">
+<polygon fill="#337ab7" stroke="#337ab7" points="155.53,-34.41 90.16,-34.41 90.16,-12.4 155.53,-12.4 155.53,-34.41"/>
+<text text-anchor="middle" x="122.84" y="-20.25" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">namelist_m</text>
+</a>
+</g>
+</g>
 <!-- program~main&#45;&gt;module~namelist_m -->
 <g id="module~~ut_m~~UsedByGraph_edge4" class="edge">
 <title>program~main&#45;&gt;module~namelist_m</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M281.47,-51.46C264.15,-56.66 240.83,-62.21 219.68,-62.4"/>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M217.68,-62.4C192.63,-62.63 166.5,-50.6 148.19,-39.85"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="149.97,-36.84 139.62,-34.57 146.3,-42.8 149.97,-36.84"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M281.47,-51.46C264.15,-56.66 240.83,-62.21 219.68,-62.4"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M217.68,-62.4C192.63,-62.63 166.5,-50.6 148.19,-39.85"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="149.97,-36.84 139.62,-34.57 146.3,-42.8 149.97,-36.84"/>
 </g>
 <!-- module~rk4_m -->
 <g id="module~~ut_m~~UsedByGraph_node4" class="node">
@@ -452,6 +446,12 @@
 <path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M281.28,-36.7C273.2,-34.96 264.18,-33.01 255.58,-31.15"/>
 <polygon fill="#0000ff" stroke="#0000ff" points="256.28,-27.72 245.77,-29.03 254.8,-34.57 256.28,-27.72"/>
 </g>
+<!-- module~namelist_m&#45;&gt;module~ut_m -->
+<g id="module~~ut_m~~UsedByGraph_edge2" class="edge">
+<title>module~namelist_m&#45;&gt;module~ut_m</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M90.07,-23.4C81.75,-23.4 72.73,-23.4 64.2,-23.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="64.12,-19.9 54.12,-23.4 64.12,-26.9 64.12,-19.9"/>
+</g>
 <!-- module~rk4_m&#45;&gt;module~ut_m -->
 <g id="module~~ut_m~~UsedByGraph_edge3" class="edge">
 <title>module~rk4_m&#45;&gt;module~ut_m</title>
@@ -461,8 +461,8 @@
 <!-- module~rk4_m&#45;&gt;module~namelist_m -->
 <g id="module~~ut_m~~UsedByGraph_edge5" class="edge">
 <title>module~rk4_m&#45;&gt;module~namelist_m</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M191.54,-23.4C183.59,-23.4 174.64,-23.4 165.92,-23.4"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="165.85,-19.9 155.85,-23.4 165.85,-26.9 165.85,-19.9"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M191.54,-23.4C183.59,-23.4 174.64,-23.4 165.92,-23.4"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="165.85,-19.9 155.85,-23.4 165.85,-26.9 165.85,-19.9"/>
 </g>
 </g>
 </svg>
@@ -2460,7 +2460,7 @@ public subroutine <a href='../proc/ut__fatal.html'>ut__fatal</a>(last_will)
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2020-01-15 20:45  
+             on 2020-01-15 22:35  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> Burgers Equation was developed by </p></div>
