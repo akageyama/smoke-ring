@@ -1,16 +1,22 @@
-!-------------------------------------------------------------------
-! class-hpc-smoke-ring: A simple sample field solver.
+!*******************************************************************
+!> author: Akira Kageyama
+!  date: 2020.01.15
 !
-!    by Akira Kageyama, Kobe University, Japan.
-!       email: sgks@mac.com
+!  バーガース方程式を差分法+ルンゲ・クッタ積分法で解き、可視化する。
 !
-!    Copyright 2018 Akira Kageyama
+!  神戸大学情報知能工学科の講義 "HPC" （B3対象）用サンプルコード
+! 
+!### 目的
+!  この後に説明する3次元Smoke-Ringシミュレーションコードを理解するため。
 !
-!    This software is released under the MIT License.
-!
-!-------------------------------------------------------------------
-!    warming_up/burgers_equation/main.f90
-!-------------------------------------------------------------------
+!  3次元Smoke-Ringシミュレーションコードでは
+!  基本方程式は違うものの、アルゴリズム（差分法+ルンゲ・クッタ積分法）
+!  とシミュレーションコードの構造が同じである。
+! 
+!### 実行方法
+!  cd src ; make      
+!  cd ../slice_grapher; make
+!     
 
 program main
   use constants_m
