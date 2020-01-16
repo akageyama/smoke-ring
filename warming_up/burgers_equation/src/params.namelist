@@ -1,12 +1,10 @@
-!-----------------------------------------------------------------------------
-! 200708_LesHouches/src/BurgersEquation
-!                                       Akira Kageyama
-!                                       kage@jamstec.go.jp
-!                                       Earth Simulator Center, JAMSTEC, Japan
-!-----------------------------------------------------------------------------
-! sample.namelist
-!              2007.07.20: Created by Akira Kageyama
-!-----------------------------------------------------------------------------
+!-------------------------------------------------------------------
+! params.namelist
+! 
+!  * Simulation data for Burgers equation.
+!  * Nx = Grid size of the simulation
+!  * Diffusion_coeff = fluid viscosity
+!-------------------------------------------------------------------
 !
 &data00 Nx = 500 /
 &data01 Diffusion_coeff = 0.005 /
