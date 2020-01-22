@@ -19,9 +19,9 @@
 !
 
 module ut_m
-  use constants_m  !! 定数定義
-  implicit none    !! 暗黙の型宣言無効化。必須
-  private
+  use constants_m  ! 定数定義
+  implicit none    ! 暗黙の型宣言無効化。必須
+  private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
   public :: ut__assert,       &
             ut__fatal,        &
             ut__int_to_str3,  &

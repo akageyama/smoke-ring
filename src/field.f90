@@ -23,13 +23,13 @@
 !
 
 module field_m
-  use constants_m  !! 定数定義
-  use grid_m       !! 格子点
-  implicit none    !! 暗黙の型宣言無効化。必須
+  use constants_m  ! 定数定義
+  use grid_m       ! 格子点
+  implicit none    ! 暗黙の型宣言無効化。必須
 
   public  
-    !! 通常はデフォルトを非公開（private）とするが、
-    !! このモジュール内の変数・ルーチン等はデフォルトで公開。
+    ! 通常はデフォルトを非公開（private）とするが、
+    ! このモジュール内の変数・ルーチン等はデフォルトで公開。
   private :: & ![assignments]
              assignment_real_to_fluid,           &
              assignment_real_to_vector
@@ -82,8 +82,8 @@ module field_m
     !! 時間はかからないのでこのように
     !! 決め打ちにしても問題ない。
     real(DR), dimension(NX,NY,NZ) :: x  !! x成分
-      !! 倍精度浮動小数点数（double real, DR）の
-      !! 3次元配列、という意味。念の為。
+      ! 倍精度浮動小数点数（double real, DR）の
+      ! 3次元配列、という意味。念の為。
     real(DR), dimension(NX,NY,NZ) :: y  !! y成分
     real(DR), dimension(NX,NY,NZ) :: z  !! z成分
   end type field__vector3d_t
@@ -94,12 +94,12 @@ module field_m
     real(DR), dimension(NX,NY,NZ) :: pressure  !! 圧力場
     real(DR), dimension(NX,NY,NZ) :: density   !! 質量密度場
     type(field__vector3d_t)       :: flux      !! 質量フラックス
-    !! 質量フラックス (flux) と速度場 (velocity_vector)
-    !!    flux = density * velocity_vector
-    !! という関係がある。速度場を基本変数にしても問題ない。
-    !! 単にこのシミュレーションで解く基本方程式
-    !! ナビエ・ストークス方程式）の基本変数をどちらで
-    !! 表現するか、の違いである。
+    ! 質量フラックス (flux) と速度場 (velocity_vector)
+    !    flux = density * velocity_vector
+    ! という関係がある。速度場を基本変数にしても問題ない。
+    ! 単にこのシミュレーションで解く基本方程式
+    ! ナビエ・ストークス方程式）の基本変数をどちらで
+    ! 表現するか、の違いである。
   end type field__fluid_t
 
   !--- << Operators >> ---!
@@ -181,10 +181,9 @@ contains
 
   subroutine assignment_real_to_fluid(fluid,real)
     !! 流体構造体に実数を代入。
-    !! @note 
-    !!   0にセットするときによく使う。
-    type(field__fluid_t), intent(out) :: fluid
-    real(DR),             intent(in)  :: real
+    !! 初期条件ですべての要素を0にセットするときに使う。
+    type(field__fluid_t), intent(out) :: fluid !! 流体場
+    real(DR),             intent(in)  :: real  !! 代入する実数
 
     fluid%pressure(:,:,:) = real
     fluid%density(:,:,:)  = real
@@ -196,10 +195,9 @@ contains
 
   subroutine assignment_real_to_vector(vector,real)
     !! ベクトル場に実数を代入。
-    !! @note 
-    !!   0にセットするときによく使う。
-    type(field__vector3d_t), intent(out) :: vector
-    real(DR),                intent(in)  :: real
+    !! 初期条件で0にセットするときに使う。
+    type(field__vector3d_t), intent(out) :: vector !! ベクトル場
+    real(DR),                intent(in)  :: real   !! 代入する実数
 
     vector%x(:,:,:) = real
     vector%y(:,:,:) = real
@@ -209,7 +207,7 @@ contains
 
   subroutine boundary_condition_fluid(fluid)
     !! 流体構造体の境界条件設定
-    type(field__fluid_t), intent(inout) :: fluid
+    type(field__fluid_t), intent(inout) :: fluid !! 流体場
 
     call boundary_condition_scalar(fluid%pressure)
     call boundary_condition_scalar(fluid%density)
@@ -219,7 +217,7 @@ contains
 
   subroutine boundary_condition_scalar(scalar)
     !! スカラー場の境界条件設定
-    real(DR), dimension(NX,NY,NZ), intent(inout) :: scalar
+    real(DR), dimension(NX,NY,NZ), intent(inout) :: scalar !! スカラー場
 
     scalar( 1,:,:) = scalar(NX-1,:,:)
     scalar(NX,:,:) = scalar(   2,:,:)
@@ -234,7 +232,7 @@ contains
 
   subroutine boundary_condition_vector(vec)
     !! ベクトル場の境界条件設定
-    type(field__vector3d_t), intent(inout) :: vec
+    type(field__vector3d_t), intent(inout) :: vec !! ベクトル場
 
     vec%x( 1,:,:) = vec%x(NX-1,:,:)    !-- yz-plane --!
     vec%y( 1,:,:) = vec%y(NX-1,:,:)
@@ -261,8 +259,8 @@ contains
 
   function operator_cross_product(a,b)
     !! ベクトル場の外積
-    type(field__vector3d_t), intent(in) :: a, b
-    type(field__vector3d_t) :: operator_cross_product
+    type(field__vector3d_t), intent(in) :: a, b !! 掛けるベクトル場
+    type(field__vector3d_t) :: operator_cross_product !! 外積
 
     operator_cross_product%x = (a%y)*(b%z) - (a%z)*(b%y)
     operator_cross_product%y = (a%z)*(b%x) - (a%x)*(b%z)
@@ -272,19 +270,19 @@ contains
 
   function operator_curl(a)
     !! ベクトル場のcurl
-    type(field__vector3d_t), intent(in) :: a
-    type(field__vector3d_t) :: operator_curl
+    type(field__vector3d_t), intent(in) :: a !! これのcurlをとる
+    type(field__vector3d_t) :: operator_curl !! curlした結果
 
     integer(SI) :: i, j, k
     real(DR) :: dx1, dy1, dz1
 
-    dx1 = grid%d1%x  !! x方向の偏微分演算用定数
-    dy1 = grid%d1%y  !! y方向の偏微分演算用定数
-    dz1 = grid%d1%z  !! z方向の偏微分演算用定数
+    dx1 = grid%d1%x  ! x方向の偏微分演算用定数
+    dy1 = grid%d1%y  ! y方向の偏微分演算用定数
+    dz1 = grid%d1%z  ! z方向の偏微分演算用定数
 
     do k = 2 , NZ-1
-      !! 境界上の格子点を飛ばして、シミュレーション領域内部
-      !! の格子点上で差分法によりcurlを計算する
+      ! 境界上の格子点を飛ばして、シミュレーション領域内部
+      ! の格子点上で差分法によりcurlを計算する
       do j = 2 , NY-1
         do i = 2 , NX-1
           operator_curl%x(i,j,k) = dy1*(a%z(i,j+1,k)-a%z(i,j-1,k)) &
@@ -298,25 +296,25 @@ contains
     end do
 
     call boundary_condition_vector(operator_curl)
-      !! 境界の格子点は境界条件ルーチンで設定する
+      ! 境界の格子点は境界条件ルーチンで設定する
   end function operator_curl
 
 
   function operator_div(a)
     !! ベクトル場のdivergence
-    type(field__vector3d_t), intent(in)  :: a
-    real(DR), dimension(NX,NY,NZ)        :: operator_div
+    type(field__vector3d_t), intent(in)  :: a  !! これのdivをとる
+    real(DR), dimension(NX,NY,NZ)        :: operator_div !! 結果
 
     integer(SI) :: i, j, k
     real(DR) :: dx1, dy1, dz1
 
-    dx1 = grid%d1%x   !! x方向の偏微分演算用定数
-    dy1 = grid%d1%y   !! y方向の偏微分演算用定数
-    dz1 = grid%d1%z   !! z方向の偏微分演算用定数
+    dx1 = grid%d1%x   ! x方向の偏微分演算用定数
+    dy1 = grid%d1%y   ! y方向の偏微分演算用定数
+    dz1 = grid%d1%z   ! z方向の偏微分演算用定数
 
     do k = 2 , NZ-1
-      !! 境界上の格子点を飛ばして、シミュレーション領域内部
-      !! の格子点上で差分法によりdivergenceを計算する
+      ! 境界上の格子点を飛ばして、シミュレーション領域内部
+      ! の格子点上で差分法によりdivergenceを計算する
       do j = 2 , NY-1
          do i = 2 , NX-1
            operator_div(i,j,k) = dx1*(a%x(i+1,j,k)-a%x(i-1,j,k)) &
@@ -327,59 +325,60 @@ contains
     end do
 
     call boundary_condition_scalar(operator_div)
-      !! 境界の格子点は境界条件ルーチンで設定する
+      ! 境界の格子点は境界条件ルーチンで設定する
   end function operator_div
 
 
   function operator_dot_product(a,b)
     !! ベクトル場の内積
-    type(field__vector3d_t), intent(in) :: a, b
-    real(DR), dimension(NX,NY,NZ) :: operator_dot_product
+    type(field__vector3d_t), intent(in) :: a, b  !! 内積をとるベクトル場
+    real(DR), dimension(NX,NY,NZ) :: operator_dot_product !! 計算結果
 
     operator_dot_product = a%x*b%x +a%y*b%y + a%z*b%z
-      !! 配列演算
-      !! @note
-      !!    実際にはここで3重do_loopが回っている
-      !!    OpenMP化するときにはこの簡潔な
-      !!    書き方をやめて3重do_loopに書き直す必要がある。
+      ! 配列演算
+      !
+      ! 実際にはここで3重do_loopが回っている
+      ! OpenMP化するときにはこの簡潔な
+      ! 書き方をやめて3重do_loopに書き直す必要がある。
   end function operator_dot_product
 
 
   function operator_energyintegral(a)
     !! 流体の運動エネルギーの体積積分
-    type(field__fluid_t), intent(in) :: a
-    real(DR)                         :: operator_energyintegral
-      !! flow_energy = (1/2) * rho * vel^2 = (1/2) * (massflux)^2 / rho
+    type(field__fluid_t), intent(in) :: a  !! 流体場
+    real(DR)                         :: operator_energyintegral !! 全エネルギー
+      ! 以下のエネルギー密度の式を全空間で体積積分する
+      ! flow_energy = (1/2) * rho * vel^2 = (1/2) * (massflux)^2 / rho
     real(DR) :: dvol
-    real(DR), dimension(NX,NY,NZ) :: flux_sq  !! sq は2乗(squared)を意味する
+    real(DR), dimension(NX,NY,NZ) :: flux_sq  ! sq は2乗(squared)を意味する
 
     dvol = (grid%delta%x)*(grid%delta%y)*(grid%delta%z)
-         !! 現在のシュミレーションでは格子間隔はx, y, z それぞれに
-         !! 一様であることを仮定している。つまりdx, dy, dzは空間位置に
-         !! 依存せず一定である。
+         ! 現在のシュミレーションでは格子間隔はx, y, z それぞれに
+         ! 一様であることを仮定している。つまりdx, dy, dzは空間位置に
+         ! 依存せず一定である。
 
 !   flux_sq = (a%flux).dot.(a%flux)
     flux_sq = operator_dot_product(a%flux,a%flux)
-      !! 質量フラックスの2乗を一時的な配列にセットする
-      !! ユーザ定義演算子が使えるコンパイラならば.dot.を
-      !! 使った表記のほうが読みやすいであろう。
+      ! 質量フラックスの2乗を一時的な配列にセットする
+      ! ユーザ定義演算子が使えるコンパイラならば.dot.を
+      ! 使った表記のほうが読みやすいであろう。
 
     operator_energyintegral                                      &
          = 0.5_DR * sum(    flux_sq(2:NX-1,2:NY-1,2:NZ-1)        &
                         / a%density(2:NX-1,2:NY-1,2:NZ-1)        &
                         ) * dvol
-      !! ここで配列演算の添字が1からNXではなく2からNX-1などに
-      !! 限定されていることに注意。これは体積積分の範囲を計算領域の
-      !! 内部に限定していること、つまり境界上の格子点を除いて
-      !! 積分していることを意味する。境界上の格子点まで
-      !! 入れると重複してカウントしてしまうからである 
+      ! ここで配列演算の添字が1からNXではなく2からNX-1などに
+      ! 限定されていることに注意。これは体積積分の範囲を計算領域の
+      ! 内部に限定していること、つまり境界上の格子点を除いて
+      ! 積分していることを意味する。境界上の格子点まで
+      ! 入れると重複してカウントしてしまうからである 
   end function operator_energyintegral
 
 
   function operator_fluid_add(a,b)
     !! 流体構造体の足し算演算子 
-    type(field__fluid_t), intent(in) :: a, b
-    type(field__fluid_t) :: operator_fluid_add
+    type(field__fluid_t), intent(in) :: a, b   !! 足し算する2つの流体場
+    type(field__fluid_t) :: operator_fluid_add !! 計算結果
 
     operator_fluid_add%flux%x   = a%flux%x   + b%flux%x
     operator_fluid_add%flux%y   = a%flux%y   + b%flux%y
@@ -391,8 +390,8 @@ contains
 
   function operator_fluid_times_integer(fluid,integer)
     !! 流体構造体を整数倍するための演算子 
-    type(field__fluid_t), intent(in) :: fluid
-    integer(SI),          intent(in) :: integer
+    type(field__fluid_t), intent(in) :: fluid    !! 流体場
+    integer(SI),          intent(in) :: integer  !! かける整数
     type(field__fluid_t) :: operator_fluid_times_integer
 
     operator_fluid_times_integer%pressure = integer*(fluid%pressure)
@@ -405,9 +404,9 @@ contains
 
   function operator_fluid_times_real(fluid,real)
     !! 流体構造体を実数倍するための演算子 
-    type(field__fluid_t), intent(in) :: fluid
-    real(DR),             intent(in) :: real
-    type(field__fluid_t) :: operator_fluid_times_real
+    type(field__fluid_t), intent(in) :: fluid    !! 流体場
+    real(DR),             intent(in) :: real     !! かける実数
+    type(field__fluid_t) :: operator_fluid_times_real  !! 計算結果
 
     operator_fluid_times_real%pressure = real*(fluid%pressure)
     operator_fluid_times_real%density  = real*(fluid%density)
@@ -419,9 +418,9 @@ contains
 
   function operator_integer_times_fluid(integer,fluid)
     !! 整数に流体構造体を掛け算するための演算子 
-    integer(SI),          intent(in) :: integer
-    type(field__fluid_t), intent(in) :: fluid
-    type(field__fluid_t) :: operator_integer_times_fluid
+    integer(SI),          intent(in) :: integer  !! かける整数
+    type(field__fluid_t), intent(in) :: fluid    !! 流体場
+    type(field__fluid_t) :: operator_integer_times_fluid  !! 計算結果
 
     operator_integer_times_fluid%pressure = integer*(fluid%pressure)
     operator_integer_times_fluid%density  = integer*(fluid%density)
@@ -433,19 +432,19 @@ contains
 
   function operator_laplacian_scalar(a)
     !! スカラー場のラプラシアン
-    real(DR), dimension(NX,NY,NZ), intent(in) :: a
-    real(DR), dimension(NX,NY,NZ) :: operator_laplacian_scalar
+    real(DR), dimension(NX,NY,NZ), intent(in) :: a  !! 入力スカラー場
+    real(DR), dimension(NX,NY,NZ) :: operator_laplacian_scalar !! 計算結果
 
     integer(SI) :: i, j, k
     real(DR) :: dx2, dy2, dz2
 
-    dx2 = grid%d2%x   !! x方向の2階偏微分演算用定数
-    dy2 = grid%d2%y   !! y方向の2階偏微分演算用定数
-    dz2 = grid%d2%z   !! z方向の2階偏微分演算用定数
+    dx2 = grid%d2%x   ! x方向の2階偏微分演算用定数
+    dy2 = grid%d2%y   ! y方向の2階偏微分演算用定数
+    dz2 = grid%d2%z   ! z方向の2階偏微分演算用定数
 
     do k = 2 , NZ-1
-      !! 境界上の格子点を飛ばして、シミュレーション領域内部
-      !! の格子点上で差分法により計算する
+      ! 境界上の格子点を飛ばして、シミュレーション領域内部
+      ! の格子点上で差分法により計算する
       do j = 2 , NY-1
         do i = 2 , NX-1
           operator_laplacian_scalar(i,j,k)  &
@@ -457,25 +456,25 @@ contains
     end do
 
     call boundary_condition_scalar(operator_laplacian_scalar)
-      !! 境界の格子点は境界条件ルーチンで設定する
+      ! 境界の格子点は境界条件ルーチンで設定する
   end function operator_laplacian_scalar
 
 
   function operator_laplacian_vector(a)
     !! ベクトル場のラプラシアン
-    type(field__vector3d_t), intent(in) :: a
-    type(field__vector3d_t) :: operator_laplacian_vector
+    type(field__vector3d_t), intent(in) :: a  !! 入力ベクトル場
+    type(field__vector3d_t) :: operator_laplacian_vector !! 計算結果
 
     integer(SI) :: i, j, k
     real(DR) :: dx2, dy2, dz2
 
-    dx2 = grid%d2%x   !! x方向の2階偏微分演算用定数
-    dy2 = grid%d2%y   !! y方向の2階偏微分演算用定数
-    dz2 = grid%d2%z   !! z方向の2階偏微分演算用定数
+    dx2 = grid%d2%x   ! x方向の2階偏微分演算用定数
+    dy2 = grid%d2%y   ! y方向の2階偏微分演算用定数
+    dz2 = grid%d2%z   ! z方向の2階偏微分演算用定数
 
     do k = 2 , NZ-1
-      !! 境界上の格子点を飛ばして、シミュレーション領域内部
-      !! の格子点上で差分法により計算する
+      ! 境界上の格子点を飛ばして、シミュレーション領域内部
+      ! の格子点上で差分法により計算する
       do j = 2 , NY-1
         do i = 2 , NX-1
           operator_laplacian_vector%x(i,j,k)  &
@@ -495,15 +494,15 @@ contains
     end do
 
     call boundary_condition_vector(operator_laplacian_vector)
-      !! 境界の格子点は境界条件ルーチンで設定する
+      ! 境界の格子点は境界条件ルーチンで設定する
   end function operator_laplacian_vector
 
 
   function operator_real_times_fluid(real,fluid)
     !! 実数に流体場を掛ける演算子
-    real(DR),             intent(in) :: real
-    type(field__fluid_t), intent(in) :: fluid
-    type(field__fluid_t) :: operator_real_times_fluid
+    real(DR),             intent(in) :: real  !! 掛ける実数
+    type(field__fluid_t), intent(in) :: fluid !! 流体場
+    type(field__fluid_t) :: operator_real_times_fluid !! 計算結果
 
     operator_real_times_fluid%pressure = real*(fluid%pressure)
     operator_real_times_fluid%density  = real*(fluid%density)
@@ -515,9 +514,9 @@ contains
 
   function operator_real_times_vector(real,vec)
     !! 実数にベクトル場を掛ける演算子
-    real(DR),                intent(in) :: real
-    type(field__vector3d_t), intent(in) :: vec
-    type(field__vector3d_t) :: operator_real_times_vector
+    real(DR),                intent(in) :: real !! 掛ける実数
+    type(field__vector3d_t), intent(in) :: vec  !! 流体場
+    type(field__vector3d_t) :: operator_real_times_vector !! 計算結果
 
     operator_real_times_vector%x = real*(vec%x)
     operator_real_times_vector%y = real*(vec%y)
@@ -527,9 +526,9 @@ contains
 
   function operator_scalar_times_vector(scalar,vec)
     !! スカラー場にベクトル場を掛ける演算子
-    real(DR), dimension(NX,NY,NZ), intent(in) :: scalar
-    type(field__vector3d_t),        intent(in) :: vec
-    type(field__vector3d_t)             :: operator_scalar_times_vector
+    real(DR), dimension(NX,NY,NZ), intent(in) :: scalar  !! スカラー場
+    type(field__vector3d_t),       intent(in) :: vec     !! ベクトル場
+    type(field__vector3d_t) :: operator_scalar_times_vector !! 計算結果
 
     operator_scalar_times_vector%x = scalar*(vec%x)
     operator_scalar_times_vector%y = scalar*(vec%y)
@@ -539,28 +538,28 @@ contains
 
   function operator_scalarintegral(a)
     !! スカラー場の体積積分演算子
-    real(DR), dimension(NX,NY,NZ), intent(in) :: a
-    real(DR) :: operator_scalarintegral
+    real(DR), dimension(NX,NY,NZ), intent(in) :: a  !! スカラー場
+    real(DR) :: operator_scalarintegral             !! 体積積分結果
 
     real(DR) :: dvol
 
     dvol = (grid%delta%x)*(grid%delta%y)*(grid%delta%z)
-         !! 現在のシュミレーションでは格子間隔はx, y, z それぞれに
-         !! 一様であることを仮定している。つまりdx, dy, dzは空間位置に
-         !! 依存せず一定である。
+         ! 現在のシュミレーションでは格子間隔はx, y, z それぞれに
+         ! 一様であることを仮定している。つまりdx, dy, dzは空間位置に
+         ! 依存せず一定である。
     operator_scalarintegral = sum( a(2:NX-1,2:NY-1,2:NZ-1) ) * dvol
-      !! ここで配列演算の添字が1からNXではなく2からNX-1などに
-      !! 限定されていることに注意。これは体積積分の範囲を計算領域の
-      !! 内部に限定していること、つまり境界上の格子点を除いて
-      !! 積分していることを意味する。境界上の格子点まで
-      !! 入れると重複してカウントしてしまうからである 
+      ! ここで配列演算の添字が1からNXではなく2からNX-1などに
+      ! 限定されていることに注意。これは体積積分の範囲を計算領域の
+      ! 内部に限定していること、つまり境界上の格子点を除いて
+      ! 積分していることを意味する。境界上の格子点まで
+      ! 入れると重複してカウントしてしまうからである 
   end function operator_scalarintegral
 
 
   function operator_vector_add(a,b)
     !! ベクトル場の和の演算子
-    type(field__vector3d_t), intent(in) :: a, b
-    type(field__vector3d_t) :: operator_vector_add
+    type(field__vector3d_t), intent(in) :: a, b    !! 和をとるベクトル場
+    type(field__vector3d_t) :: operator_vector_add !! 計算結果
 
     operator_vector_add%x = a%x + b%x
     operator_vector_add%y = a%y + b%y
@@ -570,9 +569,9 @@ contains
 
   function operator_vector_divby_scalar(vec,scalar)
     !! ベクトル場の各成分をスカラー場で割る
-    type(field__vector3d_t),       intent(in) :: vec
-    real(DR), dimension(NX,NY,NZ), intent(in) :: scalar
-    type(field__vector3d_t) :: operator_vector_divby_scalar
+    type(field__vector3d_t),       intent(in) :: vec    !! ベクトル場
+    real(DR), dimension(NX,NY,NZ), intent(in) :: scalar !! スカラー場
+    type(field__vector3d_t) :: operator_vector_divby_scalar !! 計算結果
 
     operator_vector_divby_scalar%x = (vec%x) / scalar
     operator_vector_divby_scalar%y = (vec%y) / scalar
@@ -582,9 +581,9 @@ contains
 
   function operator_vector_times_real(vec,real)
     !! ベクトル場の実数倍の演算子
-    type(field__vector3d_t), intent(in) :: vec
-    real(DR),                intent(in) :: real
-    type(field__vector3d_t) :: operator_vector_times_real
+    type(field__vector3d_t), intent(in) :: vec  !! ベクトル場
+    real(DR),                intent(in) :: real !! 掛ける実数
+    type(field__vector3d_t) :: operator_vector_times_real  !! 計算結果
 
     operator_vector_times_real%x = real*(vec%x)
     operator_vector_times_real%y = real*(vec%y)
@@ -594,9 +593,9 @@ contains
 
   function operator_vector_times_scalar(vec,scalar)
     !! ベクトル場にスカラー場を掛ける
-    type(field__vector3d_t),       intent(in) :: vec
-    real(DR), dimension(NX,NY,NZ), intent(in) :: scalar
-    type(field__vector3d_t) :: operator_vector_times_scalar
+    type(field__vector3d_t),       intent(in) :: vec    !! ベクトル場
+    real(DR), dimension(NX,NY,NZ), intent(in) :: scalar !! スカラー場
+    type(field__vector3d_t) :: operator_vector_times_scalar  !! 計算結果
 
     operator_vector_times_scalar%x = scalar*(vec%x)
     operator_vector_times_scalar%y = scalar*(vec%y)

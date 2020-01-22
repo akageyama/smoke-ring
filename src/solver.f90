@@ -49,16 +49,16 @@
 !
 
 module solver_m
-  use constants_m  !! 定数定義
-  use grid_m       !! 格子点
-  use ut_m         !! ユーティリティ 
-  use params_m     !! パラメータ
-  use field_m      !! 流れ場データ構造体
-  use debug_m      !! デバッグ用
-  use job_m        !! ジョブ管理
-  implicit none    !! 暗黙の型宣言無効化。必須
+  use constants_m  ! 定数定義
+  use grid_m       ! 格子点
+  use ut_m         ! ユーティリティ 
+  use params_m     ! パラメータ
+  use field_m      ! 流れ場データ構造体
+  use debug_m      ! デバッグ用
+  use job_m        ! ジョブ管理
+  implicit none    ! 暗黙の型宣言無効化。必須
 
-  private !! このモジュール内の変数・ルーチン等はデフォルトで非公開
+  private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
   public :: solver__advance,  &
             solver__diagnosis,  &
             solver__get_subfield,  &
@@ -95,7 +95,7 @@ contains
     !! @note この係数は0以上1以下。これはassertで確認している。
     !!
     real(DR), intent(in) :: time !! シミュレーション時刻
-    real(DR)             :: drive_force_factor  !! 力の強さ係数
+    real(DR)             :: drive_force_factor  !! 力の強さ係数 0から1
     !
     !                                      factor
     !              ___________               |
@@ -179,8 +179,8 @@ contains
       ! 力をかける局所円筒領域の半径の2乗
 
     do k = 2 , NZ-1
-      !! 境界上の格子点を飛ばして、シミュレーション領域内部
-      !! を回る3重do loop。境界上の格子点で値は境界条件で設定する。
+      ! 境界上の格子点を飛ばして、シミュレーション領域内部
+      ! を回る3重do loop。境界上の格子点で値は境界条件で設定する。
       zz = grid%pos%z(k) - force_center_z    ! 力の中心からのz方向の距離
       do j = 2 , NY-1
         yy = grid%pos%y(j) - force_center_y  ! 力の中心からのy方向の距離
@@ -672,7 +672,7 @@ contains
 
   subroutine solver__initialize(fluid)
     !! モジュールの初期化
-    type(field__fluid_t), intent(out) :: fluid  ! 流体データ
+    type(field__fluid_t), intent(out) :: fluid  !! 流体データ
 
     real(DR) :: kappa  ! 空気の熱拡散率
 

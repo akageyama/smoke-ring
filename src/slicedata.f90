@@ -22,27 +22,27 @@
 !    詳しくはfieldモジュールを見よ。
 
 module slicedata_m
-  use ut_m      !! ユーティリティ。constantsモジュールは間接的にuseされる
-  use field_m   !! 流体場
-  use params_m  !! パラメータ
-  use debug_m   !! デバッグ関係
-  use solver_m  !! ナビエ・ストークス方程式ソルバ
-  implicit none !! 暗黙の型宣言無効化。必須
-  private !! このモジュール内の変数・ルーチン等はデフォルトで非公開
+  use ut_m      ! ユーティリティ。constantsモジュールは間接的にuseされる
+  use field_m   ! 流体場
+  use params_m  ! パラメータ
+  use debug_m   ! デバッグ関係
+  use solver_m  ! ナビエ・ストークス方程式ソルバ
+  implicit none ! 暗黙の型宣言無効化。必須
+  private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
   public :: slicedata__initialize,  &
             slicedata__write
 
-  ! - 2-D single precision real arrays.
-  real(SR), dimension(:,:), allocatable :: Slice_vx  !! 速度のx成分
-  real(SR), dimension(:,:), allocatable :: Slice_vy  !! 速度のy成分
-  real(SR), dimension(:,:), allocatable :: Slice_vz  !! 速度のz成分
-  real(SR), dimension(:,:), allocatable :: Slice_ps  !! 圧力
-  real(SR), dimension(:,:), allocatable :: Slice_en  !! エンストロフィ
+  ! 2次元単精度実数配列
+  real(SR), dimension(:,:), allocatable :: Slice_vx  ! 速度のx成分
+  real(SR), dimension(:,:), allocatable :: Slice_vy  ! 速度のy成分
+  real(SR), dimension(:,:), allocatable :: Slice_vz  ! 速度のz成分
+  real(SR), dimension(:,:), allocatable :: Slice_ps  ! 圧力
+  real(SR), dimension(:,:), allocatable :: Slice_en  ! エンストロフィ
                              ! Enstrophy とは渦度の二乗
                              ! 渦度は速度のcurl
 
-  logical, save :: Initialize_done = .false.    !! モジュール初期化済か否か
-  integer(SI), parameter :: FILE_SLICEDATA = 20 !! 断面データ出力ファイル番号
+  logical, save :: Initialize_done = .false.    ! モジュール初期化済か否か
+  integer(SI), parameter :: FILE_SLICEDATA = 20 ! 断面データ出力ファイル番号
 
 
 contains
@@ -53,35 +53,32 @@ contains
     !! のx-z平面での断面データを求める。
     !! その際、倍精度実数から単精度実数に型変換する。
     !!
-    !! @note
-    !!   ここではx-z平面で書き出しているが、
-    !!   x-y平面での断面データなど、同様にとることが可能である。
+    !! ここではx-z平面で書き出しているが、
+    !! x-y平面での断面データなど、同様にとることが可能である。
     !!
-    !! @note
-    !!   サブルーチンmake_single_precision_fieldでは
-    !!   x-z面に平行な断面をとっている。その際、
-    !!   その断面位置は
-    !!       j = slice_j = NY / 2
-    !!   としている。NYが偶数の時、
-    !!   この断面は厳密に言えばy=0にはなっていない。
-    !!   なぜならgridモジュールできめたy方向の格子点の
-    !!   定義によればy=0の面はj=NY/2とj=NY/2+1の2つの面
-    !!   の中間にあるからである。正確にy=0面上での可視化
-    !!   をしたいのであればこの2つの面上でのデータ
-    !!   の平均値をディスクに書き出すべきである。
+    !! サブルーチンmake_single_precision_fieldでは
+    !! x-z面に平行な断面をとっている。その際、
+    !! その断面位置は
+    !!     j = slice_j = NY / 2
+    !! としている。NYが偶数の時、
+    !! この断面は厳密に言えばy=0にはなっていない。
+    !! なぜならgridモジュールできめたy方向の格子点の
+    !! 定義によればy=0の面はj=NY/2とj=NY/2+1の2つの面
+    !! の中間にあるからである。正確にy=0面上での可視化
+    !! をしたいのであればこの2つの面上でのデータ
+    !! の平均値をディスクに書き出すべきである。
     !! 
-    !! @bug
+    !! [バグ]
     !!   NYが奇数のときにちょうどy=0面に対応するのは
     !!     j = slice_j = NY / 2 + 1 
     !!   である。偶数のときにもこれでよい。
-
     type(field__vector3d_t),       intent(in) :: vel !! 速度場（3D）
     real(DR), dimension(NX,NY,NZ), intent(in) :: ps  !! 圧力場（3D）
 
-    integer(SI) :: slice_j = NY / 2    !! 断面をとるy座標の格子点位置
+    integer(SI) :: slice_j = NY / 2    ! 断面をとるy座標の格子点位置
 
-    type(field__vector3d_t)       :: vor       !! vorticity、渦度
-    real(DR), dimension(NX,NY,NZ) :: enstrophy !! 渦度の2乗
+    type(field__vector3d_t)       :: vor       ! vorticity、渦度
+    real(DR), dimension(NX,NY,NZ) :: enstrophy ! 渦度の2乗
 
 !>        vor = .curl.vel
 !>  enstrophy = vor.dot.vor
@@ -112,17 +109,16 @@ contains
   subroutine slicedata__initialize
     !! このモジュールの初期化
     !!
-    !! @note 
-    !!   流体の場（fluid）の配列は決め打ち（つまりallocatableにしない）で
-    !!   最初から3次元配列を確保している一方、ここではSlice_??配列を
-    !!   アロケータブルにしているのは、このslicedataモジュールは
-    !!   シミュレーションには必須ではないためである。
-    !!   場合によってはこのslicedataモジュールを使わずに
-    !!   シュミレーションすることも考えられる。
-    !!   例えば断面ではなく三次元の可視化をする時など。
-    !!   そのような場合は、このslicedataモジュールは実際には
-    !!   呼びたさないであろう。そのような時に備えて以下のように
-    !!   allocatableにしておけばメモリーを無駄遣いしない。
+    !! 流体の場（fluid）の配列は決め打ち（つまりallocatableにしない）で
+    !! 最初から3次元配列を確保している一方、ここではSlice_??配列を
+    !! アロケータブルにしているのは、このslicedataモジュールは
+    !! シミュレーションには必須ではないためである。
+    !! 場合によってはこのslicedataモジュールを使わずに
+    !! シュミレーションすることも考えられる。
+    !! 例えば断面ではなく三次元の可視化をする時など。
+    !! そのような場合は、このslicedataモジュールは実際には
+    !! 呼びたさないであろう。そのような時に備えて以下のように
+    !! allocatableにしておけばメモリーを無駄遣いしない。
     allocate(Slice_vx(NX,NZ),   &
              Slice_vy(NX,NZ),   &
              Slice_vz(NX,NZ),   &
@@ -140,7 +136,7 @@ contains
          form='unformatted')
       ! 断面データを書き出すファイルをオープン
 
-    Initialize_done = .true.  !! 初期化終了のフラグをonにする
+    Initialize_done = .true.  ! 初期化終了のフラグをonにする
 
     call debug__print('called slicedata__initlilize')
   end subroutine slicedata__initialize

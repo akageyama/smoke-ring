@@ -1,27 +1,24 @@
-!-------------------------------------------------------------------
-! class-hpc-smoke-ring: A simple sample field solver.
+!*******************************************************************
+!> author: Akira Kageyama
+!  license: MIT
+!  date: 2020.01.22
 !
-!    by Akira Kageyama, Kobe University, Japan.
-!       email: sgks@mac.com
+!  デバッグ用の標準出力ルーチン
 !
-!    Copyright 2018 Akira Kageyama
+!  @note 
+!    parameterのDebugがtrueのときだけ処理する
 !
-!    This software is released under the MIT License.
-!
-!-------------------------------------------------------------------
-!    src/debug.f90
-!-------------------------------------------------------------------
-
 module debug_m
-  use constants_m
-  use ut_m
-  use params_m
-  implicit none
+  use constants_m ! 定数定義
+  use ut_m        ! ユーティリティ
+  use params_m    ! パラメータ 
+  implicit none   ! 暗黙の型宣言無効化。必須
 
-  private
+  private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
   public :: debug__print
 
   interface debug__print
+    !! 各種デバッグ出力の多重定義
     module procedure print_str,             &
                      print_str_dint,        &
                      print_str_dint_double, &
@@ -35,48 +32,57 @@ contains
 
 
   subroutine print_str(string)
-    character(len=*), intent(in) :: string
+    !! Debugパラメータがtrueのとき文字列を出力する
+    character(len=*), intent(in) :: string !! 出力文字列
 
     if (params__get_logical('Debug')) then
+      ! Debugをflaseに設定したときは何もしない
       call ut__message('debug: '//string)
     end if
   end subroutine print_str
 
 
   subroutine print_str_double(string, double)
-    character(len=*), intent(in) :: string
-    real(DR), intent(in)         :: double
+    !! Debugパラメータがtrueのとき文字列と実数を出力する
+    character(len=*), intent(in) :: string !! 出力文字列
+    real(DR), intent(in)         :: double !! 出力実数
 
     if (params__get_logical('Debug')) then
+      ! Debugをflaseに設定したときは何もしない
       call ut__message('debug: '//string, double)
     end if
   end subroutine print_str_double
 
 
   subroutine print_str_dint(string, int)
-    character(len=*), intent(in) :: string
-    integer(DI), intent(in)      :: int
+    !! Debugパラメータがtrueのとき文字列と整数を出力する
+    character(len=*), intent(in) :: string !! 出力文字列
+    integer(DI), intent(in)      :: int    !! 出力整数
 
     if (params__get_logical('Debug')) then
+      ! Debugをflaseに設定したときは何もしない
       call ut__message('debug: '//trim(string), int)
     end if
   end subroutine print_str_dint
 
 
   subroutine print_str_sint(string, int)
-    character(len=*), intent(in) :: string
-    integer(SI), intent(in)      :: int
+    !! Debugパラメータがtrueのとき文字列と整数を出力する
+    character(len=*), intent(in) :: string !! 出力文字列
+    integer(SI), intent(in)      :: int    !! 出力整数
 
     if (params__get_logical('Debug')) then
+      ! Debugをflaseに設定したときは何もしない
       call ut__message('debug: '//trim(string), int)
     end if
   end subroutine print_str_sint
 
 
   subroutine print_str_dint_double(string, i1, d1)
-    character(len=*), intent(in) :: string
-    integer(DI), intent(in)      :: i1
-    real(DR), intent(in)         :: d1
+    !! Debugパラメータがtrueのとき文字列と整数と実数を出力する
+    character(len=*), intent(in) :: string !! 出力文字列
+    integer(DI), intent(in)      :: i1     !! 出力整数
+    real(DR), intent(in)         :: d1     !! 出力実数
 
     if (params__get_logical('Debug')) then
       call ut__message('debug: '//trim(string), i1, d1)
@@ -85,11 +91,13 @@ contains
 
 
   subroutine print_str_sint_double(string, i1, d1)
-    character(len=*), intent(in) :: string
-    integer(SI), intent(in)      :: i1
-    real(DR), intent(in)         :: d1
+    !! Debugパラメータがtrueのとき文字列と整数と実数を出力する
+    character(len=*), intent(in) :: string !! 出力文字列
+    integer(SI), intent(in)      :: i1     !! 出力整数
+    real(DR), intent(in)         :: d1     !! 出力実数
 
     if (params__get_logical('Debug')) then
+      ! Debugをflaseに設定したときは何もしない
       call ut__message('debug: '//trim(string), i1, d1)
     end if
   end subroutine print_str_sint_double

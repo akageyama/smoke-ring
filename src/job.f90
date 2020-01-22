@@ -38,15 +38,13 @@ contains
     !! ジョブ終了時の後始末。実際には健康状態カルテに応じた
     !! メッセージを標準出力に書くだけ
     !!
-    !! @note
-    !!    MPI化した場合、MPI_Finalizeをおくのはここがいいだろう。
+    !! MPI化した場合、MPI_Finalizeをおくのはここがいいだろう。
     !!
-    !! @note
-    !!    ut__messageの第一引数と第二引数はどちらも文字（列）
-    !!   変数であるが、第一引数はシングルクォーテーションマーク、
-    !!   第二引数はダブルクオーテーションマークで囲っている。これは
-    !!   コンパイラにとっては無意味。Fortranでは2つのクォーテーション
-    !!   マークは区別しない。
+    !! ut__messageの第一引数と第二引数はどちらも文字（列）
+    !! 変数であるが、第一引数はシングルクォーテーションマーク、
+    !! 第二引数はダブルクオーテーションマークで囲っている。これは
+    !! コンパイラにとっては無意味。Fortranでは2つのクォーテーション
+    !! マークは区別しない。
     integer(DI), intent(in) :: nloop !! ループカウンタ
 
     select case (trim(job__karte%state))
@@ -67,12 +65,12 @@ contains
   subroutine job__karte_set(self, state_)
     !! ジョブカルテの設定終了時の後始末。実際には健康状態カルテに応じた
     !!
-    !! @note
-    !!   構造体のメンバー関数としてcallするときその
-    !!   構造体変数そのものがselfとして自動的に引数にはいる。
-    !!   ここでの変数名はselfという名前でなくても構わない。
-    class(job__karte_t), intent(out) :: self  !! ジョブカルテ
-    character(len=*), intent(in) :: state_    !! 設定する状態
+    !! 構造体のメンバー関数としてcallするときその
+    !! 構造体変数そのものがselfとして自動的に引数にはいる。
+    !! ここでの変数名はselfという名前でなくても構わない。
+    class(job__karte_t), intent(out) :: self   !! ジョブカルテ
+    character(len=*),    intent(in)  :: state_ !! 設定する状態
+
     select case (trim(state_))
       case ("fine")              ! 問題なく計算が進行している
         self%state = "fine"        

@@ -32,10 +32,10 @@
 !  
 
 module params_m
-  use constants_m  !! 定数定義
-  use ut_m         !! ユーティリティ
-  implicit none    !! 暗黙の型宣言無効化。必須
-  private !! このモジュール内の変数・ルーチン等はデフォルトで非公開
+  use constants_m  ! 定数定義
+  use ut_m         ! ユーティリティ
+  implicit none    ! 暗黙の型宣言無効化。必須
+  private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
   public :: & ![routines]
             params__get_double,   &
             params__get_integer,  &
@@ -43,16 +43,16 @@ module params_m
             params__read,         &
             params__get_string
 
-  logical, save :: Read_done = .false.  !! 読み込みが済んだか否か
+  logical, save :: Read_done = .false.  ! 読み込みが済んだか否か
 
-  integer(SI), parameter :: STRING_LENGTH_MAX = 200  !! 文字列長
-                              ! 足りなくなったら大きくする。
+  integer(SI), parameter :: STRING_LENGTH_MAX = 200  ! 文字列長
+                                  ! 足りなくなったら大きくする。
 
-  integer(SI) :: Total_nloop      !! 一度のジョブで計算するループ回数
-  integer(SI) :: Slicedata_nskip  !! 何ステップに一度、断面データを書き出すか
-  character(len=STRING_LENGTH_MAX) :: Slicedata_tag  !! 断面データファイル名用
-  real(DR) :: Viscosity, Kappa    !! 粘性率と熱拡散率
-  logical  :: Debug               !! デバッグ出力用フラグ
+  integer(SI) :: Total_nloop      ! 一度のジョブで計算するループ回数
+  integer(SI) :: Slicedata_nskip  ! 何ステップに一度、断面データを書き出すか
+  character(len=STRING_LENGTH_MAX) :: Slicedata_tag  ! 断面データファイル名用
+  real(DR) :: Viscosity, Kappa    ! 粘性率と熱拡散率
+  logical  :: Debug               ! デバッグ出力用フラグ
 
   namelist /simulation/     Total_nloop
   namelist /visualization/  Slicedata_nskip,  Slicedata_tag
@@ -67,8 +67,8 @@ contains
     !! この関数は問い合わせ変数が倍精度浮動小数点数の場合。
     !! この関数の前にnamelist__readが呼ばれている必要がある。
     !! この点はassertで確認している。
-    character(len=*), intent(in) :: variable
-    real(DR) :: params__get_double
+    character(len=*), intent(in) :: variable  !! 問い合わせ変数の名前
+    real(DR) :: params__get_double            !! その値
 
     call ut__assert(Read_done, &
                     '<params__get_double> Read params file first.')
@@ -90,8 +90,8 @@ contains
     !! この関数は問い合わせ変数が整数の場合。
     !! この関数の前にnamelist__readが呼ばれている必要がある。
     !! この点はassertで確認している。
-    character(len=*), intent(in) :: variable
-    integer(SI) :: params__get_integer
+    character(len=*), intent(in) :: variable    !! 問い合わせ変数の名前
+    integer(SI) :: params__get_integer          !! その値
 
     call ut__assert(Read_done, &
                     '<params__get_integer> Read params file first.')
@@ -113,8 +113,8 @@ contains
     !! この関数は問い合わせ変数が論理値の場合。
     !! この関数の前にnamelist__readが呼ばれている必要がある。
     !! この点はassertで確認している。
-    character(len=*), intent(in) :: variable
-    logical :: params__get_logical
+    character(len=*), intent(in) :: variable  !! 問い合わせ変数の名前
+    logical :: params__get_logical            !! その値
 
     call ut__assert(Read_done, &
                     '<params__get_logical> Read params file first.')
@@ -133,15 +133,13 @@ contains
     !! namelistファイルをディスクから読み込む。
     !! ファイル名はコマンド第一引数。
     !!
-    !! @note 
-    !!    ファイル番号10番をここで使っている。他の場所で
-    !!    10番を使う（開きっぱなしにする）場合は問題だが、
-    !!    その場所でもここのようにopenした後、closeしていれば
-    !!    特に問題ではない。
+    !! ファイル番号10番をここで使っている。他の場所で
+    !! 10番を使う（開きっぱなしにする）場合は問題だが、
+    !! その場所でもここのようにopenした後、closeしていれば
+    !! 特に問題ではない。
     !!
-    !! @note 
-    !!    namelistデータファイルの内容を変更する場合は
-    !!    以下のread文も適宜変更すること。
+    !! namelistデータファイルの内容を変更する場合は
+    !! 以下のread文も適宜変更すること。
     !!
     character(len=STRING_LENGTH_MAX) :: params_file
 
@@ -177,14 +175,14 @@ contains
     !! この関数は問い合わせ変数が文字列の場合。
     !! この関数の前にnamelist__readが呼ばれている必要がある。
     !! この点はassertで確認している。
-    character(len=*), intent(in) :: variable
-    character(len=STRING_LENGTH_MAX) :: params__get_string
+    character(len=*), intent(in) :: variable  !! 問い合わせ変数の名前
+    character(len=STRING_LENGTH_MAX) :: params__get_string  !! その値
 
     call ut__assert(Read_done, &
                     '<params__get_string> Read params file first.')
 
-    select case         (variable)
-      case                ('Slicedata_tag')    ! 断面ファイル名に使う
+    select case (variable)
+      case                 ('Slicedata_tag')   ! 断面ファイル名に使う
         params__get_string = Slicedata_tag
       case default
         call ut__message('? arg = ', variable) ! 想定外
