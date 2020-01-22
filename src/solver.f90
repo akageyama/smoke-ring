@@ -227,7 +227,7 @@ contains
     type(field__fluid_t),    intent(in)  :: fluid  !! 流体基本場
     type(field__vector3d_t), intent(out) :: vel    !! 流れの速度ベクトル
 
-!>  vel = fluid%flux / fluid%density     ! operator defined in field.
+![  vel = fluid%flux / fluid%density     ! operator defined in field.
     vel = operator_vector_divby_scalar(fluid%flux, fluid%density)
       ! Fortranコンパイラが自己定義演算子（field.f90で定義）
       ! を許せば上の簡潔な記述を使うべし。
@@ -247,7 +247,7 @@ contains
     type(field__vector3d_t),       intent(out) :: vel   !! 流れ場
     real(DR), dimension(NX,NY,NZ), intent(out) :: tm    !! 温度場
 
-!>   vel = fluid%flux / fluid%density ! operator defined in field.f90.
+![   vel = fluid%flux / fluid%density ! operator defined in field.f90.
      vel = operator_vector_divby_scalar(fluid%flux, fluid%density)
       tm = fluid%pressure / (GASS_CONST_FOR_AIR*fluid%density)
        ! Fortranコンパイラが自己定義演算子（field.f90で定義）
@@ -265,10 +265,10 @@ contains
     real(DR), dimension(NX,NY,NZ), intent(out) :: tm     !! 温度場
     real(DR), dimension(NX,NY,NZ), intent(out) :: divv   !! 流れの発散
 
-!>   vel = fluid%flux     / fluid%density ! operator defined in field.f90.
+![   vel = fluid%flux     / fluid%density ! operator defined in field.f90.
      vel = operator_vector_divby_scalar(fluid%flux, fluid%density)
       tm = fluid%pressure / fluid%density
-!>  divv = .div.vel
+![  divv = .div.vel
     divv = operator_div(vel)
        ! Fortranコンパイラが自己定義演算子（field.f90で定義）
        ! を許せば上の簡潔な記述を使うべし。
@@ -485,7 +485,7 @@ contains
       ! いま解いているナビエ・ストークス方程式は時間に陽に依存する。
 
     !---ルンゲ・クッタの第2段---!
-!>  gluid = fluid + dfluid01*0.5_DR
+![  gluid = fluid + dfluid01*0.5_DR
     dfluid01 = operator_fluid_times_real(dfluid01,0.5_DR)
     gluid    = operator_fluid_add(fluid,dfluid01)
       ! Fortranコンパイラが自己定義演算子をきちんと処理できる
@@ -498,7 +498,7 @@ contains
                             gluid%pressure)
 
     !---ルンゲ・クッタの第3段---!
-!>  gluid = fluid + dfluid02*0.5_DR
+![  gluid = fluid + dfluid02*0.5_DR
     dfluid02 = operator_fluid_times_real(dfluid02,0.5_DR)
     gluid    = operator_fluid_add(fluid,dfluid02)
       ! Fortranコンパイラが自己定義演算子をきちんと処理できる
@@ -515,7 +515,7 @@ contains
       ! いま解いているナビエ・ストークス方程式は時間に陽に依存する。
 
     !---ルンゲ・クッタの第4段---!
-!>  gluid = fluid + dfluid03
+![  gluid = fluid + dfluid03
     gluid = operator_fluid_add(fluid,dfluid03)
       ! Fortranコンパイラが自己定義演算子をきちんと処理できる
       ! 場合は上の簡潔な記述の方が（読みやすいので）好ましい。
@@ -528,8 +528,8 @@ contains
 
     !--- 最終結果 ---!
 
-!>  fluid = fluid  &
-!>        + ONE_SIXTH*( dfluid01 + 2*dfluid02 + 2*dfluid03 + dfluid04 )
+![  fluid = fluid  &
+![        + ONE_SIXTH*( dfluid01 + 2*dfluid02 + 2*dfluid03 + dfluid04 )
     dfluid01 = operator_fluid_times_real(dfluid01,ONE_SIXTH)
     dfluid02 = operator_fluid_times_real(dfluid02,ONE_THIRD)
     dfluid03 = operator_fluid_times_real(dfluid03,ONE_THIRD)
@@ -648,7 +648,7 @@ contains
       ! sqrtをとって振幅（ベクトルの長さ）を計算している。
 
     call ut__message('#flow energy: ', nloop, time,  &
-!>                                    .energyintegral.fluid)
+![                                    .energyintegral.fluid)
                                        operator_energyintegral(fluid))
       ! ここでもFortranコンパイラが許せば.energyintegral.という
       ! 簡潔な演算子表現を使ったほうがよい。ここでもこの1行の
@@ -656,7 +656,7 @@ contains
       ! 資料密度を掛けたもの体積積分）が必要であることに注意。
 
     call ut__message('#total mass: ',  nloop, time,  &
-!>                                    .scalarintegral.(fluid%density))
+![                                    .scalarintegral.(fluid%density))
                                operator_scalarintegral(fluid%density))
       ! 上と同様。こちらのほうは単なる密度場の体積積分なので
       ! 演算量は少ないが、シミュレーション領域全体に渡る体積積分
@@ -676,7 +676,7 @@ contains
 
     real(DR) :: kappa  ! 空気の熱拡散率
 
-    !<< 物理パラメータの設定 >>!
+    ! 物理パラメータの設定
     Viscosity = params__get_double('Viscosity') ! 空気の粘性率
     kappa     = params__get_double('Kappa')     ! 空気の熱拡散率
       ! Viscosityと違ってkappaの頭文字が大文字になっていない、つまり
@@ -690,16 +690,15 @@ contains
       ! 分子の構造（自由度）で決まる。
 
     ! 流体の初期条件の設定
-    !<<  流体の初期条件の設定 >>!
     fluid%pressure = 1.013e5_DR  ! 1013 hPa (一気圧)
     fluid%density  = 1.293_DR    ! kg/m^3 (空気の密度)
-!>  fluid%flux     = 0.0_DR      ! 初期速度なし（流れなし）
+![  fluid%flux     = 0.0_DR      ! 初期速度なし（流れなし）
     fluid%flux%x   = 0.0_DR      ! 初期速度なし（流れなし）
     fluid%flux%y   = 0.0_DR        
     fluid%flux%z   = 0.0_DR       
       ! コンパイラが許す場合は上の簡潔な代入表現の方が望ましい
 
-    !<<  渦輪を駆動するための力の場の設定 >>!
+    ! 渦輪を駆動するための力の場の設定
     call set_drive_force_field
 
     Initialize_done = .true.

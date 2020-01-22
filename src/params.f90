@@ -36,7 +36,7 @@ module params_m
   use ut_m         !! ユーティリティ
   implicit none    !! 暗黙の型宣言無効化。必須
   private !! このモジュール内の変数・ルーチン等はデフォルトで非公開
-  public :: & !< routines >!
+  public :: & ![routines]
             params__get_double,   &
             params__get_integer,  &
             params__get_logical,  &

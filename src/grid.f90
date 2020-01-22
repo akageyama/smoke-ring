@@ -14,18 +14,18 @@ module grid_m
   use ut_m         !! ユーティリティ
   implicit none    !! 暗黙の型宣言無効化。必須
   private !! このモジュール内の変数・ルーチン等はデフォルトで非公開
-! public :: & !<< type >>!
+! public :: & ![type]
 !           grid__pos_t,  &
 !           grid__delta_t,  &
 !           grid__derivative_operator_1st_t,  &
 !           grid__derivative_operator_2nd_t
-! public :: & !<< variable >>!
+! public :: & ![variable]
 !           grid__pos,  &
 !           grid__delta,  &
 !           grid__d1,  &
 !           grid__d2,  &
 !           grid__delta_min
-! public :: & !<< routine >>!
+! public :: & ![routine]
 !           grid__initialize
   public :: grid
     !! このモジュールの中心変数。これを介して外部と
@@ -39,37 +39,43 @@ module grid_m
     !! 格子点位置を収める構造体
     !! @note 
     !!     posはpositionの意味
-    real(DR), dimension(NX) :: x
-    real(DR), dimension(NY) :: y
-    real(DR), dimension(NZ) :: z
+    real(DR), dimension(NX) :: x !! x座標
+    real(DR), dimension(NY) :: y !! y座標
+    real(DR), dimension(NZ) :: z !! z座標
   end type grid__pos_t
 
   type grid__delta_t
     !! 格子間隔
-    real(DR) :: x, y, z
+    real(DR) :: x  !! x方向の格子間隔
+    real(DR) :: y  !! y方向の格子間隔
+    real(DR) :: z  !! z方向の格子間隔
   end type grid__delta_t
 
   type grid__derivative_operator_1st_t
     !! 1階微分（差分）をとる時の演算子（定数）
     !! 演算回数の節約のため
-    real(DR) :: x, y, z
+    real(DR) :: x  !! x偏微分
+    real(DR) :: y  !! y偏微分
+    real(DR) :: z  !! z偏微分
   end type grid__derivative_operator_1st_t
 
   type grid__derivative_operator_2nd_t
     !! 2階微分（差分）をとる時の演算子（定数）
     !! 演算回数の節約のため
-    real(DR) :: x, y, z
+    real(DR) :: x   !! x偏微分
+    real(DR) :: y   !! y偏微分
+    real(DR) :: z   !! z偏微分
   end type grid__derivative_operator_2nd_t
 
   type, public :: grid__t
     !! 格子点関係のデータを全て収める構造体
-    type(grid__pos_t) :: pos
-    real(DR) :: delta_min
-    type(grid__delta_t) :: delta
-    type(grid__derivative_operator_1st_t) :: d1
-    type(grid__derivative_operator_2nd_t) :: d2
+    type(grid__pos_t) :: pos                     !! 格子点位置
+    real(DR) :: delta_min                        !! 最小の格子間隔
+    type(grid__delta_t) :: delta                 !! 格子間隔
+    type(grid__derivative_operator_1st_t) :: d1  !! 1階微分演算子定数
+    type(grid__derivative_operator_2nd_t) :: d2  !! r階微分演算子定数
   contains
-    procedure :: initialize => grid__initialize
+    procedure :: initialize => grid__initialize  !! 初期化関数
     !! 初期化のためのメンバー関数
     !! こうするとgrid%initializeという形でcallできる
   end type grid__t
@@ -92,7 +98,7 @@ contains
     !!   は
     !!       call grid__initialize(sample_grid)
     !!   と解釈される。selfという名前でなくても構わない。
-    class(grid__t), intent(out) :: self
+    class(grid__t), intent(out) :: self  !! 格子構造体
     integer(SI) :: i, j, k
     real(DR) :: dx, dy, dz  !! 格子間隔
 

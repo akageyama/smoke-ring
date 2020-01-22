@@ -30,10 +30,10 @@ module field_m
   public  
     !! 通常はデフォルトを非公開（private）とするが、
     !! このモジュール内の変数・ルーチン等はデフォルトで公開。
-  private :: &!<< assignments >>!&
+  private :: & ![assignments]
              assignment_real_to_fluid,           &
              assignment_real_to_vector
-  public  :: &!<< operators >>!&
+  public  :: & ![operators]
              operator_cross_product,             &
              operator_curl,                      &
              operator_div,                       &
@@ -51,7 +51,7 @@ module field_m
              operator_vector_divby_scalar,       &
              operator_vector_times_real,         &
              operator_vector_times_scalar
-  private :: &!<< routines >>!&
+  private :: & ![routines]
              boundary_condition_fluid,           &
              boundary_condition_scalar,          &
              boundary_condition_vector
