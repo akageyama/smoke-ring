@@ -33,9 +33,14 @@ module constants_m
   real(DR), parameter :: TWOPI = PI*2               ! 円周率の2倍
 
   ! << Grid Size >>
-  integer(SI), parameter :: NX =  92    ! 格子点数 x方向
-  integer(SI), parameter :: NY =  32    ! 格子点数 y方向
-  integer(SI), parameter :: NZ =  32    ! 格子点数 z方向
+  integer(SI), parameter :: NX =  60    ! 格子点数 x方向 粗い解像度
+  integer(SI), parameter :: NY =  20    ! 格子点数 y方向 粗い解像度
+  integer(SI), parameter :: NZ =  20    ! 格子点数 z方向 粗い解像度
+
+  ! integer(SI), parameter :: NX =  92    ! 格子点数 x方向
+  ! integer(SI), parameter :: NY =  32    ! 格子点数 y方向
+  ! integer(SI), parameter :: NZ =  32    ! 格子点数 z方向
+
   ! integer(SI), parameter :: NX = 152  ! 格子点数 x方向 少し高めの解像度
   ! integer(SI), parameter :: NY =  52  ! 格子点数 y方向 少し高めの解像度
   ! integer(SI), parameter :: NZ =  52  ! 格子点数 z方向 少し高めの解像度
