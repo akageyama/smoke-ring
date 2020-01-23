@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   
+   <meta name="description" content="渦輪の形成と伝播の3次元シミュレーション + 可視化">
+    
+    <meta name="author" content="" >
+    <link rel="icon" href="./favicon.png">
+
+    <title> Smoke Ring </title>
+
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/pygments.css" rel="stylesheet">
+    <link href="./css/font-awesome.min.css" rel="stylesheet">
+    <link href="./css/local.css" rel="stylesheet">
+    
+    <link  href="./tipuesearch/tipuesearch.css" rel="stylesheet">
+    
+    
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="./js/jquery-2.1.3.min.js"></script>
+    <script src="./js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="./index.html">Smoke Ring </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+        
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          
+              
+            <li><a href="./lists/files.html">Source Files</a></li>
+        
+        
+        
+            <li><a href="./lists/modules.html">Modules</a></li>
+        
+            
+                                
+            <li><a href="./lists/procedures.html">Procedures</a></li>
+        
+               
+            <li><a href="./lists/types.html">Derived Types</a></li>
+        
+        
+            <li><a href="./program/main_m.html">Program</a></li>
+      
+            </ul>
+            </li>
+
+
+<li class="visible-xs hidden-sm visible-lg"><a href="./lists/files.html">Source Files</a></li>
+
+
+
+<li class="visible-xs hidden-sm visible-lg"><a href="./lists/modules.html">Modules</a></li>
+
+
+
+<li class="visible-xs hidden-sm visible-lg"><a href="./lists/procedures.html">Procedures</a></li>
+
+                             
+<li class="visible-xs hidden-sm visible-lg"><a href="./lists/types.html">Derived Types</a></li>
+
+
+<li class="visible-xs hidden-sm visible-lg"><a href="./program/main_m.html">Program</a></li>
+
+          </ul>
+        
+        <form action="./search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+    
+      <!-- Main component for a primary marketing message or call to action -->
+      <div class="jumbotron">
+        <p>渦輪の形成と伝播の3次元シミュレーション + 可視化</p>
+        	 
+			 
+        </p>
+      </div>
+
+      <div class="row" id='text'>
+		  
+        <div class="col-md-12">
+		  
+          <h1>Smoke Ring</h1>
+          <hr>
+<h3>概要</h3>
+<p>これは、神戸大学情報知能工学科の講義 "HPC" （B3対象）用サンプルコードである。
+  3次元ナビエ・ストークス方程式を解いて渦輪の形成と伝播のシミュレーションを行う。</p>
+<h3>シミュレーション領域</h3>
+<p>直方体領域。3次元周期境界条件。カーテシアン座標。</p>
+<h3>計算手法</h3>
+<p>空間離散化は2次中心差分法。時間積分は4次ルンゲ・クッタ法。</p>
+<h3>実行方法</h3>
+<ul>
+<li>cd src</li>
+<li>make</li>
+<li>cd ../slice_grapher</li>
+<li>make clean</li>
+<li>make</li>
+</ul>
+        </div>
+		  
+      </div>
+      
+      
+      
+      
+		
+      <div class="row">
+        <div class="col-xs-6 col-sm-3">
+              <h3>Source Files</h3>
+              <ul>
+                
+                  
+                    <li><a href='./sourcefile/constants.f90.html'>constants.f90</a></li>
+                  
+                
+                  
+                    <li><a href='./sourcefile/debug.f90.html'>debug.f90</a></li>
+                  
+                
+                  
+                    <li><a href='./sourcefile/field.f90.html'>field.f90</a></li>
+                  
+                
+                  
+                    <li><a href='./sourcefile/grid.f90.html'>grid.f90</a></li>
+                  
+                
+                  
+                    <li><a href='./sourcefile/job.f90.html'>job.f90</a></li>
+                  
+                
+                  
+                    <li><a href='./sourcefile/main.f90.html'>main.f90</a></li>
+                  
+                
+                  
+                    <li><a href='./sourcefile/params.f90.html'>params.f90</a></li>
+                  
+                
+                  
+                    <li><a href='./sourcefile/slicedata.f90.html'>slicedata.f90</a></li>
+                  
+                
+                  
+                    <li><a href='./sourcefile/solver.f90.html'>solver.f90</a></li>
+                  
+                
+                  
+                    <li><a href='./sourcefile/ut.f90.html'>ut.f90</a></li>
+                  
+                
+              </ul>
+          </div>
+          
+		  <div class="col-xs-6 col-sm-3">
+              <h3>Modules</h3>
+              <ul>
+                
+                  
+                    <li><a href='./module/constants_m.html'>constants_m</a></li>
+                  
+                
+                  
+                    <li><a href='./module/debug_m.html'>debug_m</a></li>
+                  
+                
+                  
+                    <li><a href='./module/field_m.html'>field_m</a></li>
+                  
+                
+                  
+                    <li><a href='./module/grid_m.html'>grid_m</a></li>
+                  
+                
+                  
+                    <li><a href='./module/job_m.html'>job_m</a></li>
+                  
+                
+                  
+                    <li><a href='./module/params_m.html'>params_m</a></li>
+                  
+                
+                  
+                    <li><a href='./module/slicedata_m.html'>slicedata_m</a></li>
+                  
+                
+                  
+                    <li><a href='./module/solver_m.html'>solver_m</a></li>
+                  
+                
+                  
+                    <li><a href='./module/ut_m.html'>ut_m</a></li>
+                  
+                
+              </ul>
+          </div>
+          
+          
+		  <div class="col-xs-6 col-sm-3">
+              <h3>Procedures</h3>
+              <ul>
+                
+                  
+                    <li><a href='./proc/assignment_real_to_fluid.html'>assignment_real_to_fluid</a></li>
+                  
+                
+                  
+                    <li><a href='./proc/assignment_real_to_vector.html'>assignment_real_to_vector</a></li>
+                  
+                
+                  
+                    <li><a href='./proc/boundary_condition_fluid.html'>boundary_condition_fluid</a></li>
+                  
+                
+                  
+                    <li><a href='./proc/boundary_condition_scalar.html'>boundary_condition_scalar</a></li>
+                  
+                
+                  
+                    <li><a href='./proc/boundary_condition_vector.html'>boundary_condition_vector</a></li>
+                  
+                
+                  
+                    <li><a href='./interface/debug__print.html'>debug__print</a></li>
+                  
+                
+                  
+                    <li><a href='./proc/drive_force_factor.html'>drive_force_factor</a></li>
+                  
+                
+                  
+                    <li><a href='./interface/field__boundary_condition.html'>field__boundary_condition</a></li>
+                  
+                
+                  
+                    <li><a href='./proc/grid__initialize.html'>grid__initialize</a></li>
+                  
+                
+                  
+                    <li><a href='./proc/job__finalize.html'>job__finalize</a></li>
+                  
+                
+                  
+                    <li><a href="./lists/procedures.html"><em>All procedures&hellip;</em></a></li>
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+              </ul>
+          </div>
+          
+          
+		  <div class="col-xs-6 col-sm-3">
+              <h3>Derived Types</h3>
+              <ul>
+                
+                  
+                    <li><a href='./type/field__fluid_t.html'>field__fluid_t</a></li>
+                  
+                
+                  
+                    <li><a href='./type/field__vector3d_t.html'>field__vector3d_t</a></li>
+                  
+                
+                  
+                    <li><a href='./type/grid__delta_t.html'>grid__delta_t</a></li>
+                  
+                
+                  
+                    <li><a href='./type/grid__derivative_operator_1st_t.html'>grid__derivative_operator_1st_t</a></li>
+                  
+                
+                  
+                    <li><a href='./type/grid__derivative_operator_2nd_t.html'>grid__derivative_operator_2nd_t</a></li>
+                  
+                
+                  
+                    <li><a href='./type/grid__pos_t.html'>grid__pos_t</a></li>
+                  
+                
+                  
+                    <li><a href='./type/grid__t.html'>grid__t</a></li>
+                  
+                
+                  
+                    <li><a href='./type/job__karte_t.html'>job__karte_t</a></li>
+                  
+                
+              </ul>
+          </div>
+          
+      </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-4"><p>&copy; 2020 
+                                          </p></div>
+        <div class="col-xs-6 col-md-4 col-md-push-4">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/cmacmackin/ford">FORD</a>
+             on 2020-01-23 09:25  
+          </p>
+        </div>
+        <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> Smoke Ring was developed by </p></div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="./js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="./js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+    <script src="./tipuesearch/tipuesearch_content.js"></script>
+    <script src="./tipuesearch/tipuesearch_set.js"></script>
+    <script src="./tipuesearch/tipuesearch.js"></script>
+    
+    
+  </body>
+</html>

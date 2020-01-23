@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   
+   <meta name="description" content="渦輪の形成と伝播の3次元シミュレーション + 可視化">
+    
+    <meta name="author" content="" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>grid__initialize &ndash; Smoke Ring</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+    
+    
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">Smoke Ring </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+        
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          
+              
+            <li><a href="../lists/files.html">Source Files</a></li>
+        
+        
+        
+            <li><a href="../lists/modules.html">Modules</a></li>
+        
+            
+                                
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+        
+               
+            <li><a href="../lists/types.html">Derived Types</a></li>
+        
+        
+            <li><a href="../program/main_m.html">Program</a></li>
+      
+            </ul>
+            </li>
+
+
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+
+
+
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+
+
+
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+
+                             
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+
+
+<li class="visible-xs hidden-sm visible-lg"><a href="../program/main_m.html">Program</a></li>
+
+          </ul>
+        
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+    
+  
+  <div class="row">
+    <h1>grid__initialize
+      <small>Subroutine</small>
+    
+    </h1>
+    
+<div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     
+     
+     
+     
+    
+    
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 3.5% of total for procedures.">29 statements</a>
+     </li> 
+     
+     
+     
+    <li><i class="fa fa-code"></i><a href="../src/grid.f90"> Source File</a></li>
+     
+     
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+  
+    
+     <li><a href='../sourcefile/grid.f90.html'>grid.f90</a></li>
+    
+     <li><a href='../module/grid_m.html'>grid_m</a></li>
+    
+  
+     <li class="active">grid__initialize</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    
+<div id="sidebar">
+  
+<h3>Contents</h3>
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  <div class="list-group">
+    <a class="list-group-item" href="../proc/grid__initialize.html#src">grid__initialize</a>
+  </div>
+</div>
+
+
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>
+private subroutine grid__initialize(self)
+    
+    
+   
+</h2>
+    
+  
+
+
+    
+    <p>gridの初期化</p>
+<p>ここでは周期境界条件を仮定している。</p>
+<p>構造体のメンバー関数としてcallするときその
+ 構造体変数そのものがselfとして自動的に引数にはいる。
+ たとえば、
+     call sampl_grid%initialize
+ は
+     call grid__initialize(sample_grid)
+ と解釈される。selfという名前でなくても構わない。</p>
+    
+
+    <h3>Arguments</h3>
+    
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" id="variable-self~2"></span>class(<a href='../type/grid__t.html'>grid__t</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>self</strong></td><td><p>格子構造体</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+    
+    
+    
+    
+     
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      
+<h3>Contents</h3>
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  <div class="list-group">
+    <a class="list-group-item" href="../proc/grid__initialize.html#src">grid__initialize</a>
+  </div>
+</div>
+
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+    
+
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span>  <span class="k">subroutine </span><span class="n">grid__initialize</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
+    <span class="c">!! gridの初期化</span>
+    <span class="c">!! </span>
+    <span class="c">!! ここでは周期境界条件を仮定している。</span>
+    <span class="c">!!</span>
+    <span class="c">!! 構造体のメンバー関数としてcallするときその</span>
+    <span class="c">!! 構造体変数そのものがselfとして自動的に引数にはいる。</span>
+    <span class="c">!! たとえば、</span>
+    <span class="c">!!     call sampl_grid%initialize</span>
+    <span class="c">!! は</span>
+    <span class="c">!!     call grid__initialize(sample_grid)</span>
+    <span class="c">!! と解釈される。selfという名前でなくても構わない。</span>
+    <span class="k">class</span><span class="p">(</span><span class="n">grid__t</span><span class="p">),</span> <span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="kd">::</span> <span class="n">self</span>  <span class="c">!! 格子構造体</span>
+
+    <span class="kt">integer</span><span class="p">(</span><span class="n">SI</span><span class="p">)</span> <span class="kd">::</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span>
+    <span class="kt">real</span><span class="p">(</span><span class="n">DR</span><span class="p">)</span> <span class="kd">::</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span>  <span class="c">! 格子間隔</span>
+
+    <span class="kt">real</span><span class="p">(</span><span class="n">DR</span><span class="p">),</span> <span class="k">parameter</span> <span class="kd">::</span> <span class="n">NEARLY_ZERO</span> <span class="o">=</span> <span class="mf">1.e-10_DR</span>   <span class="c">! 十分小さい数</span>
+    <span class="c">!</span>
+    <span class="c">! 周期境界条件</span>
+    <span class="c">!</span>
+    <span class="c">!    --+-----+-----|                             |-----+-----+---</span>
+    <span class="c">!      6     7     8                             1     2     3</span>
+    <span class="c">!            |-----+-----+-----+-----+-----+-----+-----|</span>
+    <span class="c">!            1     2     3     4     5     6     7     8</span>
+    <span class="c">!               |===================================|</span>
+    <span class="c">!              XMIN                                XMAX</span>
+    <span class="c">!</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="p">(</span><span class="n">XMAX</span><span class="o">-</span><span class="n">XMIN</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">NX</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>  <span class="c">! from (1.5) to (NX-0.5), see above figure.</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="p">(</span><span class="n">YMAX</span><span class="o">-</span><span class="n">YMIN</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">NY</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>  <span class="c">! ここではxminがi=1とi=2の2つの格子点の</span>
+    <span class="n">dz</span> <span class="o">=</span> <span class="p">(</span><span class="n">ZMAX</span><span class="o">-</span><span class="n">ZMIN</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">NZ</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>  <span class="c">! ちょうど中間に位置すると仮定している。</span>
+                             <span class="c">! burgers_equationのサンプルコードでは</span>
+                             <span class="c">! i=2にXMINが位置していた。両者に実質的な</span>
+                             <span class="c">! 違いはない。</span>
+
+    <span class="n">self</span><span class="p">%</span><span class="n">delta</span><span class="p">%</span><span class="n">x</span> <span class="o">=</span> <span class="n">dx</span> <span class="c">! x方向の格子間隔</span>
+    <span class="n">self</span><span class="p">%</span><span class="n">delta</span><span class="p">%</span><span class="n">y</span> <span class="o">=</span> <span class="n">dy</span> <span class="c">! y方向の格子間隔</span>
+    <span class="n">self</span><span class="p">%</span><span class="n">delta</span><span class="p">%</span><span class="n">z</span> <span class="o">=</span> <span class="n">dz</span> <span class="c">! z方向の格子間隔</span>
+
+    <span class="n">self</span><span class="p">%</span><span class="n">delta_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">delta</span><span class="p">%</span><span class="n">x</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">delta</span><span class="p">%</span><span class="n">y</span><span class="p">,</span><span class="n">self</span><span class="p">%</span><span class="n">delta</span><span class="p">%</span><span class="n">z</span><span class="p">)</span>
+      <span class="c">! 3つの格子間隔の最小値。</span>
+      <span class="c">! CFL条件はこの最小値で決まる。</span>
+
+    <span class="n">self</span><span class="p">%</span><span class="n">d1</span><span class="p">%</span><span class="n">x</span> <span class="o">=</span> <span class="mf">1.0_DR</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">dx</span><span class="p">)</span>   <span class="c">! 1階差分演算用定数</span>
+    <span class="n">self</span><span class="p">%</span><span class="n">d1</span><span class="p">%</span><span class="n">y</span> <span class="o">=</span> <span class="mf">1.0_DR</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">dy</span><span class="p">)</span>   <span class="c">! dはderivativeを表す</span>
+    <span class="n">self</span><span class="p">%</span><span class="n">d1</span><span class="p">%</span><span class="n">z</span> <span class="o">=</span> <span class="mf">1.0_DR</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">dz</span><span class="p">)</span>   <span class="c">! d1は1階差分の意味</span>
+
+    <span class="n">self</span><span class="p">%</span><span class="n">d2</span><span class="p">%</span><span class="n">x</span> <span class="o">=</span> <span class="mf">1.0_DR</span><span class="o">/</span><span class="p">(</span><span class="n">dx</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>  <span class="c">! 2階差分演算用定数</span>
+    <span class="n">self</span><span class="p">%</span><span class="n">d2</span><span class="p">%</span><span class="n">y</span> <span class="o">=</span> <span class="mf">1.0_DR</span><span class="o">/</span><span class="p">(</span><span class="n">dy</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>  <span class="c">! dはderivativeを表す</span>
+    <span class="n">self</span><span class="p">%</span><span class="n">d2</span><span class="p">%</span><span class="n">z</span> <span class="o">=</span> <span class="mf">1.0_DR</span><span class="o">/</span><span class="p">(</span><span class="n">dz</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>  <span class="c">! d2は2階差分の意味</span>
+
+    <span class="k">do </span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span> <span class="p">,</span> <span class="n">NX</span>
+      <span class="c">! x方向の格子点位置の設定</span>
+      <span class="c">! XMINはi=1とi=2の中間にある</span>
+      <span class="n">self</span><span class="p">%</span><span class="n">pos</span><span class="p">%</span><span class="n">x</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="n">XMIN</span> <span class="o">+</span> <span class="n">dx</span><span class="o">*</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">DR</span><span class="p">)</span><span class="o">-</span><span class="mf">1.5_DR</span><span class="p">)</span>
+    <span class="k">end do</span>
+
+<span class="k">    do </span><span class="n">j</span> <span class="o">=</span> <span class="mi">1</span> <span class="p">,</span> <span class="n">NY</span>
+      <span class="c">! y方向の格子点位置の設定</span>
+      <span class="n">self</span><span class="p">%</span><span class="n">pos</span><span class="p">%</span><span class="n">y</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="o">=</span> <span class="n">YMIN</span> <span class="o">+</span> <span class="n">dy</span><span class="o">*</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="n">DR</span><span class="p">)</span><span class="o">-</span><span class="mf">1.5_DR</span><span class="p">)</span>
+    <span class="k">end do</span>
+
+<span class="k">    do </span><span class="n">k</span> <span class="o">=</span> <span class="mi">1</span> <span class="p">,</span> <span class="n">NZ</span>
+      <span class="c">! z方向の格子点位置の設定</span>
+      <span class="n">self</span><span class="p">%</span><span class="n">pos</span><span class="p">%</span><span class="n">z</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">=</span> <span class="n">ZMIN</span> <span class="o">+</span> <span class="n">dz</span><span class="o">*</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">DR</span><span class="p">)</span><span class="o">-</span><span class="mf">1.5_DR</span><span class="p">)</span>
+    <span class="k">end do</span>
+
+<span class="k">    call </span><span class="n">ut__assert</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">pos</span><span class="p">%</span><span class="n">x</span><span class="p">(</span> <span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="n">XMIN</span><span class="o">+</span><span class="n">dx</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span>                 <span class="p">&amp;</span>
+                    <span class="nb">abs</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">pos</span><span class="p">%</span><span class="n">x</span><span class="p">(</span><span class="n">NX</span><span class="p">)</span><span class="o">-</span><span class="n">XMAX</span><span class="o">-</span><span class="n">dx</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span>                 <span class="p">&amp;</span>
+                    <span class="nb">abs</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">pos</span><span class="p">%</span><span class="n">y</span><span class="p">(</span> <span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="n">YMIN</span><span class="o">+</span><span class="n">dy</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span>                 <span class="p">&amp;</span>
+                    <span class="nb">abs</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">pos</span><span class="p">%</span><span class="n">y</span><span class="p">(</span><span class="n">NY</span><span class="p">)</span><span class="o">-</span><span class="n">YMAX</span><span class="o">-</span><span class="n">dy</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span>                 <span class="p">&amp;</span>
+                    <span class="nb">abs</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">pos</span><span class="p">%</span><span class="n">z</span><span class="p">(</span> <span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="n">ZMIN</span><span class="o">+</span><span class="n">dz</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span>                 <span class="p">&amp;</span>
+                    <span class="nb">abs</span><span class="p">(</span><span class="n">self</span><span class="p">%</span><span class="n">pos</span><span class="p">%</span><span class="n">z</span><span class="p">(</span><span class="n">NZ</span><span class="p">)</span><span class="o">-</span><span class="n">ZMAX</span><span class="o">-</span><span class="n">dz</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>  <span class="o">&lt;</span> <span class="n">NEARLY_ZERO</span><span class="p">,</span>   <span class="p">&amp;</span>
+                   <span class="s2">&quot;&lt;grid__initialize&gt; grid min/max inconsistent?&quot;</span><span class="p">)</span>
+      <span class="c">! シミュレーション領域の範囲を決めるxmin, xmax, ..., zmaxZ</span>
+      <span class="c">! の6個の頂点位置が上で定義した格子点位置と矛盾していない</span>
+      <span class="c">! ことを確認する。万が一この前提が崩れている時はすぐに</span>
+      <span class="c">! シミュレーションを停止する </span>
+  <span class="k">end subroutine </span><span class="n">grid__initialize</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    
+    </div>
+  </div>
+
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-4"><p>&copy; 2020 
+                                          </p></div>
+        <div class="col-xs-6 col-md-4 col-md-push-4">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/cmacmackin/ford">FORD</a>
+             on 2020-01-23 09:25  
+          </p>
+        </div>
+        <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> Smoke Ring was developed by </p></div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+    
+  </body>
+</html>
