@@ -31,7 +31,7 @@ or smoke-ring.
 
 - Fortran 2003 compiler, for the simulation.
 - gnuplot and ImageMagic (convert command), for the visualization.
-- An animated gif viewer Here we use Safari.
+- An animated gif viewer. Here we use Safari.
 
 ## Usage
 
