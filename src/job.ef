@@ -51,13 +51,13 @@ contains
       case ("fine", "loop_max")
         call ut__message('#',"Successfully finished.") ! #で第2引数を囲む。
       case ("time_out")
-        call ut__message('-',"Time out at nloop = ", nloop)
+        call ut__deco_message('-',"Time out at nloop = ", nloop)
       case ("over_flow")
-        call ut__message('%',"Overflow at nloop = ", nloop)
+        call ut__deco_message('%',"Overflow at nloop = ", nloop)
       case ("negative_anormaly")
-        call ut__message('%',"Underflow at nloop = ",nloop)
+        call ut__deco_message('%',"Underflow at nloop = ",nloop)
       case default
-        call ut__message('?',"Stopped at nloop = ",  nloop)
+        call ut__deco_message('?',"Stopped at nloop = ",  nloop)
     end select
   end subroutine job__finalize
 

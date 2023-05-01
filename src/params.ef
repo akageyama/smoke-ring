@@ -52,12 +52,10 @@ module params_m
   integer(SI) :: Slicedata_nskip  ! 何ステップに一度、断面データを書き出すか
   character(len=STRING_LENGTH_MAX) :: Slicedata_tag  ! 断面データファイル名用
   real(DR) :: Viscosity, Kappa    ! 粘性率と熱拡散率
-  logical  :: Debug               ! デバッグ出力用フラグ
 
   namelist /simulation/     Total_nloop
   namelist /visualization/  Slicedata_nskip,  Slicedata_tag
   namelist /fluid_property/ Viscosity, Kappa
-  namelist /flags/          Debug
 
 
 contains
@@ -120,8 +118,6 @@ contains
                     '<params__get_logical> Read params file first.')
 
     select case (variable)
-      case                  ('Debug')  ! デバッグモードか否か
-        params__get_logical = Debug
       case default                     ! 想定外
         call ut__message('? arg = ', variable)
         call ut__fatal('<params__get_logical> not in the params?')
@@ -151,20 +147,17 @@ contains
     ! &simulation      Total_nloop = 2000 /
     ! &visualization   Slicedata_nskip  = 100, Slicedata_tag = '_data_slice' /
     ! &fluid_property  Viscosity = 3.0e-2, Kappa = 3.e-2 /
-    ! &flags           Debug = .false. /
     !*******</params_file のサンプル>*********
 
     open(10,file=trim(params_file))
       read(10,nml=simulation)
       read(10,nml=visualization)
       read(10,nml=fluid_property)
-      read(10,nml=flags)
     close(10)
 
     write(6,nml=simulation)
     write(6,nml=visualization)
     write(6,nml=fluid_property)
-    write(6,nml=flags)
 
     Read_done = .true.
   end subroutine params__read

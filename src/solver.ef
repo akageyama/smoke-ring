@@ -83,7 +83,7 @@ module solver_m
   real(DR), save :: Viscosity                  ! 粘性率
   real(DR), save :: Gamma1_kappa               ! (GAMMA-1)*kappa
                                                ! kappaは熱拡散率
-  type(field__vector3d_t), save :: Drive_force ! 渦輪を駆動する力
+  type(field__vector_t), save :: Drive_force ! 渦輪を駆動する力
 
 
 contains
@@ -225,7 +225,7 @@ contains
     !! fluidの基本変数から二次的な場vel（流れの速度ベクトル場）
     !! をもとめる。
     type(field__fluid_t),    intent(in)  :: fluid  !! 流体基本場
-    type(field__vector3d_t), intent(out) :: vel    !! 流れの速度ベクトル
+    type(field__vector_t), intent(out) :: vel    !! 流れの速度ベクトル
 
 ![  vel = fluid%flux / fluid%density     ! operator defined in field.
     vel = operator_vector_divby_scalar(fluid%flux, fluid%density)
@@ -244,7 +244,7 @@ contains
     !! fluidの基本変数から二次的な場（速度ベクトル場velと温度場tm）
     !! をもとめる。
     type(field__fluid_t),          intent(in)  :: fluid !! 流体基本場
-    type(field__vector3d_t),       intent(out) :: vel   !! 流れ場
+    type(field__vector_t),       intent(out) :: vel   !! 流れ場
     real(DR), dimension(NX,NY,NZ), intent(out) :: tm    !! 温度場
 
 ![   vel = fluid%flux / fluid%density ! operator defined in field.f90.
@@ -261,7 +261,7 @@ contains
     !! fluidの基本変数から二次的な場（速度ベクトル場velと
     !! 温度場tmと速度の発散divv）をもとめる。
     type(field__fluid_t),          intent(in)  :: fluid  !! 流体基本場
-    type(field__vector3d_t),       intent(out) :: vel    !! 流れ場
+    type(field__vector_t),       intent(out) :: vel    !! 流れ場
     real(DR), dimension(NX,NY,NZ), intent(out) :: tm     !! 温度場
     real(DR), dimension(NX,NY,NZ), intent(out) :: divv   !! 流れの発散
 
@@ -460,7 +460,7 @@ contains
     real(DR), parameter :: ONE_SIXTH = 1.0_DR / 6.0_DR ! 演算数節約の
     real(DR), parameter :: ONE_THIRD = 1.0_DR / 3.0_DR ! ために定義
 
-    type(field__vector3d_t)       :: vel   ! 速度場
+    type(field__vector_t)       :: vel   ! 速度場
     real(DR), dimension(NX,NY,NZ) :: tm    ! 温度場
     real(DR), dimension(NX,NY,NZ) :: divv  ! 速度場の発散
 
@@ -562,7 +562,7 @@ contains
     real(DR), parameter :: ABNORMALLY_LARGE = 1.e20_DR
       ! これよりも物理量が大きくなったら異常が生じたと判断する
 
-    type(field__vector3d_t) :: vel
+    type(field__vector_t) :: vel
       ! 流れの速度場
 
     if ( mod(nloop,SKIP) /= 0 ) return
@@ -718,7 +718,7 @@ contains
     type(field__fluid_t), intent(in) :: fluid  !! 流体データ
     real(DR) :: solver__set_time_step !! 時間刻み幅 dt
 
-    type(field__vector3d_t)       :: vel ! 速度場
+    type(field__vector_t)       :: vel ! 速度場
     real(DR), dimension(NX,NY,NZ) :: tm  ! 温度場
 
     real(DR) :: vmax, sound_v 
@@ -791,7 +791,7 @@ contains
       dt = min(dt_vel, dt_sound, dt_viscous, dt_kappa)
         ! 最終的な時間刻み幅は上記の4種類のdtの最小値できまる。
 
-      if ( params__get_logical('Debug') ) then
+      if ( DEBUG_MODE ) then
         ! デバッグモードがonであるとき、以下のデータを標準出力
         ! に書き出す。出力が長くなるが、流体の状態を推測するのに
         ! 便利なデータである。
