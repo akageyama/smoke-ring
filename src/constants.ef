@@ -22,6 +22,8 @@
 module constants_m
   implicit none
 
+  logical <const> :: DEBUG_MODE = .true.
+
   ! << f90 constants >>
   integer, parameter :: SI = selected_int_kind(8)   ! 単精度整数種別値
   integer, parameter :: DI = selected_int_kind(16)  ! 倍精度整数種別値

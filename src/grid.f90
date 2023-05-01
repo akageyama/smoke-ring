@@ -30,7 +30,7 @@ module grid_m
 !           grid__initialize
   public :: grid
     ! このモジュールの中心変数。これを介して外部と
-    ! やり取りする。このグリッド変数の定義 (下記のgrid__t）
+    ! やり取りする。このグリッド変数の定義 (下記のgrid_t）
     ! と実体（このgrid）が同じ場所（このgrid_mモジュール内）
     ! にあるのは少々変則的かもしれないが、このように規模の
     ! 小さいシミュレーションプログラムではこの方が
@@ -85,7 +85,7 @@ module grid_m
     real(DR) :: z   !! z偏微分
   end type grid__derivative_operator_2nd_t
 
-  type, public :: grid__t
+  type, public :: grid_t
     !! 格子点関係のデータを全て収める構造体
     type(grid__pos_t) :: pos                     !! 格子点位置
     type(grid_pos_by_global_ijk_t) :: pos_by_global_ijk
@@ -103,9 +103,9 @@ module grid_m
     procedure :: i_have_gijk => grid__i_have_gijk
       !! global格子点(gi,gj,gk)をそのプロセスが持っている
       !! かどうか。
-  end type grid__t
+  end type grid_t
 
-  type(grid__t) :: Grid  ! 実体
+  type(grid_t) :: Grid  ! 実体
 
 
 contains
@@ -206,7 +206,7 @@ contains
   function initialize_pos( gijk, pos_by_gijk ) result(pos)
     type(grid_global_ijk_t), intent(in) :: gijk
     type(grid_pos_by_global_ijk_t), intent(in) :: pos_by_gijk
-    type(grid_pos_t) :: pos
+    type(grid__pos_t) :: pos
 
     integer :: i, j, k
 
@@ -232,6 +232,24 @@ contains
 !
 
 
+  function grid__i_have_gijk( grid, gi, gj, gk ) result(ans)
+    class(grid_t), intent(in) :: grid
+    integer, intent(in) :: gi, gj, gk
+    logical :: ans
+
+    logical :: i_have_gi, i_have_gj, i_have_gk
+
+    i_have_gi = gi >= grid%global_ijk%gi(1)  .and.  &
+                gi <= grid%global_ijk%gi(NXPP)
+    i_have_gj = gj >= grid%global_ijk%gj(1)  .and.  &
+                gj <= grid%global_ijk%gj(NYPP)
+    i_have_gk = gk >= grid%global_ijk%gk(1)  .and.  &
+                gk <= grid%global_ijk%gk(NZPP)
+
+    ans = i_have_gi .and. i_have_gj .and. i_have_gk
+  end function grid__i_have_gijk
+
+
   subroutine grid__initialize(grid)
     !! gridの初期化
     !! 
@@ -244,9 +262,8 @@ contains
     !! は
     !!     call grid__initialize(sample_grid)
     !! と解釈される。gridという名前でなくても構わない。
-    class(grid__t), intent(out) :: grid  !! 格子構造体
+    class(grid_t), intent(out) :: grid  !! 格子構造体
 
-    integer(SI) :: i, j, k
     real(DR) :: dx, dy, dz  ! 格子間隔
 
     !!>
@@ -259,9 +276,9 @@ contains
 !                     |===================================|
 !                    XMIN                                XMAX
     !!<
-    dx = (XMAX-XMIN)/(NX-2)  ! from (1.5) to (NX-0.5), see above figure.
-    dy = (YMAX-YMIN)/(NY-2)  ! ここではxminがi=1とi=2の2つの格子点の
-    dz = (ZMAX-ZMIN)/(NZ-2)  ! ちょうど中間に位置すると仮定している。
+    dx = (XMAX-XMIN)/(NX_GLOBAL-2)  ! from (1.5) to (NX-0.5), see above figure.
+    dy = (YMAX-YMIN)/(NY_GLOBAL-2)  ! ここではxminがi=1とi=2の2つの格子点の
+    dz = (ZMAX-ZMIN)/(NZ_GLOBAL-2)  ! ちょうど中間に位置すると仮定している。
 
     grid%delta%x = dx ! x方向の格子間隔
     grid%delta%y = dy ! y方向の格子間隔
