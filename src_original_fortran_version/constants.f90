@@ -32,40 +32,21 @@ module constants_m
   real(DR), parameter :: PI = 3.1415926535897932_DR ! 円周率
   real(DR), parameter :: TWOPI = PI*2               ! 円周率の2倍
 
-  !<< MPI process constants >>!
-  integer, parameter :: NPROC_X = 1 ! x方向MPIプロセス数 mkjob.sh でこの行をgrepする
-  integer, parameter :: NPROC_Y = 1 ! y方向MPIプロセス数 mkjob.sh でこの行をgrepする 
-  integer, parameter :: NPROC_Z = 1 ! z方向MPIプロセス数 mkjob.sh でこの行をgrepする
+  ! << Grid Size >>
+  integer(SI), parameter :: NX =  60    ! 格子点数 x方向 粗い解像度
+  integer(SI), parameter :: NY =  20    ! 格子点数 y方向 粗い解像度
+  integer(SI), parameter :: NZ =  20    ! 格子点数 z方向 粗い解像度
 
-  !<< Code utility constants >>!
-  integer, parameter :: NIL = -huge(1)
+  ! integer(SI), parameter :: NX =  92    ! 格子点数 x方向
+  ! integer(SI), parameter :: NY =  32    ! 格子点数 y方向
+  ! integer(SI), parameter :: NZ =  32    ! 格子点数 z方向
 
-  !<< Grid size constants >>!
-  integer, parameter :: NXPP = 60   ! PP = Per Process 
-  integer, parameter :: NYPP = 20
-  integer, parameter :: NZPP = 20
-  integer, parameter :: NXPP1 = NXPP + 1  ! PP1 = PP plus one
-  integer, parameter :: NYPP1 = NYPP + 1
-  integer, parameter :: NZPP1 = NZPP + 1
-  integer, parameter :: NX_GLOBAL = NXPP * NPROC_X + 2 ! x方向の全格子点数
-  integer, parameter :: NY_GLOBAL = NYPP * NPROC_Y + 2
-  integer, parameter :: NZ_GLOBAL = NZPP * NPROC_Z + 2
-
-  ! 格子サイズのメモ
-  ! NX_GLOBAL =  60    ! 格子点数 x方向 粗い解像度
-  ! NY_GLOBAL =  20    ! 格子点数 y方向 粗い解像度
-  ! NZ_GLOBAL =  20    ! 格子点数 z方向 粗い解像度
-  ! ---
-  ! NX_GLOBAL =  92    ! 格子点数 x方向
-  ! NY_GLOBAL =  32    ! 格子点数 y方向
-  ! NZ_GLOBAL =  32    ! 格子点数 z方向
-  ! ---
-  ! NX_GLOBAL = 152    ! 格子点数 x方向 少し高めの解像度
-  ! NY_GLOBAL =  52    ! 格子点数 y方向 少し高めの解像度
-  ! NZ_GLOBAL =  52    ! 格子点数 z方向 少し高めの解像度
+  ! integer(SI), parameter :: NX = 152  ! 格子点数 x方向 少し高めの解像度
+  ! integer(SI), parameter :: NY =  52  ! 格子点数 y方向 少し高めの解像度
+  ! integer(SI), parameter :: NZ =  52  ! 格子点数 z方向 少し高めの解像度
 
   ! << Box Size >>
-  real(DR), parameter :: XMIN = -1.5_DR ! 計算領域範囲 +x  単位はメートル
+  real(DR), parameter :: XMIN = -1.5_DR ! 計算領域範囲 +x
   real(DR), parameter :: XMAX = +1.5_DR ! 計算領域範囲 -x
   real(DR), parameter :: YMIN = -0.5_DR ! 計算領域範囲 +y
   real(DR), parameter :: YMAX = +0.5_DR ! 計算領域範囲 -y

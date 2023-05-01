@@ -33,23 +33,23 @@ module constants_m
   real(DR), parameter :: TWOPI = PI*2               ! 円周率の2倍
 
   !<< MPI process constants >>!
-  integer, parameter :: NPROC_X = 1 ! x方向MPIプロセス数 mkjob.sh でこの行をgrepする
-  integer, parameter :: NPROC_Y = 1 ! y方向MPIプロセス数 mkjob.sh でこの行をgrepする 
-  integer, parameter :: NPROC_Z = 1 ! z方向MPIプロセス数 mkjob.sh でこの行をgrepする
+  integer <const> :: NPROC_X = 1 ! x方向MPIプロセス数 mkjob.sh でこの行をgrepする
+  integer <const> :: NPROC_Y = 1 ! y方向MPIプロセス数 mkjob.sh でこの行をgrepする 
+  integer <const> :: NPROC_Z = 1 ! z方向MPIプロセス数 mkjob.sh でこの行をgrepする
 
   !<< Code utility constants >>!
-  integer, parameter :: NIL = -huge(1)
+  integer <const> :: NIL = -huge(1)
 
   !<< Grid size constants >>!
-  integer, parameter :: NXPP = 60   ! PP = Per Process 
-  integer, parameter :: NYPP = 20
-  integer, parameter :: NZPP = 20
-  integer, parameter :: NXPP1 = NXPP + 1  ! PP1 = PP plus one
-  integer, parameter :: NYPP1 = NYPP + 1
-  integer, parameter :: NZPP1 = NZPP + 1
-  integer, parameter :: NX_GLOBAL = NXPP * NPROC_X + 2 ! x方向の全格子点数
-  integer, parameter :: NY_GLOBAL = NYPP * NPROC_Y + 2
-  integer, parameter :: NZ_GLOBAL = NZPP * NPROC_Z + 2
+  integer <const> :: NXPP = 60   ! PP = Per Process 
+  integer <const> :: NYPP = 20
+  integer <const> :: NZPP = 20
+  integer <const> :: NXPP1 = NXPP + 1  ! PP1 = PP plus one
+  integer <const> :: NYPP1 = NYPP + 1
+  integer <const> :: NZPP1 = NZPP + 1
+  integer <const> :: NX_GLOBAL = NXPP * NPROC_X + 2 ! x方向の全格子点数
+  integer <const> :: NY_GLOBAL = NYPP * NPROC_Y + 2
+  integer <const> :: NZ_GLOBAL = NZPP * NPROC_Z + 2
 
   ! 格子サイズのメモ
   ! NX_GLOBAL =  60    ! 格子点数 x方向 粗い解像度

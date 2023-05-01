@@ -4,7 +4,7 @@
 #    by Akira Kageyama, Kobe University, Japan.
 #       email: sgks@mac.com
 #
-#    Copyright 2018 Akira Kageyama
+#    Copyright 2023 Akira Kageyama
 #
 #    This software is released under the MIT License.
 #
@@ -12,54 +12,61 @@
 #    src/Makefile
 #-------------------------------------------------------------------
 
-.PHONY: data clean
+.PHONY: data clean line runme
 
 .SUFFIXES:
-.SUFFIXES: .f90 .o
+
+eflist := $(shell ls *.ef)   # e.g., example.ef
+filebase := $(basename $(notdir $(eflist))) # => example
+f90list := $(addsuffix .F90, $(filebase)) # => example.F90
+modlist := $(addsuffix .mod, $(filebase)) # => example.mod
+objlist := $(addsuffix .o, $(filebase)) # => example.o
+
+mpi_nprocs := $(shell ../bin/grep_process_num_from_src.sh)
+
+.SECONDARY: $(f90list)  # to avoid deleting F90 files.
+       # .SECONDARY: obj/%.F90 does not work (GNU Make 3.81).
+
+
+%.F90: %.ef
+	$(EFPP) $< > $@
+
+%.o: %.F90
+	$(FC) $(FFLAGS) -o $@ -c $<
+
+EFPP = ../bin/efpp.py
+
+VIS2DLIB_NAME = vv  # <= libvv.a 
+VIS2DLIB_DIR  = /Users/kage/VCS/GitHub/slice-svg/lib
 
 FC = gfortran
-FFLAGS = -Ofast
+FC = mpifort
 
+FFLAGS := -I$(VIS2DLIB_DIR) -L$(VIS2DLIB_DIR) -l$(VIS2DLIB_NAME)
+# FFLAGS += -fopenmp
+FFLAGS += -fcheck=all
+FFLAGS += -Wall
+FFLAGS += -fbounds-check
+FFLAGS += -fcheck-array-temporaries
+FFLAGS += -O0
+# FFLAGS += -Wuninitialized
 
-.f90.o:
-	$(FC) $(FFLAGS) -c $<
-
-
-OBJS = constants.o \
-       ut.o \
-       grid.o \
-       job.o \
-       params.o \
-       debug.o \
-       field.o \
-       slicedata.o \
-       solver.o \
-       main.o
-
-data: smoke_ring params.namelist
+runme: smoke_ring params.namelist
 	./smoke_ring params.namelist
 
-smoke_ring: $(OBJS)
-	$(FC) $(FFLAGS) -o smoke_ring $(OBJS)
+smoke_ring: $(objlist)
+	mkdir -p ../data/vis2d
+	$(FC) $(FFLAGS) -o smoke_ring $(objlist)
 
-grid.o: constants.o debug.o ut.o
-ut.o: constants.o
-params.o: constants.o ut.o
-debug.o: constants.o ut.o params.o
-field.o: constants.o grid.o
-slicedata.o: ut.o field.o params.o debug.o solver.o
-solver.o: constants.o grid.o ut.o field.o debug.o params.o job.o
-job.o: constants.o ut.o
-main.o: constants.o \
-        ut.o \
-        grid.o \
-        job.o \
-        params.o \
-        debug.o \
-        field.o \
-        slicedata.o \
-        solver.o
+-include depend_list.mk
+
+depend_list.mk: *.ef
+	../bin/gendep.sh > $@ 
+
+line:
+	@echo "="{1..100} | sed 's/[ 0-9]//g' # bash one-liner for a line
 
 clean:
-	rm -f smoke_ring core ${OBJS} *.mod *.L
-	rm -f _data_slice*
+	rm -f smoke_ring core ${objlist} *.mod *.L
+	rm -rf depend_list.mk
+	rm -rf ../data/vis2d

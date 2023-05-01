@@ -1,0 +1,3742 @@
+module mpiut_m
+  !!>
+    mpiut.ef
+      * MPI utility routines.
+
+    History
+      2013.04.05: This is mpiut.f95. (copied from yysc project.)
+      2013.04.05: Removed exchange1 to exchange8.
+      2013.04.05: Added exchange3d_8.
+      2013.04.05: Removed mpiut__create_dims_one_third.
+      2013.04.06: Added allreduce_max0d_r.
+      2013.04.24: Still coding. This is cg-mhd.
+      2013.06.05: Done.
+      2013.06.14: Added mpiut__message_leader.
+      2013.06.20: Added exchange3d_1.
+      2013.06.24: Renamed message_leader_str_x --> message_leader_x.
+      2013.08.03: Removed if (...MPI_PROC_NULL) sentense.
+      2014.12.05: Bug fiex in exchange3d_*.
+      2014.12.05: Added exchange3d_2 and exchange3d_5.
+      2016.07.14: maxval_0d_id: MPI_INTEGER-->MPI_INTEGER8 by Y. Ueda.
+      2016.07.14: Same for minval_0d_id by Y. Ueda.
+      2017.06.30: Some minor format changes. -kage.
+      2017.07.08: Added new routine mpiut__copy_p_to_p. -kage
+      2017.07.15: Added new routine mpiut__comm_divide.  -kage
+      2017.07.16: Added new routine mpiut__comm_extract. -kage
+      2017.07.16: Added new routine mpiut__comm_extract_friend. -kage
+      2017.07.18: Use MPI_ABORT in mpiut__fatal. -kage
+      2017.07.18: Added allreduce_max1d_i and _r. -kage
+      2017.07.19: Added new members of mpiut__bcast.  -kage
+      2017.07.20: Added mpiut__comm_remote_size.  -kage
+      2017.07.20: Added mpiut__comm_test_inter.  -kage
+      2017.07.20: Added mpiut__comm_split.  -kage
+      2017.07.22: Added new members of mpiut__allreduce_sum.  -kage
+      2017.07.25: Added new members of mpiut__message.  -kage
+      2017.07.27: Added new members of mpiut__send and recv.  -kage
+      2017.07.27: Added a new member of mpiut__bcast.  -kage
+      2017.07.29: Added mpiut__allreduce_land and lor.  -kage
+      2017.07.29: Added mpiut__comm_find_rank.  -kage
+      2017.07.30: Added optional tag in mpiut__barrier.  -kage
+      2017.07.31: Added a new member of mpiut__bcast.  -kage
+      2017.08.01: Added another member of mpiut__bcast.  -kage
+      2017.08.01: Added new member of __allreduce_max, nin.  -kage
+      2017.08.02: Added mpiut__tag_match_t.  -kage
+      2017.08.03: Added mpiut__tag_check.  -kage
+      2017.08.04: Started using macro π and §.  -kage
+      2017.08.04: Added tag check in __bcast. -kage
+      2017.08.11: Added __const_check.  -kage
+      2022.09.06: Rename mpiut.e03 to mpiut.ef.  -kage
+      2022.09.06: integer(SI) --> integer
+      2022.09.06: Remove MPI_IN_PLACE==NIL trick.
+      2022.09.06: Remove comments "This part was a bug..." in exchanges.
+      2022.09.07: Add mpiut__rank_next_t and mpiut__rank_position_t.
+      2023.04.14: Add message_leader_logical.
+  !!<
+  use mpi
+  use constants_m
+  use ut_m
+  implicit none
+  private
+  public :: & !< routines >!
+            mpiut__allreduce_land,           &
+            mpiut__allreduce_lor,            &
+            mpiut__allreduce_max,            &
+            mpiut__allreduce_min,            &
+            mpiut__allreduce_sum,            &
+            mpiut__assert,                   &
+            mpiut__barrier,                  &
+            mpiut__bcast,                    &
+            mpiut__comm_divide,              &
+            mpiut__const_check,              &
+            mpiut__comm_extract,             &
+            mpiut__comm_extract_friend,      &
+            mpiut__comm_find_rank,           &
+            mpiut__comm_rank,                &
+            mpiut__comm_remote_size,         &
+            mpiut__comm_size,                &
+            mpiut__comm_split,               &
+            mpiut__comm_test_inter,          &
+            mpiut__copy_p2p,                 &
+            mpiut__copy_p_to_p,              &
+            mpiut__deco_message,             &
+            mpiut__decomp1d,                 &
+            mpiut__exchange,                 &
+            mpiut__fatal,                    &
+            mpiut__finalize,                 &
+            mpiut__init,                     &
+            mpiut__maxval,                   &
+            mpiut__message,                  &
+            mpiut__message_leader,           &
+            mpiut__minval,                   &
+            mpiut__recv,                     &
+            mpiut__reduce_sum,               &
+            mpiut__send,                     &
+            mpiut__tag_check,                &
+            mpiut__zeroset3d_bcast
+
+
+  type, public :: mpiut__tag_match_t
+    logical :: tag_send_unset = .true.
+    logical :: tag_recv_unset = .true.
+    integer :: tag_send = -9999
+    integer :: tag_recv = -9999
+  contains
+    procedure :: send_set => tag_match__send_set
+    procedure :: recv_set => tag_match__recv_set
+  end type mpiut__tag_match_t
+
+  type, public :: mpiut__rank_position_t
+    integer :: i, j, k
+  end type mpiut__rank_position_t
+
+  type, public :: mpiut__rank_next_t
+    integer :: ip1, im1  ! The two neighbors in x-direction.
+    integer :: jp1, jm1  !               ... in y-direction.
+    integer :: kp1, km1  !               ... in z-direction.
+  end type mpiut__rank_next_t
+
+  interface mpiut__allreduce_max
+     module procedure  allreduce_max0d_i,   &
+                       allreduce_max0d_id,  &
+                       allreduce_max0d_r,   &
+                       allreduce_max1d_i,   &
+                       allreduce_max1d_r
+  end interface
+
+  interface mpiut__allreduce_min
+     module procedure  allreduce_min0d_i,   &
+                       allreduce_min0d_id,  &
+                       allreduce_min0d_r
+  end interface
+
+  interface mpiut__allreduce_sum
+     module procedure  allreduce_sum0d_i,    &
+                       allreduce_sum0d_r,    &
+                       allreduce_sum1d_i,    &
+                       allreduce_sum1d_r,    &
+                       allreduce_sum2d_i,    &
+                       allreduce_sum2d_f,    &
+                       allreduce_sum2d_r,    &
+                       allreduce_sum3d_i,    &
+                       allreduce_sum3d_f,    &
+                       allreduce_sum3d_r
+  end interface
+
+  interface mpiut__bcast
+     module procedure bcast_str,        &
+                      bcast0d_i,        &
+                      bcast0d_i8,       &
+                      bcast0d_f,        &
+                      bcast0d_r,        &
+                      bcast1d_f,        &
+                      bcast3d_i,        &
+                      bcast3d_f,        &
+                      bcast3d_r
+  end interface
+
+  interface mpiut__const_check
+    module procedure const_check_di
+    module procedure const_check_si
+  end interface
+
+  interface mpiut__copy_p_to_p
+     module procedure copy_p_to_p_3d_s
+  end interface
+
+  interface mpiut__copy_p2p
+     module procedure copy_p2p_3d_r,    &
+                      copy_p2p_3d_s
+  end interface mpiut__copy_p2p
+
+  interface mpiut__exchange
+     module procedure exchange3d_1,     &
+                      exchange3d_2,     &
+                      exchange3d_3,     &
+                      exchange3d_4,     &
+                      exchange3d_5,     &
+                      exchange3d_8
+  end interface
+
+  interface mpiut__message
+     module procedure message_str,                    &
+                      message_str_double,             &
+                      message_str_double_str,         &
+                      message_str_int,                &
+                      message_str_intd,               &
+                      message_str_int_int,            &
+                      message_str_intd_intd,          &
+                      message_str_intd_int,           &
+                      message_str_int_intd,           &
+                      message_str_int_int_int,        &
+                      message_str_int_int_double,     &
+                      message_str_intd_int_double,    &
+                      message_str_int_double,         &
+                      message_str_intd_double,        &
+                      message_str_int_double_double,  &
+                      message_str_intd_double_double, &
+                      message_str_int_float_float,    &
+                      message_str_intd_float_float,   &
+                      message_str_int_str,            &
+                      message_str_int_str_int,        &
+                      message_str_intd_str_int,       &
+                      message_str_int_str_double,     &
+                      message_str_intd_str_double,    &
+                      message_str_logical,            &
+                      message_str_str
+  end interface
+
+  interface mpiut__message_leader
+     module procedure message_leader_double,          &
+                      message_leader_float,           &
+                      message_leader_logical,         &
+                      message_leader_str,             &
+                      message_leader_int,             &
+                      message_leader_intd
+  end interface
+
+  interface mpiut__deco_message
+     module procedure message_decorated_str,          &
+                      message_decorated_str_int,      &
+                      message_decorated_str_intd
+  end interface
+
+  interface mpiut__maxval
+     module procedure maxval_0d_i,                    &
+                      maxval_0d_id,                   &
+                      maxval_0d_r
+  end interface
+
+  interface mpiut__minval
+     module procedure minval_0d_i,                    &
+                      minval_0d_id,                   &
+                      minval_0d_r
+  end interface
+
+  interface mpiut__recv
+     module procedure recv_0d_id,  &
+                      recv_0d_is,  &
+                      recv_0d_rd,  &
+                      recv_1d_rd,  &
+                      recv_1d_rs,  &
+                      recv_3d_rd,  &
+                      recv_3d_rs,  &
+                      recv_str
+  end interface
+
+  interface mpiut__reduce_sum
+     module procedure reduce_sum0d_r,   &
+                      reduce_sum3d_r
+  end interface
+
+  interface mpiut__send
+     module procedure send_0d_id,  &
+                      send_0d_is,  &
+                      send_0d_rd,  &
+                      send_1d_rd,  &
+                      send_1d_rs,  &
+                      send_3d_rd,  &
+                      send_3d_rs,  &
+                      send_str
+  end interface
+
+
+contains
+
+!!!>
+!    Private
+!!!<
+
+  subroutine allreduce_max0d_i( comm, buff )
+    integer <in> :: comm
+    integer <io> :: buff
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,   &
+                       buff,           &
+                       1,              &
+                       MPI_INTEGER,    &
+                       MPI_MAX,        &
+                       comm,           &
+                       ierr)
+    call mpiut__assert( ierr==0,'<__FUNC__> failed.' )
+
+  end subroutine allreduce_max0d_i
+
+
+  subroutine allreduce_max0d_id( comm, buff )
+    integer <in> :: comm
+    integer(DI) <io> :: buff
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,    &
+                       buff,            &
+                       1,               &
+                       MPI_INTEGER8,    &
+                       MPI_MAX,         &
+                       comm,            &
+                       ierr)
+    call mpiut__assert( ierr==0, '<__FUNC__> failed.' )
+
+  end subroutine allreduce_max0d_id
+
+
+  subroutine allreduce_max0d_r( comm, buff )
+    integer <in> :: comm
+    real(DR) <io> :: buff
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,           &
+                       buff,                   &
+                       1,                      &
+                       MPI_DOUBLE_PRECISION,   &
+                       MPI_MAX,                &
+                       comm,                   &
+                       ierr)
+    call mpiut__assert( ierr==0, '<__FUNC__> failed.' )
+
+  end subroutine allreduce_max0d_r
+
+
+  subroutine allreduce_max1d_i( comm, buff )
+    integer <in> :: comm
+    integer <io> :: buff(:)
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,  &
+                       buff,          &
+                       size(buff,1),  &
+                       MPI_INTEGER,   &
+                       MPI_MAX,       &
+                       comm,          &
+                       ierr)
+    call mpiut__assert( ierr==0, '<__FUNC__> failed.' )
+
+  end subroutine allreduce_max1d_i
+
+
+  subroutine allreduce_max1d_r( comm, buff )
+    integer  <in> :: comm
+    real(DR) <io> :: buff(:)
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,          &
+                       buff,                  &
+                       size(buff,1),          &
+                       MPI_DOUBLE_PRECISION,  &
+                       MPI_MAX,               &
+                       comm,                  &
+                       ierr)
+    call mpiut__assert( ierr==0,' <__FUNC__> failed.' )
+
+  end subroutine allreduce_max1d_r
+
+
+  subroutine allreduce_min0d_i( comm, buff )
+    integer <in> :: comm
+    integer <io> :: buff
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,   &
+                       buff,           &
+                       1,              &
+                       MPI_INTEGER,    &
+                       MPI_MIN,        &
+                       comm,           &
+                       ierr)
+
+  end subroutine allreduce_min0d_i
+
+
+  subroutine allreduce_min0d_id( comm, buff )
+    integer <in> :: comm
+    integer(DI) <io> :: buff
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,  &
+                       buff,          &
+                       1,             &
+                       MPI_INTEGER8,  &
+                       MPI_MIN,       &
+                       comm,          &
+                       ierr)
+
+  end subroutine allreduce_min0d_id
+
+
+  subroutine allreduce_min0d_r( comm, buff )
+    integer  <in> :: comm
+    real(DR) <io> :: buff
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,           &
+                       buff,                   &
+                       1,                      &
+                       MPI_DOUBLE_PRECISION,   &
+                       MPI_MIN,                &
+                       comm,                   &
+                       ierr)
+
+  end subroutine allreduce_min0d_r
+
+
+  subroutine allreduce_sum0d_i( comm, buff )
+    integer <in> :: comm
+    integer <io> :: buff
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,    &
+                       buff,            &
+                       1,               &
+                       MPI_INTEGER,     &
+                       MPI_SUM,         &
+                       comm,            &
+                       ierr)
+
+  end subroutine allreduce_sum0d_i
+
+
+  subroutine allreduce_sum0d_r( comm, buff )
+    integer <in> :: comm
+    real(DR) <io> :: buff
+
+    integer :: ierr
+
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,           &
+                       buff,                   &
+                       1,                      &
+                       MPI_DOUBLE_PRECISION,   &
+                       MPI_SUM,                &
+                       comm,                   &
+                       ierr)
+
+  end subroutine allreduce_sum0d_r
+
+
+  subroutine allreduce_sum1d_i( comm, buff )
+    integer <in> :: comm
+    integer <io> :: buff(:)
+
+    integer :: ierr
+
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,      &
+                       buff,              &
+                       size(buff,1),      &
+                       MPI_INTEGER,       &
+                       MPI_SUM,           &
+                       comm,              &
+                       ierr)
+
+  end subroutine allreduce_sum1d_i
+
+
+  subroutine allreduce_sum1d_r( comm, buff )
+    integer  <in> :: comm
+    real(DR) <io> :: buff(:)
+
+    integer :: ierr
+
+
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,            &
+                       buff,                    &
+                       size(buff,1),            &
+                       MPI_DOUBLE_PRECISION,    &
+                       MPI_SUM,                 &
+                       comm,                    &
+                       ierr)
+
+  end subroutine allreduce_sum1d_r
+
+
+  subroutine allreduce_sum2d_i( comm, buff )
+    integer <in> :: comm
+    integer <io> :: buff(:,:)
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,                &
+                       buff,                        &
+                       size(buff,1)*size(buff,2),   &
+                       MPI_INTEGER,                 &
+                       MPI_SUM,                     &
+                       comm,                        &
+                       ierr)
+
+  end subroutine allreduce_sum2d_i
+
+
+  subroutine allreduce_sum2d_f( comm, buff )
+    integer  <in> :: comm
+    real(SR) <io> :: buff(:,:)
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,               &
+                       buff,                       &
+                       size(buff,1)*size(buff,2),  &
+                       MPI_REAL,                   &
+                       MPI_SUM,                    &
+                       comm,                       &
+                       ierr)
+
+  end subroutine allreduce_sum2d_f
+
+
+  subroutine allreduce_sum2d_r( comm, buff )
+    integer  <in> :: comm
+    real(DR) <io> :: buff(:,:)
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,               &
+                       buff,                       &
+                       size(buff,1)*size(buff,2),  &
+                       MPI_DOUBLE_PRECISION,       &
+                       MPI_SUM,                    &
+                       comm,                       &
+                       ierr)
+
+  end subroutine allreduce_sum2d_r
+
+
+  subroutine allreduce_sum3d_i( comm, buff )
+    integer <in> :: comm
+    integer <io> :: buff(:,:,:)
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,                             &
+                       buff,                                     &
+                       size(buff,1)*size(buff,2)*size(buff,3),   &
+                       MPI_INTEGER,                              &
+                       MPI_SUM,                                  &
+                       comm,                                     &
+                       ierr)
+
+  end subroutine allreduce_sum3d_i
+
+
+  subroutine allreduce_sum3d_r( comm, buff )
+    integer  <in> :: comm
+    real(DR) <io> :: buff(:,:,:)
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,                             &
+                       buff,                                     &
+                       size(buff,1)*size(buff,2)*size(buff,3),   &
+                       MPI_DOUBLE_PRECISION,                     &
+                       MPI_SUM,                                  &
+                       comm,                                     &
+                       ierr)
+
+  end subroutine allreduce_sum3d_r
+
+
+  subroutine allreduce_sum3d_f( comm, buff )
+    integer <in> :: comm
+    real(SR) <io> :: buff(:,:,:)
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,                             &
+                       buff,                                     &
+                       size(buff,1)*size(buff,2)*size(buff,3),   &
+                       MPI_REAL,                                 &
+                       MPI_SUM,                                  &
+                       comm,                                     &
+                       ierr)
+
+  end subroutine allreduce_sum3d_f
+
+
+  subroutine bcast_str( comm, source, n, string, tag )
+    integer <in> :: comm
+    integer <in> :: source   ! rank
+    integer <in> :: n
+    char(len=n) <io> :: string
+    integer <optin> :: tag
+
+    integer :: ierr
+
+    if ( present(tag) ) then
+      call mpiut__assert( mpiut__tag_check(comm,tag),  &
+                          '<__FUNC__> tag unmatch.' )
+    end if
+
+    call MPI_BCAST(string, n, MPI_CHARACTER, source, comm, ierr)
+
+  end subroutine bcast_str
+
+
+  subroutine bcast0d_i(comm, source, buff, tag)
+    integer <in> :: comm
+    integer <in> :: source   ! rank
+    integer <io> :: buff
+    integer <optin> :: tag
+
+    integer :: ierr
+
+    if ( present(tag) ) then
+      call mpiut__assert( mpiut__tag_check(comm,tag),  &
+                          '<__FUNC__> tag unmatch.' )
+    end if
+
+    call MPI_BCAST(buff, 1, MPI_INTEGER, source, comm, ierr)
+
+  end subroutine bcast0d_i
+
+
+  subroutine bcast0d_i8( comm, source, buff, tag )
+    integer <in> :: comm
+    integer <in> :: source   ! rank
+    integer(DI) <io> :: buff
+    integer <optin> :: tag
+
+    integer :: ierr
+
+    if ( present(tag) ) then
+      call mpiut__assert( mpiut__tag_check(comm,tag),  &
+                          '<__FUNC__> tag unmatch.' )
+    end if
+
+    call MPI_BCAST(buff, 1, MPI_INTEGER8, source, comm, ierr)
+
+  end subroutine bcast0d_i8
+
+
+  subroutine bcast0d_f( comm, source, buff, tag )
+    integer <in> :: comm
+    integer <in> :: source   ! rank
+    real(SR) <io> :: buff
+    integer <optin> :: tag
+
+    integer :: ierr
+
+    if ( present(tag) ) then
+      call mpiut__assert( mpiut__tag_check(comm,tag),  &
+                          '<__FUNC__> tag unmatch.' )
+    end if
+
+    call MPI_BCAST(buff, 1, MPI_REAL, source, comm, ierr)
+
+  end subroutine bcast0d_f
+
+
+  subroutine bcast0d_r( comm, source, buff, tag )
+    integer <in> :: comm
+    integer <in> :: source   ! rank
+    real(DR) <io> :: buff
+    integer <optin> :: tag
+
+    integer :: ierr
+
+    if ( present(tag) ) then
+      call mpiut__assert( mpiut__tag_check(comm,tag),  &
+                          '<__FUNC__> tag unmatch.' )
+    end if
+
+    call MPI_BCAST(buff, 1, MPI_DOUBLE_PRECISION,  &
+                   source, comm, ierr)
+
+  end subroutine bcast0d_r
+
+
+  subroutine bcast1d_f( comm, source, buff, tag )
+    integer <in> :: comm
+    integer <in> :: source   ! rank
+    real(SR) <io> :: buff(:)
+    integer <optin> :: tag
+
+    integer :: n1, ierr
+
+    if ( present(tag) ) then
+      call mpiut__assert( mpiut__tag_check(comm,tag),  &
+                          '<__FUNC__> tag unmatch.' )
+    end if
+
+    n1 = size(buff,dim=1)
+
+    call MPI_BCAST(buff, n1, MPI_REAL, source, comm, ierr)
+
+  end subroutine bcast1d_f
+
+
+  subroutine bcast3d_r( comm, source, buff, tag )
+    integer <in> :: comm
+    integer <in> :: source   ! rank
+    real(DR) <io> :: buff(:,:,:)
+    integer <optin> :: tag
+
+    integer :: n1, n2, n3, ierr
+
+    if ( present(tag) ) then
+      call mpiut__assert( mpiut__tag_check(comm,tag),  &
+                          '<__FUNC__> tag unmatch.' )
+    end if
+
+    n1 = size(buff,dim=1)
+    n2 = size(buff,dim=2)
+    n3 = size(buff,dim=3)
+
+    call MPI_BCAST(buff, n1*n2*n3, MPI_DOUBLE_PRECISION,  &
+                   source, comm, ierr)
+
+  end subroutine bcast3d_r
+
+
+  subroutine bcast3d_f( comm, source, buff, tag )
+    integer <in> :: comm
+    integer <in> :: source   ! rank
+    real(SR) <io> :: buff(:,:,:)
+    integer <optin> :: tag
+
+    integer :: n1, n2, n3, ierr
+
+    if ( present(tag) ) then
+      call mpiut__assert( mpiut__tag_check(comm,tag),  &
+                          '<__FUNC__> tag unmatch.') 
+    end if
+
+    n1 = size(buff,dim=1)
+    n2 = size(buff,dim=2)
+    n3 = size(buff,dim=3)
+
+    call MPI_BCAST(buff, n1*n2*n3, MPI_REAL,  &
+                   source, comm, ierr)
+
+  end subroutine bcast3d_f
+
+
+  subroutine bcast3d_i( comm, source, buff, tag )
+    integer <in> :: comm
+    integer <in> :: source   ! rank
+    integer <io> :: buff(:,:,:)
+    integer <optin> :: tag
+
+    integer :: n1, n2, n3, ierr
+
+    if ( present(tag) ) then
+      call mpiut__assert( mpiut__tag_check(comm,tag),  &
+                          '<__FUNC__> tag unmatch.' )
+    end if
+
+    n1 = size(buff,dim=1)
+    n2 = size(buff,dim=2)
+    n3 = size(buff,dim=3)
+
+    call MPI_BCAST(buff, n1*n2*n3, MPI_INTEGER,  &
+                   source, comm, ierr)
+
+  end subroutine bcast3d_i
+
+
+  subroutine copy_p2p_3d_r( comm,tag,source,dest,buff )
+    integer <in> :: comm
+    integer <in> :: tag
+    integer <in> :: source, dest   ! ranks
+    real(DR) <io> :: buff(:,:,:)
+
+    real(DR), dimension(size(buff,1),size(buff,2),size(buff,3)) :: work
+    integer                             :: nsize, ierr, me
+    integer, dimension(MPI_STATUS_SIZE) :: status
+    integer                             :: request
+
+    nsize = size(buff,1)*size(buff,2)*size(buff,3)
+
+    work = buff
+
+    me = mpiut__comm_rank( comm )
+
+    if ( me==dest ) then
+       call MPI_IRECV(buff, nsize, MPI_DOUBLE_PRECISION, source, &
+                      tag,  comm, request, ierr)
+    end if
+
+    if ( me==source ) then
+       call MPI_SEND(work, nsize, MPI_DOUBLE_PRECISION, dest,   &
+                     tag,  comm, ierr)
+    end if
+
+    call MPI_WAIT(request, status, ierr)
+
+  end subroutine copy_p2p_3d_r
+
+
+  subroutine copy_p2p_3d_s( comm, tag, source, dest, buff )
+    integer <in> :: comm
+    integer <in> :: tag
+    integer <in> :: source, dest   ! ranks
+    real(SR) <io> :: buff(:,:,:)
+
+    real(SR), dimension(size(buff,1),size(buff,2),size(buff,3)) :: work
+    integer                             :: nsize, ierr, me
+    integer, dimension(MPI_STATUS_SIZE) :: status
+    integer                             :: request
+
+    nsize = size(buff,1)*size(buff,2)*size(buff,3)
+
+    work = buff
+
+    me = mpiut__comm_rank( comm )
+
+    if ( me==dest ) then
+       call MPI_IRECV(buff, nsize, MPI_REAL, source, &
+                      tag,  comm, request, ierr)
+    end if
+
+    if ( me==source ) then
+       call MPI_SEND(work, nsize, MPI_REAL, dest,    &
+                     tag,  comm, ierr)
+    end if
+
+    call MPI_WAIT(request, status, ierr)
+
+  end subroutine copy_p2p_3d_s
+
+
+  subroutine copy_p_to_p_3d_s( comm, tag, source, dest, buff )
+    integer <in> :: comm
+    integer <in> :: tag
+    integer <in> :: source, dest   ! ranks
+    real(SR) <io> :: buff(:,:,:)
+
+    real(SR) :: work(size(buff,1),size(buff,2),size(buff,3))
+    integer :: nsize, ierr, me
+    integer :: status(MPI_STATUS_SIZE)
+
+    nsize = size(buff,1)*size(buff,2)*size(buff,3)
+
+    work = buff
+
+    me = mpiut__comm_rank( comm )
+
+    if ( me==dest ) then
+       call MPI_RECV(buff, nsize, MPI_REAL, source,  &
+                      tag,  comm, status, ierr)
+    end if
+
+    if ( me==source ) then
+       call MPI_SEND(work, nsize, MPI_REAL, dest,    &
+                     tag,  comm, ierr)
+    end if
+
+  end subroutine copy_p_to_p_3d_s
+
+
+  subroutine exchange3d_1( comm, rank_next,   &
+                           f01 )
+    integer <in> :: comm
+    type(mpiut__rank_next_t) <in> :: rank_next
+    type(field__scalar_t) <io> :: f01
+
+    real(DR), dimension(0:NYPP1,0:NZPP1,1) :: send_buff_ip1, send_buff_im1,  &
+                                              recv_buff_ip1, recv_buff_im1
+    real(DR), dimension(0:NXPP1,0:NZPP1,1) :: send_buff_jp1, send_buff_jm1,  &
+                                              recv_buff_jp1, recv_buff_jm1
+    real(DR), dimension(0:NXPP1,0:NYPP1,1) :: send_buff_kp1, send_buff_km1,  &
+                                              recv_buff_kp1, recv_buff_km1
+    call iN_i_direction
+    call iN_j_direction
+    call iN_k_direction
+
+  contains
+
+    subroutine iN_i_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, j, k
+
+      do k full
+        do j full
+          send_buff_ip1(j,k,1) = f01(NXPP,j,k)
+
+          send_buff_im1(j,k,1) = f01(   1,j,k)
+        end do
+      end do
+
+      ncount = (NYPP1+1)*(NZPP1+1)*1
+
+      ! if ( rank_next.ip1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_ip1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.ip1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.im1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_im1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.im1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.ip1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_ip1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.ip1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.im1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_im1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.im1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      if ( rank_next.ip1 /= MPI_PROC_NULL ) then
+        do k full
+          do j full
+            f01(NXPP1,j,k) = recv_buff_ip1(j,k,1)
+          end do
+        end do
+      end if
+      if ( rank_next.im1 /= MPI_PROC_NULL ) then
+        do k full
+          do j full
+            f01(0,j,k) = recv_buff_im1(j,k,1)
+          end do
+        end do
+      end if
+    end subroutine iN_i_direction
+
+    subroutine iN_j_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, i, k
+
+      do k full
+        do i full
+          send_buff_jp1(i,k,1) = f01(i,NYPP,k)
+
+          send_buff_jm1(i,k,1) = f01(i,   1,k)
+        end do
+      end do
+
+      ncount = (NXPP1+1)*(NZPP1+1)*1
+
+      ! if ( rank_next.jp1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_jp1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.jp1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.jm1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_jm1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.jm1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.jp1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_jp1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.jp1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.jm1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_jm1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.jm1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      ! Bug fixed by H. Hayashi.
+      if ( rank_next.jp1 /= MPI_PROC_NULL ) then
+        do k full
+          do i full
+            f01(i,NYPP1,k) = recv_buff_jp1(i,k,1)
+          end do
+        end do
+      end if
+      if ( rank_next.jm1 /= MPI_PROC_NULL ) then
+        do k full
+          do i full
+            f01(i,0,k) = recv_buff_jm1(i,k,1)
+          end do
+        end do
+      end if
+    end subroutine iN_j_direction
+
+    subroutine iN_k_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, i, j
+
+      do j full
+        do i full
+          send_buff_kp1(i,j,1) = f01(i,j,NZPP)
+
+          send_buff_km1(i,j,1) = f01(i,j,   1)
+        end do
+      end do
+
+      ncount = (NXPP1+1)*(NYPP1+1)*1
+
+      ! if ( rank_next.kp1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_kp1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.kp1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.km1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_km1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.km1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.kp1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_kp1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.kp1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.km1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_km1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.km1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      ! Bug fixed by H. Hayashi.
+      if ( rank_next.kp1 /= MPI_PROC_NULL ) then
+        do j full
+          do i full
+            f01(i,j,NZPP1) = recv_buff_kp1(i,j,1)
+          end do
+        end do
+      end if
+      if ( rank_next.km1 /= MPI_PROC_NULL ) then
+        do j full
+          do i full
+            f01(i,j,0) = recv_buff_km1(i,j,1)
+          end do
+        end do
+      end if
+    end subroutine iN_k_direction
+
+  end subroutine exchange3d_1
+
+
+  subroutine exchange3d_2( comm, rank_next,  &
+                           f01, f02)
+    integer <in> :: comm
+    type(mpiut__rank_next_t) <in> :: rank_next
+    type(field__scalar_t) <io> :: f01,f02
+
+    real(DR), dimension(0:NYPP1,0:NZPP1,2) :: send_buff_ip1, send_buff_im1, &
+                                              recv_buff_ip1, recv_buff_im1
+    real(DR), dimension(0:NXPP1,0:NZPP1,2) :: send_buff_jp1, send_buff_jm1, &
+                                              recv_buff_jp1, recv_buff_jm1
+    real(DR), dimension(0:NXPP1,0:NYPP1,2) :: send_buff_kp1, send_buff_km1, &
+                                              recv_buff_kp1, recv_buff_km1
+    call iN_i_direction
+    call iN_j_direction
+    call iN_k_direction
+
+  contains
+
+    subroutine iN_i_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, j, k
+
+      do k full
+        do j full
+          send_buff_ip1(j,k,1) = f01(NXPP,j,k)
+          send_buff_ip1(j,k,2) = f02(NXPP,j,k)
+
+          send_buff_im1(j,k,1) = f01(   1,j,k)
+          send_buff_im1(j,k,2) = f02(   1,j,k)
+        end do
+      end do
+
+      ncount = (NYPP1+1)*(NZPP1+1)*2
+
+      ! if ( rank_next.ip1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_ip1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.ip1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.im1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_im1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.im1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.ip1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_ip1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.ip1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.im1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_im1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.im1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      if ( rank_next.ip1 /= MPI_PROC_NULL ) then
+        do k full
+          do j full
+            f01(NXPP1,j,k) = recv_buff_ip1(j,k,1)
+            f02(NXPP1,j,k) = recv_buff_ip1(j,k,2)
+          end do
+        end do
+      end if
+      if ( rank_next.im1 /= MPI_PROC_NULL ) then
+        do k full
+          do j full
+            f01(0,j,k) = recv_buff_im1(j,k,1)
+            f02(0,j,k) = recv_buff_im1(j,k,2)
+          end do
+        end do
+      end if
+    end subroutine iN_i_direction
+
+    subroutine iN_j_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, i, k
+
+      do k full
+        do i full
+          send_buff_jp1(i,k,1) = f01(i,NYPP,k)
+          send_buff_jp1(i,k,2) = f02(i,NYPP,k)
+
+          send_buff_jm1(i,k,1) = f01(i,   1,k)
+          send_buff_jm1(i,k,2) = f02(i,   1,k)
+        end do
+      end do
+
+      ncount = (NXPP1+1)*(NZPP1+1)*2
+
+      ! if ( rank_next.jp1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_jp1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.jp1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.jm1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_jm1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.jm1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.jp1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_jp1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.jp1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.jm1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_jm1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.jm1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      ! Bug fixed by H. Hayashi.
+      if ( rank_next.jp1 /= MPI_PROC_NULL ) then
+        do k full
+          do i full
+            f01(i,NYPP1,k) = recv_buff_jp1(i,k,1)
+            f02(i,NYPP1,k) = recv_buff_jp1(i,k,2)
+          end do
+        end do
+      end if
+      if ( rank_next.jm1 /= MPI_PROC_NULL ) then
+        do k full
+          do i full
+            f01(i,0,k) = recv_buff_jm1(i,k,1)
+            f02(i,0,k) = recv_buff_jm1(i,k,2)
+          end do
+        end do
+      end if
+    end subroutine iN_j_direction
+
+    subroutine iN_k_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, i, j
+
+      do j full
+        do i full
+          send_buff_kp1(i,j,1) = f01(i,j,NZPP)
+          send_buff_kp1(i,j,2) = f02(i,j,NZPP)
+
+          send_buff_km1(i,j,1) = f01(i,j,   1)
+          send_buff_km1(i,j,2) = f02(i,j,   1)
+        end do
+      end do
+
+      ncount = (NXPP1+1)*(NYPP1+1)*2
+
+      ! if ( rank_next.kp1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_kp1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.kp1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.km1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_km1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.km1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.kp1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_kp1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.kp1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.km1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_km1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.km1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      ! Bug fixed by H. Hayashi.
+      if ( rank_next.kp1 /= MPI_PROC_NULL ) then
+        do j full
+          do i full
+            f01(i,j,NZPP1) = recv_buff_kp1(i,j,1)
+            f02(i,j,NZPP1) = recv_buff_kp1(i,j,2)
+          end do
+        end do
+      end if
+      if ( rank_next.km1 /= MPI_PROC_NULL ) then
+        do j full
+          do i full
+            f01(i,j,0) = recv_buff_km1(i,j,1)
+            f02(i,j,0) = recv_buff_km1(i,j,2)
+          end do
+        end do
+      end if
+    end subroutine iN_k_direction
+
+  end subroutine exchange3d_2
+
+
+  subroutine exchange3d_3( comm, rank_next,   &
+                           f01, f02, f03 )
+    integer <in> :: comm
+    type(mpiut__rank_next_t) <in> :: rank_next
+    type(field__scalar_t) <io> :: f01,f02,f03
+
+    real(DR), dimension(0:NYPP1,0:NZPP1,3) :: send_buff_ip1, send_buff_im1, &
+                                              recv_buff_ip1, recv_buff_im1
+    real(DR), dimension(0:NXPP1,0:NZPP1,3) :: send_buff_jp1, send_buff_jm1, &
+                                              recv_buff_jp1, recv_buff_jm1
+    real(DR), dimension(0:NXPP1,0:NYPP1,3) :: send_buff_kp1, send_buff_km1, &
+                                              recv_buff_kp1, recv_buff_km1
+    call iN_i_direction
+    call iN_j_direction
+    call iN_k_direction
+
+  contains
+
+    subroutine iN_i_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, j, k
+
+      do k full
+        do j full
+          send_buff_ip1(j,k,1) = f01(NXPP,j,k)
+          send_buff_ip1(j,k,2) = f02(NXPP,j,k)
+          send_buff_ip1(j,k,3) = f03(NXPP,j,k)
+
+          send_buff_im1(j,k,1) = f01(   1,j,k)
+          send_buff_im1(j,k,2) = f02(   1,j,k)
+          send_buff_im1(j,k,3) = f03(   1,j,k)
+        end do
+      end do
+
+      ncount = (NYPP1+1)*(NZPP1+1)*3
+
+      ! if ( rank_next.ip1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_ip1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.ip1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.im1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_im1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.im1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.ip1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_ip1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.ip1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.im1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_im1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.im1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      if ( rank_next.ip1 /= MPI_PROC_NULL ) then
+        do k full
+          do j full
+            f01(NXPP1,j,k) = recv_buff_ip1(j,k,1)
+            f02(NXPP1,j,k) = recv_buff_ip1(j,k,2)
+            f03(NXPP1,j,k) = recv_buff_ip1(j,k,3)
+          end do
+        end do
+      end if
+      if ( rank_next.im1 /= MPI_PROC_NULL ) then
+        do k full
+          do j full
+            f01(0,j,k) = recv_buff_im1(j,k,1)
+            f02(0,j,k) = recv_buff_im1(j,k,2)
+            f03(0,j,k) = recv_buff_im1(j,k,3)
+          end do
+        end do
+      end if
+    end subroutine iN_i_direction
+
+    subroutine iN_j_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, i, k
+
+      do k full
+        do i full
+          send_buff_jp1(i,k,1) = f01(i,NYPP,k)
+          send_buff_jp1(i,k,2) = f02(i,NYPP,k)
+          send_buff_jp1(i,k,3) = f03(i,NYPP,k)
+
+          send_buff_jm1(i,k,1) = f01(i,   1,k)
+          send_buff_jm1(i,k,2) = f02(i,   1,k)
+          send_buff_jm1(i,k,3) = f03(i,   1,k)
+        end do
+      end do
+
+      ncount = (NXPP1+1)*(NZPP1+1)*3
+
+      ! if ( rank_next.jp1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_jp1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.jp1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.jm1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_jm1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.jm1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.jp1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_jp1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.jp1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.jm1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_jm1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.jm1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      ! Bug fixed by H. Hayashi.
+      if ( rank_next.jp1 /= MPI_PROC_NULL ) then
+        do k full
+          do i full
+            f01(i,NYPP1,k) = recv_buff_jp1(i,k,1)
+            f02(i,NYPP1,k) = recv_buff_jp1(i,k,2)
+            f03(i,NYPP1,k) = recv_buff_jp1(i,k,3)
+          end do
+        end do
+      end if
+      if ( rank_next.jm1 /= MPI_PROC_NULL ) then
+        do k full
+          do i full
+            f01(i,0,k) = recv_buff_jm1(i,k,1)
+            f02(i,0,k) = recv_buff_jm1(i,k,2)
+            f03(i,0,k) = recv_buff_jm1(i,k,3)
+          end do
+        end do
+      end if
+    end subroutine iN_j_direction
+
+    subroutine iN_k_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, i, j
+
+      do j full
+        do i full
+          send_buff_kp1(i,j,1) = f01(i,j,NZPP)
+          send_buff_kp1(i,j,2) = f02(i,j,NZPP)
+          send_buff_kp1(i,j,3) = f03(i,j,NZPP)
+
+          send_buff_km1(i,j,1) = f01(i,j,   1)
+          send_buff_km1(i,j,2) = f02(i,j,   1)
+          send_buff_km1(i,j,3) = f03(i,j,   1)
+        end do
+      end do
+
+      ncount = (NXPP1+1)*(NYPP1+1)*3
+
+      ! if ( rank_next.kp1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_kp1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.kp1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.km1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_km1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.km1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.kp1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_kp1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.kp1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.km1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_km1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.km1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      ! Bug fixed by H. Hayashi.
+      if ( rank_next.kp1 /= MPI_PROC_NULL ) then
+        do j full
+          do i full
+            f01(i,j,NZPP1) = recv_buff_kp1(i,j,1)
+            f02(i,j,NZPP1) = recv_buff_kp1(i,j,2)
+            f03(i,j,NZPP1) = recv_buff_kp1(i,j,3)
+          end do
+        end do
+      end if
+      if ( rank_next.km1 /= MPI_PROC_NULL ) then
+        do j full
+          do i full
+            f01(i,j,0) = recv_buff_km1(i,j,1)
+            f02(i,j,0) = recv_buff_km1(i,j,2)
+            f03(i,j,0) = recv_buff_km1(i,j,3)
+          end do
+        end do
+      end if
+    end subroutine iN_k_direction
+
+  end subroutine exchange3d_3
+
+
+  subroutine exchange3d_4( comm, rank_next,   &
+                           f01, f02, f03, f04 )
+    integer <in> :: comm
+    type(mpiut__rank_next_t) <in> :: rank_next
+    type(field__scalar_t) <io> :: f01,f02,f03,f04
+
+    real(DR), dimension(0:NYPP1,0:NZPP1,4) :: send_buff_ip1, send_buff_im1, &
+                                              recv_buff_ip1, recv_buff_im1
+    real(DR), dimension(0:NXPP1,0:NZPP1,4) :: send_buff_jp1, send_buff_jm1, &
+                                              recv_buff_jp1, recv_buff_jm1
+    real(DR), dimension(0:NXPP1,0:NYPP1,4) :: send_buff_kp1, send_buff_km1, &
+                                              recv_buff_kp1, recv_buff_km1
+    call iN_i_direction
+    call iN_j_direction
+    call iN_k_direction
+
+  contains
+
+    subroutine iN_i_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, j, k
+
+      do k full
+        do j full
+          send_buff_ip1(j,k,1) = f01(NXPP,j,k)
+          send_buff_ip1(j,k,2) = f02(NXPP,j,k)
+          send_buff_ip1(j,k,3) = f03(NXPP,j,k)
+          send_buff_ip1(j,k,4) = f04(NXPP,j,k)
+
+          send_buff_im1(j,k,1) = f01(   1,j,k)
+          send_buff_im1(j,k,2) = f02(   1,j,k)
+          send_buff_im1(j,k,3) = f03(   1,j,k)
+          send_buff_im1(j,k,4) = f04(   1,j,k)
+        end do
+      end do
+
+      ncount = (NYPP1+1)*(NZPP1+1)*4
+
+      ! if ( rank_next.ip1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_ip1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.ip1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.im1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_im1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.im1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.ip1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_ip1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.ip1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.im1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_im1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.im1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      if ( rank_next.ip1 /= MPI_PROC_NULL ) then
+        do k full
+          do j full
+            f01(NXPP1,j,k) = recv_buff_ip1(j,k,1)
+            f02(NXPP1,j,k) = recv_buff_ip1(j,k,2)
+            f03(NXPP1,j,k) = recv_buff_ip1(j,k,3)
+            f04(NXPP1,j,k) = recv_buff_ip1(j,k,4)
+          end do
+        end do
+      end if
+      if ( rank_next.im1 /= MPI_PROC_NULL ) then
+        do k full
+          do j full
+            f01(0,j,k) = recv_buff_im1(j,k,1)
+            f02(0,j,k) = recv_buff_im1(j,k,2)
+            f03(0,j,k) = recv_buff_im1(j,k,3)
+            f04(0,j,k) = recv_buff_im1(j,k,4)
+          end do
+        end do
+      end if
+    end subroutine iN_i_direction
+
+    subroutine iN_j_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, i, k
+
+      do k full
+        do i full
+          send_buff_jp1(i,k,1) = f01(i,NYPP,k)
+          send_buff_jp1(i,k,2) = f02(i,NYPP,k)
+          send_buff_jp1(i,k,3) = f03(i,NYPP,k)
+          send_buff_jp1(i,k,4) = f04(i,NYPP,k)
+
+          send_buff_jm1(i,k,1) = f01(i,   1,k)
+          send_buff_jm1(i,k,2) = f02(i,   1,k)
+          send_buff_jm1(i,k,3) = f03(i,   1,k)
+          send_buff_jm1(i,k,4) = f04(i,   1,k)
+        end do
+      end do
+
+      ncount = (NXPP1+1)*(NZPP1+1)*4
+
+      ! if ( rank_next.jp1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_jp1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.jp1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.jm1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_jm1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.jm1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.jp1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_jp1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.jp1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.jm1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_jm1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.jm1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      ! Bug fixed by H. Hayashi.
+      if ( rank_next.jp1 /= MPI_PROC_NULL ) then
+        do k full
+          do i full
+            f01(i,NYPP1,k) = recv_buff_jp1(i,k,1)
+            f02(i,NYPP1,k) = recv_buff_jp1(i,k,2)
+            f03(i,NYPP1,k) = recv_buff_jp1(i,k,3)
+            f04(i,NYPP1,k) = recv_buff_jp1(i,k,4)
+          end do
+        end do
+      end if
+      if ( rank_next.jm1 /= MPI_PROC_NULL ) then
+        do k full
+          do i full
+            f01(i,0,k) = recv_buff_jm1(i,k,1)
+            f02(i,0,k) = recv_buff_jm1(i,k,2)
+            f03(i,0,k) = recv_buff_jm1(i,k,3)
+            f04(i,0,k) = recv_buff_jm1(i,k,4)
+          end do
+        end do
+      end if
+    end subroutine iN_j_direction
+
+    subroutine iN_k_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, i, j
+
+      do j full
+        do i full
+          send_buff_kp1(i,j,1) = f01(i,j,NZPP)
+          send_buff_kp1(i,j,2) = f02(i,j,NZPP)
+          send_buff_kp1(i,j,3) = f03(i,j,NZPP)
+          send_buff_kp1(i,j,4) = f04(i,j,NZPP)
+
+          send_buff_km1(i,j,1) = f01(i,j,   1)
+          send_buff_km1(i,j,2) = f02(i,j,   1)
+          send_buff_km1(i,j,3) = f03(i,j,   1)
+          send_buff_km1(i,j,4) = f04(i,j,   1)
+        end do
+      end do
+
+      ncount = (NXPP1+1)*(NYPP1+1)*4
+
+      ! if ( rank_next.kp1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_kp1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.kp1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.km1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_km1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.km1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.kp1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_kp1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.kp1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.km1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_km1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.km1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      ! Bug fixed by H. Hayashi.
+      if ( rank_next.kp1 /= MPI_PROC_NULL ) then
+        do j full
+          do i full
+            f01(i,j,NZPP1) = recv_buff_kp1(i,j,1)
+            f02(i,j,NZPP1) = recv_buff_kp1(i,j,2)
+            f03(i,j,NZPP1) = recv_buff_kp1(i,j,3)
+            f04(i,j,NZPP1) = recv_buff_kp1(i,j,4)
+          end do
+        end do
+      end if
+      if ( rank_next.km1 /= MPI_PROC_NULL ) then
+        do j full
+          do i full
+            f01(i,j,0) = recv_buff_km1(i,j,1)
+            f02(i,j,0) = recv_buff_km1(i,j,2)
+            f03(i,j,0) = recv_buff_km1(i,j,3)
+            f04(i,j,0) = recv_buff_km1(i,j,4)
+          end do
+        end do
+      end if
+    end subroutine iN_k_direction
+
+  end subroutine exchange3d_4
+
+
+  subroutine exchange3d_5( comm, rank_next,         &
+                           f01, f02, f03, f04, f05)
+    integer <in> :: comm
+    type(mpiut__rank_next_t) <in> :: rank_next
+    type(field__scalar_t) <io> :: f01,f02,f03,f04,f05
+
+    real(DR), dimension(0:NYPP1,0:NZPP1,5) :: send_buff_ip1, send_buff_im1, &
+                                              recv_buff_ip1, recv_buff_im1
+    real(DR), dimension(0:NXPP1,0:NZPP1,5) :: send_buff_jp1, send_buff_jm1, &
+                                              recv_buff_jp1, recv_buff_jm1
+    real(DR), dimension(0:NXPP1,0:NYPP1,5) :: send_buff_kp1, send_buff_km1, &
+                                              recv_buff_kp1, recv_buff_km1
+    call iN_i_direction
+    call iN_j_direction
+    call iN_k_direction
+
+  contains
+
+    subroutine iN_i_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, j, k
+
+      do k full
+        do j full
+          send_buff_ip1(j,k,1) = f01(NXPP,j,k)
+          send_buff_ip1(j,k,2) = f02(NXPP,j,k)
+          send_buff_ip1(j,k,3) = f03(NXPP,j,k)
+          send_buff_ip1(j,k,4) = f04(NXPP,j,k)
+          send_buff_ip1(j,k,5) = f05(NXPP,j,k)
+
+          send_buff_im1(j,k,1) = f01(   1,j,k)
+          send_buff_im1(j,k,2) = f02(   1,j,k)
+          send_buff_im1(j,k,3) = f03(   1,j,k)
+          send_buff_im1(j,k,4) = f04(   1,j,k)
+          send_buff_im1(j,k,5) = f05(   1,j,k)
+        end do
+      end do
+
+      ncount = (NYPP1+1)*(NZPP1+1)*5
+
+      ! if ( rank_next.ip1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_ip1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.ip1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.im1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_im1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.im1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.ip1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_ip1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.ip1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.im1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_im1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.im1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      if ( rank_next.ip1 /= MPI_PROC_NULL ) then
+        do k full
+          do j full
+            f01(NXPP1,j,k) = recv_buff_ip1(j,k,1)
+            f02(NXPP1,j,k) = recv_buff_ip1(j,k,2)
+            f03(NXPP1,j,k) = recv_buff_ip1(j,k,3)
+            f04(NXPP1,j,k) = recv_buff_ip1(j,k,4)
+            f05(NXPP1,j,k) = recv_buff_ip1(j,k,5)
+          end do
+        end do
+      end if
+      if ( rank_next.im1 /= MPI_PROC_NULL ) then
+        do k full
+          do j full
+            f01(0,j,k) = recv_buff_im1(j,k,1)
+            f02(0,j,k) = recv_buff_im1(j,k,2)
+            f03(0,j,k) = recv_buff_im1(j,k,3)
+            f04(0,j,k) = recv_buff_im1(j,k,4)
+            f05(0,j,k) = recv_buff_im1(j,k,5)
+          end do
+        end do
+      end if
+    end subroutine iN_i_direction
+
+    subroutine iN_j_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, i, k
+
+      do k full
+        do i full
+          send_buff_jp1(i,k,1) = f01(i,NYPP,k)
+          send_buff_jp1(i,k,2) = f02(i,NYPP,k)
+          send_buff_jp1(i,k,3) = f03(i,NYPP,k)
+          send_buff_jp1(i,k,4) = f04(i,NYPP,k)
+          send_buff_jp1(i,k,5) = f05(i,NYPP,k)
+
+          send_buff_jm1(i,k,1) = f01(i,   1,k)
+          send_buff_jm1(i,k,2) = f02(i,   1,k)
+          send_buff_jm1(i,k,3) = f03(i,   1,k)
+          send_buff_jm1(i,k,4) = f04(i,   1,k)
+          send_buff_jm1(i,k,5) = f05(i,   1,k)
+        end do
+      end do
+
+      ncount = (NXPP1+1)*(NZPP1+1)*5
+
+      ! if ( rank_next.jp1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_jp1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.jp1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.jm1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_jm1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.jm1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.jp1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_jp1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.jp1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.jm1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_jm1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.jm1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      ! Bug fixed by H. Hayashi.
+      if ( rank_next.jp1 /= MPI_PROC_NULL ) then
+        do k full
+          do i full
+            f01(i,NYPP1,k) = recv_buff_jp1(i,k,1)
+            f02(i,NYPP1,k) = recv_buff_jp1(i,k,2)
+            f03(i,NYPP1,k) = recv_buff_jp1(i,k,3)
+            f04(i,NYPP1,k) = recv_buff_jp1(i,k,4)
+            f05(i,NYPP1,k) = recv_buff_jp1(i,k,5)
+          end do
+        end do
+      end if
+      if ( rank_next.jm1 /= MPI_PROC_NULL ) then
+        do k full
+          do i full
+            f01(i,0,k) = recv_buff_jm1(i,k,1)
+            f02(i,0,k) = recv_buff_jm1(i,k,2)
+            f03(i,0,k) = recv_buff_jm1(i,k,3)
+            f04(i,0,k) = recv_buff_jm1(i,k,4)
+            f05(i,0,k) = recv_buff_jm1(i,k,5)
+          end do
+        end do
+      end if
+    end subroutine iN_j_direction
+
+    subroutine iN_k_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, i, j
+
+      do j full
+        do i full
+          send_buff_kp1(i,j,1) = f01(i,j,NZPP)
+          send_buff_kp1(i,j,2) = f02(i,j,NZPP)
+          send_buff_kp1(i,j,3) = f03(i,j,NZPP)
+          send_buff_kp1(i,j,4) = f04(i,j,NZPP)
+          send_buff_kp1(i,j,5) = f05(i,j,NZPP)
+
+          send_buff_km1(i,j,1) = f01(i,j,   1)
+          send_buff_km1(i,j,2) = f02(i,j,   1)
+          send_buff_km1(i,j,3) = f03(i,j,   1)
+          send_buff_km1(i,j,4) = f04(i,j,   1)
+          send_buff_km1(i,j,5) = f05(i,j,   1)
+        end do
+      end do
+
+      ncount = (NXPP1+1)*(NYPP1+1)*5
+
+      ! if ( rank_next.kp1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_kp1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.kp1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.km1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_km1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.km1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.kp1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_kp1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.kp1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.km1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_km1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.km1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      ! Bug fixed by H. Hayashi.
+      if ( rank_next.kp1 /= MPI_PROC_NULL ) then
+        do j full
+          do i full
+            f01(i,j,NZPP1) = recv_buff_kp1(i,j,1)
+            f02(i,j,NZPP1) = recv_buff_kp1(i,j,2)
+            f03(i,j,NZPP1) = recv_buff_kp1(i,j,3)
+            f04(i,j,NZPP1) = recv_buff_kp1(i,j,4)
+            f05(i,j,NZPP1) = recv_buff_kp1(i,j,5)
+          end do
+        end do
+      end if
+      if ( rank_next.km1 /= MPI_PROC_NULL ) then
+        do j full
+          do i full
+            f01(i,j,0) = recv_buff_km1(i,j,1)
+            f02(i,j,0) = recv_buff_km1(i,j,2)
+            f03(i,j,0) = recv_buff_km1(i,j,3)
+            f04(i,j,0) = recv_buff_km1(i,j,4)
+            f05(i,j,0) = recv_buff_km1(i,j,5)
+          end do
+        end do
+      end if
+    end subroutine iN_k_direction
+
+  end subroutine exchange3d_5
+
+
+  subroutine exchange3d_8( comm, rank_next,  &
+                           f01, f02, f03, f04, f05, f06, f07, f08 )
+    integer <in> :: comm
+    type(mpiut__rank_next_t) <in> :: rank_next
+    type(field__scalar_t) <io> :: f01,f02,f03,f04,f05,f06,f07,f08
+
+    real(DR), dimension(0:NYPP1,0:NZPP1,8) :: send_buff_ip1, send_buff_im1, &
+                                              recv_buff_ip1, recv_buff_im1
+    real(DR), dimension(0:NXPP1,0:NZPP1,8) :: send_buff_jp1, send_buff_jm1, &
+                                              recv_buff_jp1, recv_buff_jm1
+    real(DR), dimension(0:NXPP1,0:NYPP1,8) :: send_buff_kp1, send_buff_km1, &
+                                              recv_buff_kp1, recv_buff_km1
+    call iN_i_direction
+    call iN_j_direction
+    call iN_k_direction
+
+  contains
+
+    subroutine iN_i_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, j, k
+
+      do k full
+        do j full
+          send_buff_ip1(j,k,1) = f01(NXPP,j,k)
+          send_buff_ip1(j,k,2) = f02(NXPP,j,k)
+          send_buff_ip1(j,k,3) = f03(NXPP,j,k)
+          send_buff_ip1(j,k,4) = f04(NXPP,j,k)
+          send_buff_ip1(j,k,5) = f05(NXPP,j,k)
+          send_buff_ip1(j,k,6) = f06(NXPP,j,k)
+          send_buff_ip1(j,k,7) = f07(NXPP,j,k)
+          send_buff_ip1(j,k,8) = f08(NXPP,j,k)
+
+          send_buff_im1(j,k,1) = f01(   1,j,k)
+          send_buff_im1(j,k,2) = f02(   1,j,k)
+          send_buff_im1(j,k,3) = f03(   1,j,k)
+          send_buff_im1(j,k,4) = f04(   1,j,k)
+          send_buff_im1(j,k,5) = f05(   1,j,k)
+          send_buff_im1(j,k,6) = f06(   1,j,k)
+          send_buff_im1(j,k,7) = f07(   1,j,k)
+          send_buff_im1(j,k,8) = f08(   1,j,k)
+        end do
+      end do
+
+      ncount = (NYPP1+1)*(NZPP1+1)*8
+
+      ! if ( rank_next.ip1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_ip1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.ip1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.im1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_im1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.im1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.ip1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_ip1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.ip1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.im1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_im1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.im1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      ! Bug fixed by H. Hayashi on 2014.08.11.
+      if ( rank_next.ip1 /= MPI_PROC_NULL ) then
+        do k full
+          do j full
+            f01(NXPP1,j,k) = recv_buff_ip1(j,k,1)
+            f02(NXPP1,j,k) = recv_buff_ip1(j,k,2)
+            f03(NXPP1,j,k) = recv_buff_ip1(j,k,3)
+            f04(NXPP1,j,k) = recv_buff_ip1(j,k,4)
+            f05(NXPP1,j,k) = recv_buff_ip1(j,k,5)
+            f06(NXPP1,j,k) = recv_buff_ip1(j,k,6)
+            f07(NXPP1,j,k) = recv_buff_ip1(j,k,7)
+            f08(NXPP1,j,k) = recv_buff_ip1(j,k,8)
+          end do
+        end do
+      end if
+      if ( rank_next.im1 /= MPI_PROC_NULL ) then
+        do k full
+          do j full
+            f01(0,j,k) = recv_buff_im1(j,k,1)
+            f02(0,j,k) = recv_buff_im1(j,k,2)
+            f03(0,j,k) = recv_buff_im1(j,k,3)
+            f04(0,j,k) = recv_buff_im1(j,k,4)
+            f05(0,j,k) = recv_buff_im1(j,k,5)
+            f06(0,j,k) = recv_buff_im1(j,k,6)
+            f07(0,j,k) = recv_buff_im1(j,k,7)
+            f08(0,j,k) = recv_buff_im1(j,k,8)
+          end do
+        end do
+      end if
+    end subroutine iN_i_direction
+
+    subroutine iN_j_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, i, k
+
+      do k full
+        do i full
+          send_buff_jp1(i,k,1) = f01(i,NYPP,k)
+          send_buff_jp1(i,k,2) = f02(i,NYPP,k)
+          send_buff_jp1(i,k,3) = f03(i,NYPP,k)
+          send_buff_jp1(i,k,4) = f04(i,NYPP,k)
+          send_buff_jp1(i,k,5) = f05(i,NYPP,k)
+          send_buff_jp1(i,k,6) = f06(i,NYPP,k)
+          send_buff_jp1(i,k,7) = f07(i,NYPP,k)
+          send_buff_jp1(i,k,8) = f08(i,NYPP,k)
+
+          send_buff_jm1(i,k,1) = f01(i,   1,k)
+          send_buff_jm1(i,k,2) = f02(i,   1,k)
+          send_buff_jm1(i,k,3) = f03(i,   1,k)
+          send_buff_jm1(i,k,4) = f04(i,   1,k)
+          send_buff_jm1(i,k,5) = f05(i,   1,k)
+          send_buff_jm1(i,k,6) = f06(i,   1,k)
+          send_buff_jm1(i,k,7) = f07(i,   1,k)
+          send_buff_jm1(i,k,8) = f08(i,   1,k)
+        end do
+      end do
+
+      ncount = (NXPP1+1)*(NZPP1+1)*8
+
+      ! if ( rank_next.jp1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_jp1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.jp1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.jm1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_jm1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.jm1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.jp1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_jp1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.jp1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.jm1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_jm1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.jm1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      ! Bug fixed by H. Hayashi.
+      if ( rank_next.jp1 /= MPI_PROC_NULL ) then
+        do k full
+          do i full
+            f01(i,NYPP1,k) = recv_buff_jp1(i,k,1)
+            f02(i,NYPP1,k) = recv_buff_jp1(i,k,2)
+            f03(i,NYPP1,k) = recv_buff_jp1(i,k,3)
+            f04(i,NYPP1,k) = recv_buff_jp1(i,k,4)
+            f05(i,NYPP1,k) = recv_buff_jp1(i,k,5)
+            f06(i,NYPP1,k) = recv_buff_jp1(i,k,6)
+            f07(i,NYPP1,k) = recv_buff_jp1(i,k,7)
+            f08(i,NYPP1,k) = recv_buff_jp1(i,k,8)
+          end do
+        end do
+      end if
+      if ( rank_next.jm1 /= MPI_PROC_NULL ) then
+        do k full
+          do i full
+            f01(i,0,k) = recv_buff_jm1(i,k,1)
+            f02(i,0,k) = recv_buff_jm1(i,k,2)
+            f03(i,0,k) = recv_buff_jm1(i,k,3)
+            f04(i,0,k) = recv_buff_jm1(i,k,4)
+            f05(i,0,k) = recv_buff_jm1(i,k,5)
+            f06(i,0,k) = recv_buff_jm1(i,k,6)
+            f07(i,0,k) = recv_buff_jm1(i,k,7)
+            f08(i,0,k) = recv_buff_jm1(i,k,8)
+          end do
+        end do
+      end if
+    end subroutine iN_j_direction
+
+    subroutine iN_k_direction
+      integer, dimension(2)                 :: requests
+      integer, dimension(MPI_STATUS_SIZE,2) :: status
+      integer                               :: ncount, ierr, i, j
+
+      do j full
+        do i full
+          send_buff_kp1(i,j,1) = f01(i,j,NZPP)
+          send_buff_kp1(i,j,2) = f02(i,j,NZPP)
+          send_buff_kp1(i,j,3) = f03(i,j,NZPP)
+          send_buff_kp1(i,j,4) = f04(i,j,NZPP)
+          send_buff_kp1(i,j,5) = f05(i,j,NZPP)
+          send_buff_kp1(i,j,6) = f06(i,j,NZPP)
+          send_buff_kp1(i,j,7) = f07(i,j,NZPP)
+          send_buff_kp1(i,j,8) = f08(i,j,NZPP)
+
+          send_buff_km1(i,j,1) = f01(i,j,   1)
+          send_buff_km1(i,j,2) = f02(i,j,   1)
+          send_buff_km1(i,j,3) = f03(i,j,   1)
+          send_buff_km1(i,j,4) = f04(i,j,   1)
+          send_buff_km1(i,j,5) = f05(i,j,   1)
+          send_buff_km1(i,j,6) = f06(i,j,   1)
+          send_buff_km1(i,j,7) = f07(i,j,   1)
+          send_buff_km1(i,j,8) = f08(i,j,   1)
+        end do
+      end do
+
+      ncount = (NXPP1+1)*(NYPP1+1)*8
+
+      ! if ( rank_next.kp1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_kp1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.kp1,               &
+                     0, comm, requests(1), ierr)
+      ! if ( rank_next.km1 /= MPI_PROC_NULL )  &
+      call MPI_IRECV(recv_buff_km1, ncount,       &
+                     MPI_DOUBLE_PRECISION,        &
+                     rank_next.km1,               &
+                     0, comm, requests(2), ierr)
+      call MPI_BARRIER(comm, ierr)
+
+      ! if ( rank_next.kp1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_kp1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.kp1,                &
+                    0, comm, ierr)
+      ! if ( rank_next.km1 /= MPI_PROC_NULL )  &
+      call MPI_SEND(send_buff_km1, ncount,        &
+                    MPI_DOUBLE_PRECISION,         &
+                    rank_next.km1,                &
+                    0, comm, ierr)
+      call MPI_WAITALL(2, requests, status, ierr)
+
+      ! Bug fixed by H. Hayashi.
+      if ( rank_next.kp1 /= MPI_PROC_NULL ) then
+        do j full
+          do i full
+            f01(i,j,NZPP1) = recv_buff_kp1(i,j,1)
+            f02(i,j,NZPP1) = recv_buff_kp1(i,j,2)
+            f03(i,j,NZPP1) = recv_buff_kp1(i,j,3)
+            f04(i,j,NZPP1) = recv_buff_kp1(i,j,4)
+            f05(i,j,NZPP1) = recv_buff_kp1(i,j,5)
+            f06(i,j,NZPP1) = recv_buff_kp1(i,j,6)
+            f07(i,j,NZPP1) = recv_buff_kp1(i,j,7)
+            f08(i,j,NZPP1) = recv_buff_kp1(i,j,8)
+          end do
+        end do
+      end if
+      if ( rank_next.km1 /= MPI_PROC_NULL ) then
+        do j full
+          do i full
+            f01(i,j,0) = recv_buff_km1(i,j,1)
+            f02(i,j,0) = recv_buff_km1(i,j,2)
+            f03(i,j,0) = recv_buff_km1(i,j,3)
+            f04(i,j,0) = recv_buff_km1(i,j,4)
+            f05(i,j,0) = recv_buff_km1(i,j,5)
+            f06(i,j,0) = recv_buff_km1(i,j,6)
+            f07(i,j,0) = recv_buff_km1(i,j,7)
+            f08(i,j,0) = recv_buff_km1(i,j,8)
+          end do
+        end do
+      end if
+    end subroutine iN_k_direction
+
+  end subroutine exchange3d_8
+
+
+  subroutine maxval_0d_i( comm, i, max_i )
+    integer <in> :: comm
+    integer <in> :: i
+    integer <out> :: max_i
+
+    integer :: ierr
+    integer, allocatable :: sgks_array(:)
+
+    allocate(sgks_array(mpiut__comm_size( comm )))
+
+    call MPI_ALLGATHER(i,1,MPI_INTEGER,              &
+                       sgks_array, 1, MPI_INTEGER,   &
+                       comm, ierr)
+
+    max_i = maxval(sgks_array)
+    deallocate(sgks_array)
+
+  end subroutine maxval_0d_i
+
+
+  subroutine maxval_0d_id( comm, i,max_i )
+    integer <in>  :: comm
+    integer(DI) <in> :: i
+    integer(DI) <out> :: max_i
+
+    integer :: ierr
+    integer(DI), allocatable :: sgks_array(:)
+
+    allocate(sgks_array(mpiut__comm_size( comm )))
+
+    call MPI_ALLGATHER(i,1,MPI_INTEGER8,              &
+                       sgks_array, 1, MPI_INTEGER8,   &
+                       comm, ierr)
+
+    max_i = maxval(sgks_array)
+    deallocate(sgks_array)
+
+  end subroutine maxval_0d_id
+
+
+  subroutine maxval_0d_r( comm, r, max_r )
+    integer <in>  :: comm
+    real(DR) <in>  :: r
+    real(DR) <out> :: max_r
+
+    integer :: ierr
+    real(DR), allocatable :: sgks_array(:)
+
+    allocate(sgks_array(mpiut__comm_size( comm )))
+
+    call MPI_ALLGATHER(r,1,MPI_DOUBLE_PRECISION,              &
+                       sgks_array, 1, MPI_DOUBLE_PRECISION,   &
+                       comm, ierr)
+
+    max_r = maxval(sgks_array)
+    deallocate(sgks_array)
+
+  end subroutine maxval_0d_r
+
+
+  subroutine message_decorated_str( comm, mark, string )
+    integer <in> :: comm
+    char(len=1) <in> :: mark
+    char(len=*) <in> :: string
+
+!!>
+      Usage:
+         call message_decorated_str( '#', "This is a test." )
+
+      Output:      ###################
+                   # This is a test. #
+                   ###################
+!!<
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__deco_message(mark,string)
+
+  end subroutine message_decorated_str
+
+
+  subroutine message_decorated_str_int( comm, mark, string, int )
+    integer <in> :: comm
+    char(len=1) <in> :: mark
+    char(len=*) <in> :: string
+    integer <in> :: int
+
+!!>
+    Usage:
+       call mess...( '#', 'This is message at nloop = ', nloop )
+!!<
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__deco_message( mark, string, int )
+
+  end subroutine message_decorated_str_int
+
+
+  subroutine message_decorated_str_intd( comm, mark, string, int )
+    integer <in> :: comm
+    char(len=1) <in> :: mark
+    char(len=*) <in> :: string
+    integer(DI) <in> :: int
+
+!!>
+     Usage:
+        call mess...( '#', 'This is message at nloop = ', nloop )
+!!<
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__deco_message( mark, string, int )
+
+  end subroutine message_decorated_str_intd
+
+
+  subroutine message_leader_double( comm, string, double )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    real(DR) <in> :: double
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message_leader( string, double )
+
+  end subroutine message_leader_double
+
+
+  subroutine message_leader_float( comm, string, float )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    real(SR) <in> :: float
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message_leader( string, float )
+
+  end subroutine message_leader_float
+
+
+  subroutine message_leader_str( comm, string01, string02 )
+    integer <in> :: comm
+    char(len=*) <in> :: string01
+    char(len=*) <in> :: string02
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message_leader( string01, string02 )
+
+  end subroutine message_leader_str
+
+
+  subroutine message_leader_logical( comm, string, bool )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    logical <in> :: bool
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message_leader( string, bool )
+
+  end subroutine message_leader_logical
+
+
+  subroutine message_leader_int( comm, string, int )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer <in> :: int
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message_leader( string, int )
+
+  end subroutine message_leader_int
+
+
+  subroutine message_leader_intd( comm, string, int )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer(DI) <in> :: int
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message_leader( string, int )
+
+  end subroutine message_leader_intd
+
+
+
+  subroutine message_str( comm, string )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string )
+
+  end subroutine message_str
+
+
+  subroutine message_str_double( comm, string, double )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    real(DR) <in> :: double
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, double )
+
+  end subroutine message_str_double
+
+
+  subroutine message_str_double_str( comm, str1, double, str2 )
+    integer <in> :: comm
+    char(len=*) <in> :: str1, str2
+    real(DR) <in> :: double
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( str1, double, str2 )
+
+  end subroutine message_str_double_str
+
+
+
+  subroutine message_str_logical( comm, str1, logical )
+    integer <in> :: comm
+    char(len=*) <in> :: str1
+    logical <in> :: logical
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( str1, logical )
+
+  end subroutine message_str_logical
+
+
+  subroutine message_str_str( comm, string01, string02 )
+    integer <in> :: comm
+    char(len=*) <in> :: string01
+    char(len=*) <in> :: string02
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string01, string02 )
+
+  end subroutine message_str_str
+
+
+  subroutine message_str_int( comm, string, int )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer <in> :: int
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, int )
+
+  end subroutine message_str_int
+
+
+  subroutine message_str_intd( comm, string, int )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer(DI) <in> :: int
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, int )
+
+  end subroutine message_str_intd
+
+
+  subroutine message_str_int_int( comm, string, i1, i2 )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer <in> :: i1, i2
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, i1, i2 )
+
+  end subroutine message_str_int_int
+
+
+  subroutine message_str_int_intd( comm, string, i1, i2 )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer <in> :: i1
+    integer(DI) <in> :: i2
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, i1, i2 )
+
+  end subroutine message_str_int_intd
+
+
+  subroutine message_str_intd_int( comm, string, i1, i2 )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer(DI) <in> :: i1
+    integer <in> :: i2
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, i1, i2 )
+
+  end subroutine message_str_intd_int
+
+
+  subroutine message_str_intd_intd( comm, string, i1, i2 )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer(DI) <in> :: i1, i2
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, i1, i2 )
+
+  end subroutine message_str_intd_intd
+
+
+  subroutine message_str_int_int_int( comm, string, i1, i2, i3 )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer <in> :: i1, i2, i3
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, i1, i2, i3 )
+
+  end subroutine message_str_int_int_int
+
+
+  subroutine message_str_int_int_double( comm, string, i1, i2, d1 )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer <in> :: i1, i2
+    real(DR) <in> :: d1
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, i1, i2, d1 )
+
+  end subroutine message_str_int_int_double
+
+
+  subroutine message_str_intd_int_double( comm, string, i1, i2, d1 )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer(DI) <in> :: i1
+    integer <in> :: i2
+    real(DR) <in> :: d1
+
+!
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, i1, i2, d1 )
+
+  end subroutine message_str_intd_int_double
+
+
+  subroutine message_str_int_double( comm, string, i1, d1 )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer <in> :: i1
+    real(DR) <in> :: d1
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, i1, d1 )
+
+  end subroutine message_str_int_double
+
+
+  subroutine message_str_intd_double( comm, string, i1, d1 )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer(DI) <in> :: i1
+    real(DR) <in> :: d1
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, i1, d1 )
+
+  end subroutine message_str_intd_double
+
+
+  subroutine message_str_int_double_double( comm, string, i1, d1, d2 )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer <in> :: i1
+    real(DR) <in> :: d1, d2
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, i1, d1, d2 )
+
+  end subroutine message_str_int_double_double
+
+
+  subroutine message_str_intd_double_double( comm, string, i1, d1, d2 )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer(DI) <in> :: i1
+    real(DR) <in> :: d1, d2
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, i1, d1, d2 )
+
+  end subroutine message_str_intd_double_double
+
+
+  subroutine message_str_int_float_float( comm, string, i1, f1, f2 )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer <in> :: i1
+    real(SR) <in> :: f1, f2
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, i1, f1, f2 )
+
+  end subroutine message_str_int_float_float
+
+
+  subroutine message_str_intd_float_float( comm, string, i1, f1, f2 )
+    integer <in> :: comm
+    char(len=*) <in> :: string
+    integer(DI) <in> :: i1
+    real(SR) <in> :: f1, f2
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( string, i1, f1, f2 )
+
+  end subroutine message_str_intd_float_float
+
+
+  subroutine message_str_int_str( comm, str1, i1, str2 )
+    integer <in> :: comm
+    char(len=*) <in> :: str1, str2
+    integer <in> :: i1
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( str1, i1, str2 )
+
+  end subroutine message_str_int_str
+
+
+  subroutine message_str_int_str_int( comm, str1, i1, str2, i2 )
+    integer <in> :: comm
+    char(len=*) <in> :: str1, str2
+    integer <in> :: i1, i2
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( str1, i1, str2, i2 )
+
+  end subroutine message_str_int_str_int
+
+
+  subroutine message_str_intd_str_int( comm, str1, i1, str2, i2 )
+    integer <in> :: comm
+    char(len=*) <in> :: str1, str2
+    integer(DI) <in> :: i1
+    integer <in> :: i2
+
+!
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( str1, i1, str2, i2 )
+
+  end subroutine message_str_intd_str_int
+
+
+  subroutine message_str_int_str_double( comm, str1, i1, str2, d1 )
+    integer <in> :: comm
+    char(len=*) <in> :: str1, str2
+    integer <in> :: i1
+    real(DR) <in> :: d1
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( str1, i1, str2, d1 )
+
+  end subroutine message_str_int_str_double
+
+
+  subroutine message_str_intd_str_double( comm, str1, i1, str2, d1 )
+    integer <in> :: comm
+    char(len=*) <in> :: str1, str2
+    integer(DI) <in> :: i1
+    real(DR) <in> :: d1
+
+    ! << only the root process speaks >>
+    if ( mpiut__comm_rank( comm ) /= 0 ) return
+
+    call ut__message( str1, i1, str2, d1 )
+
+  end subroutine message_str_intd_str_double
+
+
+  subroutine minval_0d_i( comm, i, min_i )
+    integer <in> :: comm
+    integer <in> :: i
+    integer <out> :: min_i
+
+    integer :: ierr
+    integer, allocatable :: sgks_array(:)
+
+    allocate(sgks_array(mpiut__comm_size( comm )))
+
+    call MPI_ALLGATHER(i,1,MPI_INTEGER,              &
+                       sgks_array, 1, MPI_INTEGER,   &
+                       comm, ierr)
+
+    ! You can use allreduce_min, too. I don't know which is faster.
+
+    min_i = minval(sgks_array)
+    deallocate(sgks_array)
+
+  end subroutine minval_0d_i
+
+
+  subroutine minval_0d_id( comm, i, min_i )
+    integer <in> :: comm
+    integer(DI) <in>  :: i
+    integer(DI) <out> :: min_i
+
+    integer :: ierr
+    integer(DI), allocatable :: sgks_array(:)
+
+    allocate(sgks_array(mpiut__comm_size( comm )))
+
+    call MPI_ALLGATHER(i,1,MPI_INTEGER8,              &
+                       sgks_array, 1, MPI_INTEGER8,   &
+                       comm, ierr)
+
+    ! You can use allreduce_min, too. I don't know which is faster.
+
+    min_i = minval(sgks_array)
+    deallocate(sgks_array)
+
+  end subroutine minval_0d_id
+
+
+  subroutine minval_0d_r( comm, r, min_r )
+    integer <in> :: comm
+    real(DR) <in> :: r
+    real(DR) <out> :: min_r
+
+!
+    integer :: ierr
+    real(DR), allocatable :: sgks_array(:)
+
+    allocate(sgks_array(mpiut__comm_size( comm )))
+
+    call MPI_ALLGATHER(r,1,MPI_DOUBLE_PRECISION,              &
+                       sgks_array, 1, MPI_DOUBLE_PRECISION,   &
+                       comm, ierr)
+
+    ! You can use allreduce_min, too. I don't know which is faster.
+
+    min_r = minval(sgks_array)
+    deallocate(sgks_array)
+
+  end subroutine minval_0d_r
+
+ 
+  subroutine recv_0d_id( comm, source, i, tag_ )
+    integer <in> :: comm
+    integer <in> :: source
+    integer(DI) <out> :: i
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+    integer, dimension(MPI_STATUS_SIZE) :: status
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = MPI_ANY_TAG
+    end if
+
+    call MPI_RECV(i,              &
+                  1,              &
+                  MPI_INTEGER8,   &
+                  source,         &
+                  tag,            &
+                  comm,           &
+                  status,         &
+                  ierr)
+  end subroutine
+
+
+  subroutine recv_0d_is( comm, source, i, tag_ )
+    integer <in> :: comm
+    integer <in> :: source
+    integer <out> :: i
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+    integer, dimension(MPI_STATUS_SIZE) :: status
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = MPI_ANY_TAG
+    end if
+
+    call MPI_RECV(i,            &
+                  1,            &
+                  MPI_INTEGER,  &
+                  source,       &
+                  tag,          &
+                  comm,         &
+                  status,       &
+                  ierr)
+  end subroutine
+
+
+  subroutine recv_0d_rd( comm, source, r, tag_ )
+    integer <in> :: comm
+    integer <in> :: source
+    real(DR) <out> :: r
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+    integer, dimension(MPI_STATUS_SIZE) :: status
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = MPI_ANY_TAG
+    end if
+
+    call MPI_RECV(r,                      &
+                  1,                      &
+                  MPI_DOUBLE_PRECISION,   &
+                  source,                 &
+                  tag,                    &
+                  comm,                   &
+                  status,                 &
+                  ierr)
+  end subroutine
+
+
+  subroutine recv_1d_rd( comm, source, buff, tag_ )
+    integer <in> :: comm
+    integer <in> :: source
+    real(DR) <out> :: buff(:)
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+    integer, dimension(MPI_STATUS_SIZE) :: status
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = MPI_ANY_TAG
+    end if
+
+    call MPI_RECV(buff,                  &
+                  size(buff,1),          &
+                  MPI_DOUBLE_PRECISION,  &
+                  source,                &
+                  tag,                   &
+                  comm,                  &
+                  status,                &
+                  ierr)
+  end subroutine
+
+
+!
+  subroutine recv_1d_rs( comm, source, buff, tag_ )
+    integer <in> :: comm
+    integer <in> :: source
+    real(SR) <out> :: buff(:)
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+    integer, dimension(MPI_STATUS_SIZE) :: status
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = MPI_ANY_TAG
+    end if
+
+    call MPI_RECV(buff,           &
+                  size(buff,1),   &
+                  MPI_REAL,       &
+                  source,         &
+                  tag,            &
+                  comm,           &
+                  status,         &
+                  ierr)
+  end subroutine
+
+
+  subroutine recv_3d_rd( comm, source, buff, tag_ )
+    integer <in> :: comm
+    integer <in> :: source
+    real(DR) <out> :: buff(:,:,:)
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+    integer, dimension(MPI_STATUS_SIZE) :: status
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = MPI_ANY_TAG
+    end if
+
+    call MPI_RECV(buff,                                     &
+                  size(buff,1)*size(buff,2)*size(buff,3),   &
+                  MPI_DOUBLE_PRECISION,                     &
+                  source,                                   &
+                  tag,                                      &
+                  comm,                                     &
+                  status,                                   &
+                  ierr)
+  end subroutine
+
+
+!
+  subroutine recv_3d_rs( comm, source, buff, tag_ )
+    integer <in> :: comm
+    integer <in> :: source
+    real(SR) <out> :: buff(:,:,:)
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+    integer, dimension(MPI_STATUS_SIZE) :: status
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = MPI_ANY_TAG
+    end if
+
+    call MPI_RECV(buff,                                     &
+                  size(buff,1)*size(buff,2)*size(buff,3),   &
+                  MPI_REAL,                                 &
+                  source,                                   &
+                  tag,                                      &
+                  comm,                                     &
+                  status,                                   &
+                  ierr)
+  end subroutine
+
+
+  subroutine recv_str( comm, source, l, str, tag_ )
+    integer <in> :: comm
+    integer <in> :: source
+    integer <in> :: l
+    char(len=l) <out> :: str
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+    integer, dimension(MPI_STATUS_SIZE) :: status
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = MPI_ANY_TAG
+    end if
+
+    call MPI_RECV(str,            &
+                  l,              &
+                  MPI_CHARACTER,  &
+                  source,         &
+                  tag,            &
+                  comm,           &
+                  status,         &
+                  ierr)
+  end subroutine
+
+
+  function mpi_init_already_called()
+    logical :: mpi_init_already_called
+
+    integer :: ierr
+
+    call MPI_INITIALIZED(mpi_init_already_called, ierr)
+
+  end function mpi_init_already_called
+
+
+  subroutine reduce_sum0d_r( comm, root, buff )
+    integer <in> :: comm, root
+    real(DR) <io> :: buff
+
+    real(DR) :: work
+    integer :: ierr
+
+    work = buff
+
+    call MPI_REDUCE(work,                  &
+                    buff,                  &
+                    1,                     &
+                    MPI_DOUBLE_PRECISION,  &
+                    MPI_SUM,               &
+                    root,                  &
+                    comm,                  &
+                    ierr)
+  end subroutine reduce_sum0d_r
+
+
+  subroutine reduce_sum3d_r( comm, root, buff )
+    integer <in> :: comm, root
+    real(DR) <io> :: buff(:,:,:)
+
+    real(DR), dimension(size(buff,1),size(buff,2),size(buff,3)) :: work
+    integer :: ierr
+
+    work(:,:,:) = buff(:,:,:)
+
+    call MPI_REDUCE(work,                                     &
+                    buff,                                     &
+                    size(buff,1)*size(buff,2)*size(buff,3),   &
+                    MPI_DOUBLE_PRECISION,                     &
+                    MPI_SUM,                                  &
+                    root,                                     &
+                    comm,                                     &
+                    ierr)
+
+  end subroutine reduce_sum3d_r
+
+
+  subroutine send_0d_id( comm, target, i, tag_ )
+    integer <in> :: comm
+    integer <in> :: target
+    integer(DI) <in> :: i
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = 1   ! any integer
+    end if
+
+    call MPI_SEND(i,              &
+                  1,              &
+                  MPI_INTEGER8,   &
+                  target,         &
+                  tag,            &  ! tag
+                  comm,           &
+                  ierr)
+  end subroutine
+
+
+  subroutine send_0d_is( comm, target, i, tag_ )
+    integer <in> :: comm
+    integer <in> :: target
+    integer <in> :: i
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = 1   ! any integer
+    end if
+
+    call MPI_SEND(i,            &
+                  1,            &
+                  MPI_INTEGER,  &
+                  target,       &
+                  tag,          &  ! tag
+                  comm,         &
+                  ierr)
+  end subroutine
+
+
+  subroutine send_0d_rd( comm, target, r, tag_ )
+    integer <in> :: comm
+    integer <in> :: target
+    real(DR) <in> :: r
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = 1   ! any integer
+    end if
+
+    call MPI_SEND(r,                      &
+                  1,                      &
+                  MPI_DOUBLE_PRECISION,   &
+                  target,                 &
+                  tag,                    &
+                  comm,                   &
+                  ierr)
+  end subroutine
+
+
+  subroutine send_1d_rd( comm, target, buff, tag_ )
+    integer <in> :: comm
+    integer <in> :: target
+    real(DR) <in> :: buff(:)
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = 1   ! any integer
+    end if
+
+    call MPI_SEND(buff,                  &
+                  size(buff,1),          &
+                  MPI_DOUBLE_PRECISION,  &
+                  target,                &
+                  tag,                   &
+                  comm,                  &
+                  ierr)
+  end subroutine
+
+
+  subroutine send_1d_rs( comm, target, buff, tag_ )
+    integer <in> :: comm
+    integer <in> :: target
+    real(SR) <in> :: buff(:)
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = 1   ! any integer
+    end if
+
+    call MPI_SEND(buff,            &
+                  size(buff,1),    &
+                  MPI_REAL,        &
+                  target,          &
+                  tag,             &
+                  comm,            &
+                  ierr)
+  end subroutine
+
+
+  subroutine send_3d_rd( comm, target, buff, tag_ )
+    integer <in> :: comm
+    integer <in> :: target
+    real(DR) <in> :: buff(:,:,:)
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = 1   ! any integer
+    end if
+
+    call MPI_SEND(buff,                                     &
+                  size(buff,1)*size(buff,2)*size(buff,3),   &
+                  MPI_DOUBLE_PRECISION,                     &
+                  target,                                   &
+                  tag,                                      &  ! tag
+                  comm,                                     &
+                  ierr)
+  end subroutine
+
+
+  subroutine send_3d_rs( comm, target, buff, tag_ )
+    integer <in> :: comm
+    integer <in> :: target
+    real(SR) <in> :: buff(:,:,:)
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = 1   ! any integer
+    end if
+
+    call MPI_SEND(buff,                                     &
+                  size(buff,1)*size(buff,2)*size(buff,3),   &
+                  MPI_REAL,                                 &
+                  target,                                   &
+                  tag,                                      &  ! tag
+                  comm,                                     &
+                  ierr)
+  end subroutine
+
+
+  subroutine send_str( comm, target, l, str, tag_ )
+    integer <in> :: comm
+    integer <in> :: target
+    integer <in> :: l
+    char(len=l) <in> :: str
+    integer <optin> :: tag_
+
+    integer :: tag, ierr
+
+    if ( present(tag_) ) then
+       tag = tag_
+    else
+       tag = 1   ! any integer
+    end if
+
+    call MPI_SEND(str,            &
+                  l,              &
+                  MPI_CHARACTER,  &
+                  target,         &
+                  tag,            &  ! tag
+                  comm,           &
+                  ierr)
+  end subroutine
+
+
+  subroutine tag_match__send_set( self, i )
+    class(mpiut__tag_match_t) :: self
+    integer <in> :: i
+
+    self.tag_send = i
+    if ( .not. self.tag_recv_unset ) then
+      call mpiut__assert( self.tag_recv==i,  &
+                          '<__FUNC__> tag unmatch.')
+      self.tag_send_unset = .true.
+      self.tag_recv_unset = .true.
+    else
+      self.tag_send_unset = .false.
+    end if
+
+  end subroutine
+
+
+  subroutine tag_match__recv_set( self, i )
+    class(mpiut__tag_match_t) :: self
+    integer <in> :: i
+
+    self.tag_recv = i
+    if ( .not. self.tag_send_unset ) then
+      call mpiut__assert( self.tag_send==i,  &
+                          '<__FUNC__> tag unmatch.')
+      self.tag_send_unset = .true.
+      self.tag_recv_unset = .true.
+    else
+      self.tag_recv_unset = .false.
+    end if
+
+  end subroutine
+
+
+!!!>
+!    Public
+!!!<
+
+
+  subroutine mpiut__allreduce_land( comm, buff )
+    integer <in> :: comm
+    logical <io> :: buff
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,     &
+                       buff,             &
+                       1,                &
+                       MPI_LOGICAL,      &
+                       MPI_LAND,         &
+                       comm,             &
+                       ierr)
+    call mpiut__assert( ierr==0,  &
+                        ' <__FUNC__> failed.' )
+
+  end subroutine mpiut__allreduce_land
+
+
+  subroutine mpiut__allreduce_lor( comm, buff )
+    integer <in> :: comm
+    logical <io> :: buff
+
+    integer :: ierr
+
+    call MPI_ALLREDUCE(MPI_IN_PLACE,    &
+                       buff,            &
+                       1,               &
+                       MPI_LOGICAL,     &
+                       MPI_LOR,         &
+                       comm,            &
+                       ierr)
+    call mpiut__assert( ierr==0,  &
+                        ' <__FUNC__> failed.' )
+
+  end subroutine mpiut__allreduce_lor
+
+
+  subroutine mpiut__assert( must_be_true, message )
+    logical <in> :: must_be_true
+    char(len=*) <in> :: message
+
+    if ( .not. must_be_true ) then
+      call mpiut__fatal(message)
+    end if
+
+  end subroutine mpiut__assert
+
+
+  subroutine mpiut__barrier( comm, tag )
+    integer <in> :: comm
+    integer <optin> :: tag ! for debug. careful but slow.
+
+    integer :: ierr
+    integer :: tag_min, tag_max
+
+    if ( DEBUG_MODE ) then
+      if (present(tag)) then
+        tag_min = tag; tag_max = tag
+        call mpiut__allreduce_min( comm, tag_min )
+        call mpiut__allreduce_max( comm, tag_max )
+        if ( tag_min/=tag_max ) then
+          call mpiut__message_leader( comm, 'tag lowest', tag_min )
+          call mpiut__message_leader( comm, 'tag highest', tag_max )
+          call mpiut__fatal( '<__FUNC__> different tag.' )
+        end if
+        call mpiut__message_leader( comm, '__FUNC__: tag', tag )
+      end if
+    end if
+
+    call MPI_BARRIER(comm, ierr)
+
+  end subroutine mpiut__barrier
+
+
+  subroutine mpiut__comm_divide( comm_org, nprocs_one,  &
+                                 comm_one, comm_two)
+    integer <in> :: comm_org, nprocs_one
+    integer <out> :: comm_one, comm_two
+
+!!>
+      split comm_org into comm_one + comm_two
+           nprocs_org = nprocs_one + nprocs_two
+!!<
+
+    integer, allocatable :: rank_list_one(:)
+    integer, allocatable :: rank_list_two(:)
+
+    integer :: group_org, ierr, i, nprocs_two
+    integer :: group_one, group_two, nprocs_org
+
+    call mpiut__assert( nprocs_one>0,  &
+                        '<__FUNC__> nprocs_one negative?' )
+
+    nprocs_org = mpiut__comm_size( comm_org )
+
+    nprocs_two = nprocs_org - nprocs_one
+    call mpiut__assert( nprocs_two>0,  &
+                        '<__FUNC__> nprocs_two negative?' )
+
+    allocate(rank_list_one(nprocs_one))
+    allocate(rank_list_two(nprocs_two))
+
+    do i = 1, nprocs_one
+      rank_list_one(i) = i - 1
+    end do
+
+    do i = 1, nprocs_two
+      rank_list_two(i) = nprocs_one + i - 1
+    end do
+
+    call MPI_COMM_GROUP(comm_org,group_org,ierr)
+    call MPI_GROUP_INCL(group_org,nprocs_one,                &
+                        rank_list_one,group_one,ierr)
+    call MPI_GROUP_INCL(group_org,nprocs_two,                &
+                        rank_list_two,group_two,ierr)
+    call MPI_Comm_create(comm_org,group_one,comm_one,ierr)
+    call MPI_Comm_create(comm_org,group_two,comm_two,ierr)
+
+    call MPI_GROUP_FREE(group_org,ierr)
+    call MPI_GROUP_FREE(group_one,ierr)
+    call MPI_GROUP_FREE(group_two,ierr)
+
+    deallocate(rank_list_one)
+    deallocate(rank_list_two)
+
+  end subroutine mpiut__comm_divide
+
+
+  function mpiut__comm_rank( comm )
+    integer <in> :: comm
+    integer :: mpiut__comm_rank
+
+    integer :: myrank, ierr
+
+    call MPI_COMM_RANK(comm, myrank, ierr)
+
+    mpiut__comm_rank = myrank
+
+  end function mpiut__comm_rank
+
+
+  function mpiut__comm_size( comm )
+    integer <in> :: comm
+    integer :: mpiut__comm_size
+
+    integer :: numprocs, ierr
+
+    call MPI_COMM_SIZE(comm, numprocs, ierr)
+
+    mpiut__comm_size = numprocs
+
+  end function mpiut__comm_size
+
+
+  subroutine mpiut__comm_split( comm, color, key, new_comm )
+    integer <in> :: comm, color, key
+    integer <out> :: new_comm
+
+    integer :: ierr
+
+    call MPI_COMM_SPLIT(comm, color, key, new_comm, ierr)
+
+  end subroutine mpiut__comm_split
+
+
+  function mpiut__comm_remote_size( inter_comm )
+    integer <in> :: inter_comm
+    integer :: mpiut__comm_remote_size
+
+    integer :: numprocs, ierr
+    logical :: is_inter
+
+    is_inter = mpiut__comm_test_inter( inter_comm )
+
+    call mpiut__assert( is_inter,  &
+                        '<__FUNC__> Not'  &
+                      //' an inter-communicator.' )
+
+    call MPI_COMM_REMOTE_SIZE(inter_comm, numprocs, ierr)
+
+    mpiut__comm_remote_size = numprocs
+
+  end function mpiut__comm_remote_size
+
+
+  function mpiut__comm_test_inter( comm )
+    integer <in> :: comm
+    logical :: mpiut__comm_test_inter
+
+    integer :: ierr
+
+    call MPI_COMM_TEST_INTER(comm,  &
+                             mpiut__comm_test_inter,  &
+                             ierr)
+
+  end function mpiut__comm_test_inter
+
+
+  subroutine mpiut__decomp1d( n, numprocs, myid, stt, end )
+    integer <in>  :: n         ! total mesh points
+    integer <in>  :: numprocs  ! number of process
+    integer <in>  :: myid      ! rank of the process
+    integer <out> :: stt, end  ! start and end mesh position
+
+!!>
+      From MPE decomp1d.
+!!<
+
+    integer :: nlocal
+    integer :: deficit
+
+    nlocal  = n / numprocs
+    stt     = myid * nlocal + 1
+    deficit = mod(n,numprocs)
+    stt     = stt + min(myid,deficit)
+    if (myid < deficit) then
+       nlocal = nlocal + 1
+    endif
+    end = stt + nlocal - 1
+    if (end > n .or. myid == numprocs-1) end = n
+
+  end subroutine mpiut__decomp1d
+
+
+  subroutine mpiut__comm_extract( comm_parent, nprocs_child,  &
+                                  list_child, comm_child )
+    integer <in> :: comm_parent, nprocs_child
+    integer <in> :: list_child(:)
+    integer <out> :: comm_child
+
+!!>
+      Extract child ranks in "list_child" from "comm_parent" and
+      make a new communicator "child_comm".
+!!<
+
+    integer :: group_parent, group_child, ierr
+
+    call mpiut__assert( nprocs_child>0,  &
+                        '<mpiut__comm_extract> no nprocs_child?' )
+
+    call MPI_COMM_GROUP(comm_parent,group_parent,ierr)
+    call MPI_GROUP_INCL(group_parent,nprocs_child,  &
+                        list_child,group_child,ierr)
+    call MPI_Comm_create(comm_parent,group_child,comm_child,ierr)
+
+    call MPI_GROUP_FREE(group_parent,ierr)
+    call MPI_GROUP_FREE(group_child,ierr)
+
+  end subroutine mpiut__comm_extract
+
+
+  function mpiut__comm_find_rank( comm, condition ) result(ans)
+    integer <in> :: comm
+    logical <in> :: condition
+    integer :: ans
+
+    integer :: smyrank, count
+
+    smyrank = mpiut__comm_rank( comm )
+
+    if ( condition ) then
+      ans = smyrank
+      count = 1
+    else
+      ans = 0
+      count = 0
+    end if
+    call mpiut__allreduce_sum( comm, count )
+    call mpiut__assert( count==1, '<__FUNC__> condition not uniq.' )
+
+    call mpiut__allreduce_max( comm, ans )
+
+  end function mpiut__comm_find_rank
+
+
+  subroutine mpiut__comm_extract_friend( comm, mystate, comm_friend )
+    integer <in>  :: comm         ! parent communicator
+    logical <in>  :: mystate      ! if I am in the friend comm, or not.
+    integer <out> :: comm_friend  ! the friend communicator
+
+!!>
+      Extract friend ranks who share "mystate"==.true. and
+      make a new communicator "comm_friend".
+!!<
+
+    logical, allocatable :: mystate_array(:)
+    integer :: i, nprocs, counter, ierr
+    integer, allocatable :: friend_rank_list(:)
+
+    nprocs = mpiut__comm_size( comm )
+    allocate(mystate_array(nprocs))
+    allocate(friend_rank_list(nprocs)) ! A part of them is used.
+
+    mystate_array(:) = .false.
+    friend_rank_list(:) = MPI_PROC_NULL
+
+    call MPI_ALLGATHER(mystate, 1, MPI_LOGICAL,        &
+                       mystate_array, 1, MPI_LOGICAL,  &
+                       comm, ierr)
+    counter = 0
+    do i = 1, nprocs
+      if ( mystate_array(i) ) then
+        counter += 1
+        friend_rank_list(counter) = i-1
+      end if
+    end do
+
+    call mpiut__comm_extract( comm,counter,      &
+                              friend_rank_list,  &
+                              comm_friend)
+
+    deallocate(mystate_array)
+    deallocate(friend_rank_list)
+
+  end subroutine mpiut__comm_extract_friend
+
+
+  subroutine mpiut__fatal( last_will )
+    char(len=*) <in> :: last_will
+
+!!>
+     Print the last message and stops.
+!!<
+
+    integer :: ierr, myrank
+
+    call ut__deco_message( '!', last_will )
+
+    if ( mpi_init_already_called() ) then
+       myrank = mpiut__comm_rank( MPI_COMM_WORLD )
+       call MPI_ABORT(MPI_COMM_WORLD, myrank, ierr)
+    end if
+
+    stop
+
+  end subroutine mpiut__fatal
+
+
+  function mpiut__tag_check( comm, tag )
+    integer <in> :: comm, tag
+    logical :: mpiut__tag_check
+
+    mpiut__tag_check = mpiut__const_check( comm, tag )
+
+  end function
+
+
+  function const_check_di( comm, i )
+    integer <in> :: comm
+    integer(DI) <in> :: i
+    logical :: const_check_di
+
+    integer(DI) :: max, min
+
+    max = i; min = i
+    call mpiut__allreduce_max( comm, max )
+    call mpiut__allreduce_min( comm, min )
+
+    const_check_di = max==min
+
+  end function
+
+
+  function const_check_si( comm, i )
+    integer <in> :: comm, i
+    logical :: const_check_si
+
+    integer :: max, min
+
+    max = i; min = i
+    call mpiut__allreduce_max( comm, max )
+    call mpiut__allreduce_min( comm, min )
+
+    const_check_si = max==min
+
+  end function
+
+
+  subroutine mpiut__finalize
+
+    integer :: ierr
+
+    call MPI_FINALIZE(ierr)
+
+    call mpiut__assert( ierr==0, ' <__FUNC__> failed.' )
+
+  end subroutine mpiut__finalize
+
+
+  subroutine mpiut__init( omp_required )
+    integer <optin> :: omp_required
+
+    integer :: provided, ierr
+
+!!>
+      Added MPI_INIT_THREAD selection.
+      on 2017.08.10, by kage.
+!!<
+
+    if ( .not. present(omp_required) ) then
+      call MPI_INIT(ierr)
+    else
+      call MPI_INIT_THREAD(omp_required, provided, ierr)
+      call mpiut__message_leader( MPI_COMM_WORLD,                  &
+                                  'MPI_INIT_THREAD with requred',  &
+                                  iTable(omp_required) )
+      call mpiut__message_leader( MPI_COMM_WORLD,                  &
+                                  '                    provided',  &
+                                  iTable(provided))
+    end if
+    call mpiut__assert( ierr==0, ' <__FUNC__> failed.' )
+
+  contains
+
+    function iTable(i) result(str)
+      integer <in> :: i
+      char(len=21) :: str
+      select case (i)
+          !     '123456789012345678901'
+        case    (MPI_THREAD_SINGLE)
+          str = 'MPI_THREAD_SINGLE    '
+        case    (MPI_THREAD_FUNNELED)
+          str = 'MPI_THREAD_FUNNELED  '
+        case    (MPI_THREAD_SERIALIZED)
+          str = 'MPI_THREAD_SERIALIZED'
+        case    (MPI_THREAD_MULTIPLE)
+          str = 'MPI_THREAD_MULTIPLE  '
+        case default
+          str = 'Unkown condition     '
+      end select
+    end function
+
+  end subroutine
+
+
+  subroutine mpiut__zeroset3d_bcast( comm, buff )
+    integer <in> :: comm
+    real(DR) <out> :: buff(:,:,:)
+
+    integer :: root=0, me
+
+    me = mpiut__comm_rank( comm )
+
+    if (me==root) buff(:,:,:) = 0.0_DR
+
+    call mpiut__bcast( comm, root, buff )
+
+  end subroutine mpiut__zeroset3d_bcast
+
+end module mpiut_m

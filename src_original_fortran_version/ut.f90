@@ -208,7 +208,7 @@ contains
     logical, intent(in)          :: condition !! 必須条件
     character(len=*), intent(in) :: last_will !! 遺言
 
-    if (.not. condition) then
+    if (.not.condition) then
        call ut__fatal(last_will)
     end if
   end subroutine ut__assert
