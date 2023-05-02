@@ -69,4 +69,5 @@ line:
 clean:
 	rm -f smoke_ring core ${objlist} *.mod *.L
 	rm -rf depend_list.mk
+	rm -rf *.F90
 	rm -rf ../data/vis2d
