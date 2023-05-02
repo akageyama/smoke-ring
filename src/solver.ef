@@ -54,7 +54,6 @@ module solver_m
   use ut_m         ! ユーティリティ 
   use params_m     ! パラメータ
   use field_m      ! 流れ場データ構造体
-  use debug_m      ! デバッグ用
   use job_m        ! ジョブ管理
   implicit none    ! 暗黙の型宣言無効化。必須
 
@@ -213,11 +212,6 @@ contains
                     "<solver/set_drive_force_field> something is wrong.")
       ! 最大値がTHE_FORCEと仮定しているのでそうでなければ何かがおかしい。
 
-    call debug__print("called solver/set_drive_force_field.")
-      ! デバッグモードがonの時には毎回メッセージを標準出力に
-      ! 書き出す。コードが完成し、product runの段階に入ったら
-      ! デバッグモードをoffにすれば、書き出しは抑制される。
-      ! この行をコメントアウトする必要はない。
   end subroutine set_drive_force_field
 
 
@@ -232,11 +226,6 @@ contains
       ! Fortranコンパイラが自己定義演算子（field.f90で定義）
       ! を許せば上の簡潔な記述を使うべし。
 
-    call debug__print("called solver/subfield_vel.")
-      ! デバッグモードがonの時には毎回メッセージを標準出力に
-      ! 書き出す。コードが完成し、product runの段階に入ったら
-      ! デバッグモードをoffにすれば、書き出しは抑制される。
-      ! この行をコメントアウトする必要はない。
   end subroutine subfield_vel
 
 
@@ -253,7 +242,6 @@ contains
        ! Fortranコンパイラが自己定義演算子（field.f90で定義）
        ! を許せば上の簡潔な記述を使うべし。
 
-    call debug__print("called solver/subfield_vel_tm.")
   end subroutine subfield_vel_tm
 
 
@@ -273,7 +261,6 @@ contains
        ! Fortranコンパイラが自己定義演算子（field.f90で定義）
        ! を許せば上の簡潔な記述を使うべし。
 
-    call debug__print("called solver/subfield_vel_tm_divv.")
   end subroutine subfield_vel_tm_divv
 
 
@@ -419,11 +406,6 @@ contains
       ! 領域の内部の格子点）上での値を計算するものであった。
       ! ここで境界面上の格子点の値の（更新されたばかりの）内部の
       ! 格子点上のデータをコピーすることで設定する。
-    call debug__print("called solver/the_equation.")
-      ! デバッグモードがonの時には毎回メッセージを標準出力に
-      ! 書き出す。コードが完成し、product runの段階に入ったら
-      ! デバッグモードをoffにすれば、書き出しは抑制される。
-      ! この行をコメントアウトする必要はない。
   end function the_equation
 
 
@@ -541,11 +523,6 @@ contains
       ! Fortranコンパイラが自己定義演算子をきちんと処理できる
       ! 場合は一番上の簡潔な記述の方が（読みやすいので）好ましい。
 
-    call debug__print("called solver__advance.")
-      ! デバッグモードがonの時には毎回メッセージを標準出力に
-      ! 書き出す。コードが完成し、product runの段階に入ったら
-      ! デバッグモードをoffにすれば、書き出しは抑制される。
-      ! この行をコメントアウトする必要はない。
   end subroutine solver__advance
 
 
@@ -662,11 +639,6 @@ contains
       ! 演算量は少ないが、シミュレーション領域全体に渡る体積積分
       ! なので計算量は大きいことに間違いない。
 
-    call debug__print('called solver__diagnosis.')
-      ! デバッグモードがonの時には毎回メッセージを標準出力に
-      ! 書き出す。コードが完成し、product runの段階に入ったら
-      ! デバッグモードをoffにすれば、書き出しは抑制される。
-      ! この行をコメントアウトする必要はない。
   end subroutine solver__diagnosis
 
 
@@ -704,11 +676,6 @@ contains
     Initialize_done = .true.
       ! モジュール初期化終了フラグ
 
-    call debug__print("called solver__initialize.")
-      ! デバッグモードがonの時には毎回メッセージを標準出力に
-      ! 書き出す。コードが完成し、product runの段階に入ったら
-      ! デバッグモードをoffにすれば、書き出しは抑制される。
-      ! この行をコメントアウトする必要はない。
   end subroutine solver__initialize
 
 
@@ -791,10 +758,10 @@ contains
       dt = min(dt_vel, dt_sound, dt_viscous, dt_kappa)
         ! 最終的な時間刻み幅は上記の4種類のdtの最小値できまる。
 
-      if ( DEBUG_MODE ) then
-        ! デバッグモードがonであるとき、以下のデータを標準出力
-        ! に書き出す。出力が長くなるが、流体の状態を推測するのに
-        ! 便利なデータである。
+      if ( mod(nloop,SKIP*50)==0 ) then
+        ! 出力が長くなるが、流体の状態を推測するのに便利なデータ
+        ! SKIPをさらに50倍しているのは、それほど頻繁に出力する
+        ! 必要は通常ないからである。
         call ut__message('<solver__time_step> vmax = ', vmax       )
         call ut__message('                  dt_vel = ', dt_vel     )
         call ut__message('                dt_sound = ', dt_sound   )
@@ -802,11 +769,6 @@ contains
         call ut__message('              dt_viscous = ', dt_viscous )
         call ut__message('               -->    dt = ', dt         )
       end if
-
-      if ( mod(nloop,SKIP*50)==0 )  call ut__message("> dt = ", dt)
-        ! dtの値を（デバッグモードがoffであっても）書き出す
-        ! SKIPをさら50倍しているのは、それほど頻繁に出力する
-        ! 必要は通常ないからである。
 
     end if
 

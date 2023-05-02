@@ -49,7 +49,8 @@ contains
 
     select case (trim(job__karte%state))
       case ("fine", "loop_max")
-        call ut__message('#',"Successfully finished.") ! #で第2引数を囲む。
+        call ut__deco_message('#',"Successfully finished.") 
+                             ! # で第2引数の文字列を囲む。
       case ("time_out")
         call ut__deco_message('-',"Time out at nloop = ", nloop)
       case ("over_flow")

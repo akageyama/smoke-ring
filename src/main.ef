@@ -22,7 +22,6 @@ program main_m
   use constants_m  ! 定数
   use ut_m         ! ユーティリティ
   use params_m     ! パラメータ
-  use debug_m      ! デバッグ
   use grid_m       ! 格子点情報
   use field_m      ! 流体場の構造体定義
   use slicedata_m  ! 可視化用断面データ出力
@@ -72,12 +71,6 @@ program main_m
   do while(job__karte%state=="fine")
     ! このシミュレーションのメインループである。ジョブカルテが
     ! 「健康 (fine)」状態である限りシミュレーションを続行する。 
-    call debug__print("running. nloop=",nloop)
-      ! このdebugモジュール中の標準出力書き出しルーチンの
-      ! 呼び出し。通常のプリント文と異なりデバッグフラグがtrue 
-      ! の時だけメッセージを書き出すような仕組みにしている。
-      ! デバッグフラグがfalseのときには何も書き出さない。
-      ! デバッグフラグはparamsモジュール内で定義している。
     call solver__advance(time,dt,fluid)
       ! ナビエ・ストークス方程式に基づいて流体 (fluid) の状態を
       ! 一時刻ステップ dt だけ進める。
