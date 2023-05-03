@@ -36,46 +36,49 @@ module params_m
   use ut_m         ! ユーティリティ
   implicit none    ! 暗黙の型宣言無効化。必須
   private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
-  public :: Params
 
   logical, save :: Read_done = .false.  ! 読み込みが済んだか否か
 
   integer, parameter :: STRING_LENGTH_MAX = 200  ! 文字列長
                                   ! 足りなくなったら大きくする。
 
+  integer :: Total_nloop        ! 一度のジョブで計算するループ回数
+  integer :: Slicedata_nskip    ! 何ステップ毎に断面データを書き出すか
+  char(len=STRING_LENGTH_MAX) :: Slicedata_tag  
+                                ! 断面データファイル名用
+  real(DR) :: Viscosity, Kappa  ! 粘性率と熱拡散率
 
   namelist /simulation/     Total_nloop
-  namelist /visualization/  Slicedata_nskip,  Slicedata_tag
-  namelist /fluid_property/ Viscosity, Kappa
+  namelist /visualization/  Slicedata_nskip,   &
+                            Slicedata_tag
+  namelist /fluid_property/ Viscosity,  &
+                            Kappa
 
-  type, public :: params_t
-    integer :: Total_nloop        ! 一度のジョブで計算するループ回数
-    integer :: Slicedata_nskip    ! 何ステップ毎に断面データを書き出すか
-    char(len=STRING_LENGTH_MAX) :: Slicedata_tag  
-                                  ! 断面データファイル名用
-    real(DR) :: Viscosity, Kappa  ! 粘性率と熱拡散率
+  type :: params_t
   contains
-    procedure read => params__read
-    procedure get_double => params__get_double
-    procedure get_integer => params__get_integer
-    procedure get_logical => params__get_logical
-    procedure get_string => params__get_string
+    procedure, nopass :: read => params__read
+    procedure, nopass :: get_double => params__get_double
+    procedure, nopass :: get_integer => params__get_integer
+    procedure, nopass :: get_logical => params__get_logical
+    procedure, nopass :: get_string => params__get_string
   end type params_t
 
-  type(params_t) :: Params
+  type(params_t), public :: Params
+
 
 contains
 
-  function params__get_double(variable)
+
+  function params__get_double( variable )
+    char(len=*) <in> :: variable  !! 問い合わせ変数の名前
+    real(DR) :: params__get_double            !! その値
     !! このモジュールの外からの問い合わせに応じてnamelistデータを返す。
     !! この関数は問い合わせ変数が倍精度浮動小数点数の場合。
     !! この関数の前にnamelist__readが呼ばれている必要がある。
     !! この点はassertで確認している。
-    char(len=*) <in> :: variable  !! 問い合わせ変数の名前
-    real(DR) :: params__get_double            !! その値
 
-    call ut__assert(Read_done, &
-                    '<params__get_double> Read params file first.')
+    call ut__assert( Read_done, &
+                     '__MODULE__(__LINE):  Read params file first.' )
 
     select case (variable)
       case                 ('Kappa')     ! 熱拡散率
@@ -83,22 +86,22 @@ contains
       case                 ('Viscosity') ! 粘性率
         params__get_double = Viscosity
       case default                       ! そんなnamelist変数は想定外
-        call ut__message('? arg = ', variable)
-        call ut__fatal('<params__get_double> not in the params?')
+        call ut__message( '? arg = ', variable )
+        call ut__fatal( '__MODULE__(__LINE__): case error.' )
     end select
   end function params__get_double
 
 
-  function params__get_integer(variable)
+  function params__get_integer( variable )
+    char(len=*) <in> :: variable    !! 問い合わせ変数の名前
+    integer :: params__get_integer          !! その値
     !! このモジュールの外からの問い合わせに応じてnamelistデータを返す。
     !! この関数は問い合わせ変数が整数の場合。
     !! この関数の前にnamelist__readが呼ばれている必要がある。
     !! この点はassertで確認している。
-    char(len=*) <in> :: variable    !! 問い合わせ変数の名前
-    integer :: params__get_integer          !! その値
 
-    call ut__assert(Read_done, &
-                    '<params__get_integer> Read params file first.')
+    call ut__assert( Read_done, &
+                     '__MODULE__(__LINE__): Read params file first.' )
 
     select case (variable)
       case                  ('Slicedata_nskip')  ! 何ステップごとに
@@ -106,27 +109,27 @@ contains
       case                  ('Total_nloop')      ! シミュレーションジョブ
         params__get_integer = Total_nloop        ! の実行最大ループ数
       case default                               ! 想定外
-        call ut__message('? arg = ', variable) 
-        call ut__fatal('<params__get_integer> not in the params?')
+        call ut__message( '? arg = ', variable ) 
+        call ut__fatal( '__MODULE__(__LINE__): case error.' )
     end select
   end function params__get_integer
 
 
-  function params__get_logical(variable)
+  function params__get_logical( variable )
+    char(len=*) <in> :: variable  !! 問い合わせ変数の名前
+    logical :: params__get_logical            !! その値
     !! このモジュールの外からの問い合わせに応じてnamelistデータを返す。
     !! この関数は問い合わせ変数が論理値の場合。
     !! この関数の前にnamelist__readが呼ばれている必要がある。
     !! この点はassertで確認している。
-    char(len=*) <in> :: variable  !! 問い合わせ変数の名前
-    logical :: params__get_logical            !! その値
 
-    call ut__assert(Read_done, &
-                    '<params__get_logical> Read params file first.')
+    call ut__assert( Read_done, &
+                     '__MODULE__(__LINE__): Read params file first.' )
 
     select case (variable)
       case default                     ! 想定外
-        call ut__message('? arg = ', variable)
-        call ut__fatal('<params__get_logical> not in the params?')
+        call ut__message( '? arg = ', variable )
+        call ut__fatal( '__MODULE__(__LINE__): case error.' )
     end select
   end function params__get_logical
 
@@ -145,8 +148,8 @@ contains
     !!
     char(len=STRING_LENGTH_MAX) :: params_file
 
-    call ut__assert(command_argument_count()==1, &
-                    "Usage: smoke_ring param_file")
+    call ut__assert( command_argument_count()==1, &
+                     "__MODULE__(__LINE__): Usage: smoke_ring param_file")
     call get_command_argument(1,params_file)
 
     !*******<params_file のサンプル>*********
@@ -169,23 +172,23 @@ contains
   end subroutine params__read
 
 
-  function params__get_string(variable)
+  function params__get_string( variable )
+    char(len=*) <in> :: variable  !! 問い合わせ変数の名前
+    char(len=STRING_LENGTH_MAX) :: params__get_string  !! その値
     !! このモジュールの外からの問い合わせに応じてnamelistデータを返す。
     !! この関数は問い合わせ変数が文字列の場合。
     !! この関数の前にnamelist__readが呼ばれている必要がある。
     !! この点はassertで確認している。
-    char(len=*) <in> :: variable  !! 問い合わせ変数の名前
-    char(len=STRING_LENGTH_MAX) :: params__get_string  !! その値
 
-    call ut__assert(Read_done, &
-                    '<params__get_string> Read params file first.')
+    call ut__assert( Read_done, &
+                     '__MODULE__(__LINE__): Read params file first.' )
 
     select case (variable)
       case                 ('Slicedata_tag')   ! 断面ファイル名に使う
         params__get_string = Slicedata_tag
       case default
-        call ut__message('? arg = ', variable) ! 想定外
-        call ut__fatal('<params__get_string> not in the params?')
+        call ut__message( '? arg = ', variable ) ! 想定外
+        call ut__fatal( '__MODULE__(__LINE__): case error.' )
     end select
   end function params__get_string
 

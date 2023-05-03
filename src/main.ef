@@ -36,7 +36,7 @@ program main_m
 
   type(field__fluid_t) :: fluid ! 流体場データの構造体
 
-  call params__read
+  call Params.read
     ! パラメーターの読み込み。paramsの後に続くアンダースコア
     ! 二つは、これがparamsモジュールの中にあるサブルーチンの
     ! 呼び出しであることを意味している。paramsモジュールの
@@ -51,7 +51,7 @@ program main_m
     ! パーセント記号はメンバアクセス演算子。
     ! ここでは構造体のメンバー関数の呼び出しをしている。
     ! gridモジュール（grid_m）はgrid.f90で定義されている。
-  call solver__initialize( fluid )
+  call Solver.initialize( fluid )
     ! solverジュール（solver_m）の初期化。ここでは上の
     ! gridモジュールの場合と異なりメンバアクセス演算子
     ! （パーセント記号）を使っていない理由は特にない。
@@ -62,13 +62,13 @@ program main_m
   time = 0.0_DR  ! 時刻の初期化。単位は秒。
   nloop = 0      ! ループカウンタの初期化。
 
-  call solver__diagnosis( nloop, time, fluid )
+  call Solver.diagnosis( nloop, time, fluid )
     ! solverモジュールで定義されているdiagnosis（診断）
     ! サブルーチンを呼び出す。医者が患者を診るのがdiagnosis
     ! である。そこでの診断結果はJob.carte
     ! にセットする。carteはカルテである。
 
-  dt = solver__set_time_step( nloop, fluid )
+  dt = Solver.set_time_step( nloop, fluid )
     ! 時間刻み幅 dt の決定。dtはCFL条件を満足するように決めるが、
     ! CFL条件は流体の状態に流体の状態に依存して変化する。
     ! たとえば、流体の一部が高温になると、そこでの音速が速くなり、
@@ -78,10 +78,10 @@ program main_m
   do while( Job.karte == "fine" )
     ! このシミュレーションのメインループである。ジョブカルテが
     ! 「健康 (fine)」状態である限りシミュレーションを続行する。 
-    call solver__advance( time, dt, fluid )
+    call Solver.advance( time, dt, fluid )
       ! ナビエ・ストークス方程式に基づいて流体 (fluid) の状態を
       ! 一時刻ステップ dt だけ進める。
-    dt = solver__set_time_step( nloop, fluid )
+    dt = Solver.set_time_step( nloop, fluid )
       ! 流体の状態が変わったのでCFL条件に基づき時間刻み幅dt
       ! を設定し直す。
       ! 厳密に言えば毎ステップこの再設定をしているわけではなく、
@@ -91,11 +91,11 @@ program main_m
       ! 毎ステップdtを精密に調整する必要はないからである。
 
     nloop += 1  ! ループカウンタのインクリメント
-    call solver__diagnosis( nloop, time, fluid )
+    call Solver.diagnosis( nloop, time, fluid )
       ! 診断。異常があればjob.carteにセットする。
 !   call slicedata__write(nloop,time,fluid)
 !     ! 断面データのディスクへの書き出し
-    if ( nloop >= params__get_integer( 'Total_nloop' ) ) then
+    if ( nloop >= Params.get_integer( 'Total_nloop' ) ) then
       Job.karte = "loop_max"
       ! あらかじめparamsモジュールで設定されたループカウンタの
       ! 上限値に達したらジョブを停止する。

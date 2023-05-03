@@ -25,7 +25,7 @@ module parallel_m
     char(len=12) :: string  ! e.g., "p012_035_064"
   end type pos_t
 
-  type, public :: parallel_t
+  type, private :: parallel_t
     integer :: nprocs
     integer :: comm
     type(rank_t) :: rank
@@ -71,11 +71,11 @@ contains
   function pos_ijk_to_rank( i, j, k )
     integer <in> :: i, j, k
     integer :: pos_ijk_to_rank
-!!>
-      Purpose: Returns rank number for the divided region at i,j,k.
-       Author: Akira Kageyama
-         Date: 2013.06.13 (revised)
-!!<
+    !!>
+       Purpose: Returns rank number for the divided region at i,j,k.
+        Author: Akira Kageyama
+          Date: 2013.06.13 (revised)
+    !!<
 
     if ( i<0 .or. i>=NPROC_X  &
              .or.  &
@@ -270,6 +270,7 @@ contains
 
   end subroutine parallel__initialize
  
+
   subroutine parallel__finalize
     call mpiut__finalize
   end subroutine parallel__finalize
@@ -278,13 +279,13 @@ contains
   function parallel__io_clerk( task ) result(i_am)
     char(len=*) <optin> :: task
     logical :: i_am
-!!>
-    Returns the rank number who is in charge of data io.
-    We assign different processes for different data, to
-    avoid the IO conflicts. You will not need this function
-    in future when the parallel IO of MPI2 is implemented
-    in this code. This is just for a temporary use till then.
-!!<
+    !!>
+        Returns the rank number who is in charge of data io.
+        We assign different processes for different data, to
+        avoid the IO conflicts. You will not need this function
+        in future when the parallel IO of MPI2 is implemented
+        in this code. This is just for a temporary use till then.
+    !!<
     integer :: target_rank
     integer :: nprocs
 
@@ -319,9 +320,9 @@ contains
   function parallel__rank_to_pos_index( rank ) result(index)
     integer <in> :: rank
     type(mpiut__rank_position_t) :: index
-!!>
-    Returns the process position (i,j,k) for the rank.
-!!<
+    !!>
+        Returns the process position (i,j,k) for the rank.
+    !!<
     call mpiut__assert( rank >= 0,  &
                         '__MODFUNC__: negative rank.')
     call mpiut__assert( rank < NPROC_X*NPROC_Y*NPROC_Z,  &

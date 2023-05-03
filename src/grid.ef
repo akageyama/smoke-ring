@@ -14,52 +14,32 @@ module grid_m
   use parallel_m   ! 並列化モジュール
   use ut_m         ! ユーティリティ
   implicit none    ! 暗黙の型宣言無効化。必須
-  private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
-! public :: & ![type]
-!           grid__pos_t,  &
-!           grid__delta_t,  &
-!           grid__derivative_operator_1st_t,  &
-!           grid__derivative_operator_2nd_t
-! public :: & ![variable]
-!           grid__pos,  &
-!           grid__delta,  &
-!           grid__d1,  &
-!           grid__d2,  &
-!           grid__delta_min
-! public :: & ![routine]
-!           grid__initialize
-  public :: grid
-    ! このモジュールの中心変数。これを介して外部と
-    ! やり取りする。このグリッド変数の定義 (下記のgrid_t）
-    ! と実体（このgrid）が同じ場所（このgrid_mモジュール内）
-    ! にあるのは少々変則的かもしれないが、このように規模の
-    ! 小さいシミュレーションプログラムではこの方が
-    ! むしろわかりやすいかもしれない。
+  private          ! このモジュール内の変数等はデフォルトでは非公開
 
   type grid__pos_t
     !! 格子点位置を収める構造体
     !! posはpositionの意味
-    real(DR), dimension(0:NXPP1) :: x !! x座標
-    real(DR), dimension(0:NYPP1) :: y !! y座標
-    real(DR), dimension(0:NZPP1) :: z !! z座標
+    real(DR), dimension(0:NXPP1) :: x !! x座標（MPI領域分割した
+    real(DR), dimension(0:NYPP1) :: y !! y座標  各プロセスでの
+    real(DR), dimension(0:NZPP1) :: z !! z座標  局所的な番号）
   end type grid__pos_t
 
   type grid_pos_by_global_ijk_t
-    real(DR), dimension(NX_GLOBAL) :: x
-    real(DR), dimension(NY_GLOBAL) :: y
-    real(DR), dimension(NZ_GLOBAL) :: z
+    real(DR), dimension(NX_GLOBAL) :: x  !! シミュ領域全体にわたる
+    real(DR), dimension(NY_GLOBAL) :: y  !! 格子点番号 global な
+    real(DR), dimension(NZ_GLOBAL) :: z  !! 番号という意味でgi等とよぶ
   end type grid_pos_by_global_ijk_t
 
   type grid_global_ijk_t  !! global (gi,gj,gk) from local (li,lj,lk)
-    integer, dimension(0:NXPP1) :: gi
-    integer, dimension(0:NYPP1) :: gj
-    integer, dimension(0:NZPP1) :: gk
+    integer, dimension(0:NXPP1) :: gi !! MPIで領域分割した各プロセス
+    integer, dimension(0:NYPP1) :: gj !! の局所的な格子点位置から
+    integer, dimension(0:NZPP1) :: gk !! シミュ領域全体の格子点位置をとる
   end type grid_global_ijk_t
 
   type grid_local_ijk_from_global_ijk_t  !! The opposite of above.
-    integer, dimension(NX_GLOBAL) :: li
-    integer, dimension(NY_GLOBAL) :: lj
-    integer, dimension(NZ_GLOBAL) :: lk
+    integer, dimension(NX_GLOBAL) :: li  !! グローバルな格子点位置
+    integer, dimension(NY_GLOBAL) :: lj  !! から局所的な格子点位置を
+    integer, dimension(NZ_GLOBAL) :: lk  !! 求める
   end type grid_local_ijk_from_global_ijk_t
 
   type grid__delta_t
@@ -85,8 +65,14 @@ module grid_m
     real(DR) :: z   !! z偏微分
   end type grid__derivative_operator_2nd_t
 
-  type, public :: grid_t
+  type :: grid_t
     !! 格子点関係のデータを全て収める構造体
+    !! このモジュールの中心変数。これを介して外部と
+    !! やり取りする。このグリッド変数の定義 (下記のgrid_t）
+    !! と実体（このgrid）が同じ場所（このgrid_mモジュール内）
+    !! にあるのは少々変則的かもしれないが、このように規模の
+    !! 小さいシミュレーションプログラムではこの方が
+    !! むしろわかりやすいかもしれない。
     type(grid__pos_t) :: pos                     !! 格子点位置
     type(grid_pos_by_global_ijk_t) :: pos_by_global_ijk
     type(grid_global_ijk_t) :: global_ijk
@@ -105,7 +91,7 @@ module grid_m
       !! かどうか。
   end type grid_t
 
-  type(grid_t) :: Grid  ! 実体
+  type(grid_t), public :: Grid  ! 実体
 
 
 contains

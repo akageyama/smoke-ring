@@ -17,9 +17,8 @@ module job_m
   use parallel_m   ! MPI並列化
   implicit none    ! 暗黙の型宣言無効化。必須
   private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
-  public :: Job
 
-  type, public :: job_t
+  type :: job_t
     character(len=20) :: karte = "fine"  ! カルテ。初期は「健康」
   contains
     procedure, nopass :: initialize => job__initialize
@@ -27,7 +26,7 @@ module job_m
   end type job_t
 
 
-  type(job_t) :: Job
+  type(job_t), public :: Job
 
 contains
 

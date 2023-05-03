@@ -51,20 +51,25 @@ module solver_m
   implicit none    ! 暗黙の型宣言無効化。必須
 
   private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
-  public :: solver__advance,  &
-            solver__diagnosis,  &
-            solver__get_subfield,  &
-            solver__initialize,  &
-            solver__set_time_step
 
-  interface solver__get_subfield
+  type, public :: solver_t
+  contains
+    procedure, nopass :: advance => solver__advance
+    procedure, nopass :: diagnosis => solver__diagnosis
+    procedure, nopass :: initialize => solver__initialize
+    procedure, nopass :: set_time_step => solver__set_time_step
+    procedure, nopass, private :: subfield_vel
+    procedure, nopass, private :: subfield_vel_tm
+    procedure, nopass, private :: subfield_vel_tm_divv
+    generic :: get_subfield => subfield_vel,  &
+                               subfield_vel_tm,  &
+                               subfield_vel_tm_divv
     !! 流体の基本変数（質量フラックス、質量密度、圧力）
     !! から二次的な量（流れ場、温度場、速度の発散）
     !! を計算するためのルーチン群の多重定義
-    module procedure subfield_vel,  &
-                     subfield_vel_tm,  &
-                     subfield_vel_tm_divv
-  end interface
+  end type solver_t
+
+  type(solver_t), public :: Solver
 
   real(DR) <const> :: GAMMA = 1.4_DR                 ! 空気の比熱比
   real(DR) <const> :: GASS_CONST_FOR_AIR = 2.87e2_DR ! 空気の気体定数
@@ -616,8 +621,8 @@ contains
     real(DR) :: kappa  ! 空気の熱拡散率
 
     ! 物理パラメータの設定
-    Viscosity = params__get_double('Viscosity') ! 空気の粘性率
-    kappa     = params__get_double('Kappa')     ! 空気の熱拡散率
+    Viscosity = params.get_double( 'Viscosity' ) ! 空気の粘性率
+    kappa     = params.get_double( 'Kappa' )     ! 空気の熱拡散率
       ! Viscosityと違ってkappaの頭文字が大文字になっていない、つまり
       ! このモジュールのグローバルスコープを持つ変数としていない
       ! のはナビエ・ストークス方程式には下で定義するGamma1_kappa
