@@ -669,9 +669,12 @@ contains
       ! ゼロ割り演算回避のために使う小さい値
     real(DR) <const> :: ANOMALOUS_VALUE = -999.999_DR 
       ! dtとしてありそうにない値（すぐ下で使う）
-    real(DR), save :: dt = ANOMALOUS_VALUE
-      ! 時間刻み幅そのもの。初期設定でなんらかの失敗した場合
-      ! を検出するため最初はありそうない値を設定しておくが、
+    real(DR) :: dt_local  
+      ! 各MPIプロセスで計算した時間刻み幅
+    real(DR), save :: dt_global = ANOMALOUS_VALUE
+      ! 時間刻み幅。全プロセスの最小値。
+      ! 初期設定でなんらかの失敗した場合を検出するため
+      ! 最初はありそうない値を設定しておくが、
       ! CFL条件に基づいて正しい値を一度設定したらその後は
       ! この宣言文にはsave属性がついているので、
       ! この関数を抜けたあともその値を覚えている。
@@ -729,8 +732,11 @@ contains
         ! しすぎているかもしれない。つまりもう少し大きくしても
         ! 問題ないかもしれない。
 
-      dt = min(dt_vel, dt_sound, dt_viscous, dt_kappa)
+      dt_local = min(dt_vel, dt_sound, dt_viscous, dt_kappa)
         ! 最終的な時間刻み幅は上記の4種類のdtの最小値できまる。
+
+      call mpiut__minval( Parallel.comm, dt_local, dt_global )
+        ! すべてのプロセスでの最小値をとる
 
       if ( mod(nloop,SKIP*10)==0 ) then
         ! 出力が長くなるが、流体の状態を推測するのに便利なデータ
@@ -743,19 +749,18 @@ contains
           call mpiut__message_leader( comm, '  dt_sound', dt_sound   )
           call mpiut__message_leader( comm, '  dt_kappa', dt_kappa   )
           call mpiut__message_leader( comm, 'dt_viscous', dt_viscous )
-          call mpiut__message_leader( comm, '    --> dt', dt         )
+          call mpiut__message_leader( comm, '    --> dt', dt_global  )
         end associate
       end if
-
     end if
 
-    call ut__assert( dt /= ANOMALOUS_VALUE,  &
+    call ut__assert( dt_global /= ANOMALOUS_VALUE,  &
                      "__MODULE__(__LINE__): dt init failed?" )
       ! SKIPに一度dtを計算し直すが、それ以外は下の行を見れば分かる通り
-      ! 前回のdtの値を流用する。 その際、一度もdtを計算したことがなかったら
+      ! 前回のdtの値を流用する。その際、一度もdtを計算したことがなかったら
       ! まずいのでその検出をANOMALOUS_VALUEを使って検出している。
 
-    solver__set_time_step = dt    ! dt of the prev calc is saved.
+    solver__set_time_step = dt_global   ! dt of the prev calc is saved.
       ! 新たに更新（または前回計算した）dtを返す。
   end function solver__set_time_step
 
