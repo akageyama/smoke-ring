@@ -43,11 +43,14 @@
 
 module solver_m
   use constants_m  ! 定数定義
+  use field_m      ! スカラー場・ベクトル場
+  use fluid_m      ! 流体場の構造体定義
   use grid_m       ! 格子点
-  use ut_m         ! ユーティリティ 
-  use params_m     ! パラメータ
-  use field_m      ! 流れ場データ構造体
   use job_m        ! ジョブ管理
+  use mpiut_m      ! MPIユーティリティ
+  use parallel_m   ! MPI並列化
+  use params_m     ! パラメータ
+  use ut_m         ! ユーティリティ 
   implicit none    ! 暗黙の型宣言無効化。必須
 
   private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
@@ -205,17 +208,13 @@ contains
     call field__boundary_condition( Drive_force )
       ! 1. プロセス間通信を行い、分割領域の境界値を設定する
       ! 2. シミュレーション領域全体の境界条件を設定する。
-
-    call ut__assert( maxval(Drive_force.x) == THE_FORCE,  &
-                     "__MODULE__(__LINE__): something is wrong." )
-      ! 最大値がTHE_FORCEと仮定しているのでそうでなければ何かがおかしい。
   end subroutine set_drive_force_field
 
 
   subroutine subfield_vel( fluid, vel )
     !! fluidの基本変数から二次的な場vel（流れの速度ベクトル場）
     !! をもとめる。
-    type(field__fluid_t)  <in>  :: fluid  !! 流体基本場
+    type(fluid_t)  <in>  :: fluid  !! 流体基本場
     type(field__vector_t) <out> :: vel    !! 流れの速度ベクトル
 
     vel = fluid.flux / fluid.density     ! operator defined in field.
@@ -227,7 +226,7 @@ contains
   subroutine subfield_vel_tm( fluid, vel, tm )
     !! fluidの基本変数から二次的な場（速度ベクトル場velと温度場tm）
     !! をもとめる。
-    type(field__fluid_t)  <in>  :: fluid !! 流体基本場
+    type(fluid_t)  <in>  :: fluid !! 流体基本場
     type(field__vector_t) <out> :: vel   !! 流れ場
     type(field__scalar_t) <out> :: tm    !! 温度場
 
@@ -242,7 +241,7 @@ contains
   subroutine subfield_vel_tm_divv(fluid,vel,tm,divv)
     !! fluidの基本変数から二次的な場（速度ベクトル場velと
     !! 温度場tmと速度の発散divv）をもとめる。
-    type(field__fluid_t)  <in>  :: fluid  !! 流体基本場
+    type(fluid_t)  <in>  :: fluid  !! 流体基本場
     type(field__vector_t) <out> :: vel    !! 流れ場
     type(field__scalar_t) <out> :: tm     !! 温度場
     type(field__scalar_t) <out> :: divv   !! 流れの発散
@@ -267,7 +266,7 @@ contains
     type(field__scalar_t) <in> :: tm, divv   !! 温度と速度の発散
     type(field__scalar_t) <in> :: fx, fy, fz !! 質量フラックス
     type(field__scalar_t) <in> :: ps         !! 圧力
-    type(field__fluid_t) :: the_equation     !! 時間刻みdtでの流体データの微小変化量
+    type(fluid_t) :: the_equation     !! 時間刻みdtでの流体データの微小変化量
 
     integer  :: i, j, k
     real(DR) <const> :: ONE_THIRD = 1.0_DR / 3.0_DR  ! 演算回数節約のため
@@ -429,7 +428,7 @@ contains
 
     real(DR) <io> :: t  !! 時刻
     real(DR) <in> :: dt !! 時間刻み幅
-    type(field__fluid_t) <io>  :: fluid !! 流体データ
+    type(fluid_t) <io>  :: fluid !! 流体データ
 
     real(DR) <const> :: ONE_SIXTH = 1.0_DR / 6.0_DR ! 演算数節約の
     real(DR) <const> :: ONE_THIRD = 1.0_DR / 3.0_DR ! ために定義
@@ -438,10 +437,10 @@ contains
     type(field__scalar_t) :: tm    ! 温度場
     type(field__scalar_t) :: divv  ! 速度場の発散
 
-    type(field__fluid_t) :: dfluid01, dfluid02, dfluid03, dfluid04
+    type(fluid_t) :: dfluid01, dfluid02, dfluid03, dfluid04
       ! 古典的な4段4次ルンゲ・クッタ積分法に必要な4つの作業配列
       ! サイズが大きいことに注意。
-    type(field__fluid_t) :: gluid  ! work variable
+    type(fluid_t) :: gluid  ! work variable
       ! さらにもう一つの作業配列
       ! サイズが大きいことに注意。
 
@@ -507,7 +506,7 @@ contains
     !! 流体の「健康状態」を診断する
     integer(DI) <in> :: nloop  !! ループカウンタ
     real(DR) <in> :: time   !! シミュレーション時刻
-    type(field__fluid_t) <in> :: fluid  !! 流体データ
+    type(fluid_t) <in> :: fluid  !! 流体データ
 
     integer <const> :: SKIP = 100
       ! このルーチンは結構計算負荷が高いので、
@@ -588,8 +587,11 @@ contains
     call subfield_vel( fluid, vel )
       ! 基本流れデータから副次的な速度場データを求める
 
-    call ut__message( '#max vel:',      nloop, time,  &
-                      sqrt(maxval(vel.x**2+vel.y**2+vel.z**2)) )
+    call mpiut__message( Parallel.comm,  &
+                         '#max vel:',    &
+                         nloop,          &
+                         time,           &
+                         sqrt(maxval(vel.x**2+vel.y**2+vel.z**2)) )
       ! 速度の最大値（ベクトルの長さ）を計算し標準出力に書き出す
       ! わずか1行で書いているが、実際にはここにかなりの計算が
       ! 含まれている。vel.x**2という配列演算は実際には3重do loop
@@ -597,26 +599,29 @@ contains
       ! つまり全要素中の最大値をとっている。そして最後に
       ! sqrtをとって振幅（ベクトルの長さ）を計算している。
 
-    call ut__message( '#flow energy: ', nloop, time,  &
-                                       .energyintegral. fluid )
-!                                      operator_energyintegral(fluid))
-      ! ここでもFortranコンパイラが許せば.energyintegral.という
-      ! 簡潔な演算子表現を使ったほうがよい。ここでもこの1行の
-      ! 実行にはかなりの演算（速度ベクトル場のx,y,z3成分の2乗和に
-      ! 資料密度を掛けたもの体積積分）が必要であることに注意。
+    call mpiut__message( Parallel.comm,      &
+                         '#flow energy: ',   &
+                         nloop,              &
+                         time,               &
+                         .energyintegral. fluid )
+      ! ここでもこの1行の実行にはかなりの演算（速度ベクトル場
+      ! のx,y,z3成分の2乗和に質量密度を掛けたもの体積積分）が
+      ! されていることに注意。
 
-    call ut__message( '#total mass: ', nloop, time,  &
-                                       .scalarintegral.(fluid.density) )
-!                              operator_scalarintegral(fluid.density))
+    call mpiut__message( Parallel.comm,    &
+                         '#total mass: ',  &
+                         nloop,            &
+                         time,             &
+                         .scalarintegral.(fluid.density) )
       ! 上と同様。こちらのほうは単なる密度場の体積積分なので
       ! 演算量は少ないが、シミュレーション領域全体に渡る体積積分
-      ! なので計算量は大きいことに間違いない。
+      ! なので計算量は大きいことにかわりない。
   end subroutine solver__diagnosis
 
 
   subroutine solver__initialize( fluid )
     !! モジュールの初期化
-    type(field__fluid_t) <out> :: fluid  !! 流体データ
+    type(fluid_t) <out> :: fluid  !! 流体データ
 
     real(DR) :: kappa  ! 空気の熱拡散率
 
@@ -649,7 +654,7 @@ contains
   function solver__set_time_step( nloop, fluid )
     !! CFL条件に基づいて時間刻み幅dtを設定する
     integer(DI) <in> :: nloop  !! ループカウンタ
-    type(field__fluid_t) <in> :: fluid  !! 流体データ
+    type(fluid_t) <in> :: fluid  !! 流体データ
     real(DR) :: solver__set_time_step !! 時間刻み幅 dt
 
     type(field__vector_t) :: vel ! 速度場
@@ -727,16 +732,19 @@ contains
       dt = min(dt_vel, dt_sound, dt_viscous, dt_kappa)
         ! 最終的な時間刻み幅は上記の4種類のdtの最小値できまる。
 
-      if ( mod(nloop,SKIP*50)==0 ) then
+      if ( mod(nloop,SKIP*10)==0 ) then
         ! 出力が長くなるが、流体の状態を推測するのに便利なデータ
-        ! SKIPをさらに50倍しているのは、それほど頻繁に出力する
+        ! SKIPをさらに10倍しているのは、それほど頻繁に出力する
         ! 必要は通常ないからである。
-        call ut__message( '__MODULE__: vmax = ', vmax       )
-        call ut__message( '          dt_vel = ', dt_vel     )
-        call ut__message( '        dt_sound = ', dt_sound   )
-        call ut__message( '        dt_kappa = ', dt_kappa   )
-        call ut__message( '      dt_viscous = ', dt_viscous )
-        call ut__message( '       -->    dt = ', dt         )
+        associate ( comm => Parallel.comm )
+          call mpiut__message_leader( comm, '     nloop', nloop      )
+          call mpiut__message_leader( comm, '      vmax', vmax       )
+          call mpiut__message_leader( comm, '    dt_vel', dt_vel     )
+          call mpiut__message_leader( comm, '  dt_sound', dt_sound   )
+          call mpiut__message_leader( comm, '  dt_kappa', dt_kappa   )
+          call mpiut__message_leader( comm, 'dt_viscous', dt_viscous )
+          call mpiut__message_leader( comm, '    --> dt', dt         )
+        end associate
       end if
 
     end if

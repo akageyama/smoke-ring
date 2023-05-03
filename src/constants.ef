@@ -35,17 +35,17 @@ module constants_m
   real(DR), parameter :: TWOPI = PI*2               ! 円周率の2倍
 
   !<< MPI process constants >>!
-  integer <const> :: NPROC_X = 1 ! x方向MPIプロセス数 mkjob.sh でこの行をgrepする
+  integer <const> :: NPROC_X = 2 ! x方向MPIプロセス数 mkjob.sh でこの行をgrepする
   integer <const> :: NPROC_Y = 1 ! y方向MPIプロセス数 mkjob.sh でこの行をgrepする 
-  integer <const> :: NPROC_Z = 1 ! z方向MPIプロセス数 mkjob.sh でこの行をgrepする
+  integer <const> :: NPROC_Z = 2 ! z方向MPIプロセス数 mkjob.sh でこの行をgrepする
 
   !<< Code utility constants >>!
   integer <const> :: NIL = -huge(1)
 
   !<< Grid size constants >>!
-  integer <const> :: NXPP = 60   ! PP = Per Process 
+  integer <const> :: NXPP = 30   ! PP = Per Process 
   integer <const> :: NYPP = 20
-  integer <const> :: NZPP = 20
+  integer <const> :: NZPP = 10
   integer <const> :: NXPP1 = NXPP + 1  ! PP1 = PP plus one
   integer <const> :: NYPP1 = NYPP + 1
   integer <const> :: NZPP1 = NZPP + 1

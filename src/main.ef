@@ -20,21 +20,21 @@
 !     
 program main_m
   use constants_m  ! 定数
-  use ut_m         ! ユーティリティ
-  use mpiut_m      ! mpi関係ユーティリティ
-  use field_m      ! 流体場の構造体定義
+  use field_m      ! スカラー場・ベクトル場
+  use fluid_m      ! 流体場の構造体定義
   use grid_m       ! 格子点情報
-  use params_m     ! パラメータ
+  use job_m        ! ジョブ管理
+  use mpiut_m      ! mpi関係ユーティリティ
   use parallel_m   ! MPI並列化
+  use params_m     ! パラメータ
 ! use slicedata_m  ! 可視化用断面データ出力
   use solver_m     ! ナビエ・ストークス方程式ソルバ
-  use job_m        ! ジョブ管理
+  use ut_m         ! ユーティリティ
   implicit none    ! 暗黙の型宣言無効化。必須
 
-  integer(DI) :: nloop ! シミュレーションのループカウンタ
-  real(DR) :: dt, time ! 時間刻み幅と時刻
-
-  type(field__fluid_t) :: fluid ! 流体場データの構造体
+  integer(DI) :: nloop   ! シミュレーションのループカウンタ
+  real(DR) :: dt, time   ! 時間刻み幅と時刻
+  type(fluid_t) :: fluid ! 流体場データの構造体
 
   call Params.read
     ! パラメーターの読み込み。paramsの後に続くアンダースコア
