@@ -55,7 +55,7 @@ module solver_m
 
   private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
 
-  type, public :: solver_t
+  type, private :: solver_t
   contains
     procedure, nopass :: advance => solver__advance
     procedure, nopass :: diagnosis => solver__diagnosis
