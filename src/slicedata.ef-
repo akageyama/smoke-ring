@@ -22,11 +22,12 @@
 !    詳しくはfieldモジュールを見よ。
 
 module slicedata_m
-  use ut_m      ! ユーティリティ。constantsモジュールは間接的にuseされる
-  use field_m   ! 流体場
-  use params_m  ! パラメータ
-  use solver_m  ! ナビエ・ストークス方程式ソルバ
-  implicit none ! 暗黙の型宣言無効化。必須
+  use constants_m  ! 定数
+  use ut_m         ! ユーティリティモジュール
+  use field_m      ! 流体場
+  use params_m     ! パラメータ
+  use solver_m     ! ナビエ・ストークス方程式ソルバ
+  implicit none    ! 暗黙の型宣言無効化。必須
   private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
   public :: slicedata__initialize,  &
             slicedata__write
@@ -37,17 +38,17 @@ module slicedata_m
   real(SR), dimension(:,:), allocatable :: Slice_vz  ! 速度のz成分
   real(SR), dimension(:,:), allocatable :: Slice_ps  ! 圧力
   real(SR), dimension(:,:), allocatable :: Slice_en  ! エンストロフィ
-                             ! Enstrophy とは渦度の二乗
-                             ! 渦度は速度のcurl
+                             ! Enstrophy = 渦度の二乗
+                             ! 渦度 = 速度のcurl
 
   logical, save :: Initialize_done = .false.    ! モジュール初期化済か否か
-  integer(SI), parameter :: FILE_SLICEDATA = 20 ! 断面データ出力ファイル番号
+  integer <const> :: FILE_SLICEDATA = 20 ! 断面データ出力ファイル番号
 
 
 contains
 
 
-  subroutine make_single_precision_field(vel,ps)
+  subroutine make_single_precision_field( vel, ps )
     !! シミュレーションで計算した速度場と圧力場
     !! のx-z平面での断面データを求める。
     !! その際、倍精度実数から単精度実数に型変換する。
@@ -71,22 +72,20 @@ contains
     !!   NYが奇数のときにちょうどy=0面に対応するのは
     !!     j = slice_j = NY / 2 + 1 
     !!   である。偶数のときにもこれでよい。
-    type(field__vector3d_t),       intent(in) :: vel !! 速度場（3D）
-    real(DR), dimension(NX,NY,NZ), intent(in) :: ps  !! 圧力場（3D）
+    type(field__vector_t) <in> :: vel !! 速度場（3D）
+    type(field__scalar_t) <in> :: ps  !! 圧力場（3D）
 
-    integer(SI) :: slice_j = NY / 2    ! 断面をとるy座標の格子点位置
+    integer :: slice_j = NY / 2    ! 断面をとるy座標の格子点位置
 
-    type(field__vector3d_t)       :: vor       ! vorticity、渦度
-    real(DR), dimension(NX,NY,NZ) :: enstrophy ! 渦度の2乗
+    type(field__vector_t) :: vor       ! vorticity、渦度
+    type(field__scalar_t) :: enstrophy ! 渦度の2乗
 
-!>        vor = .curl.vel
-!>  enstrophy = vor.dot.vor
-          vor = operator_curl(vel)
-    enstrophy = operator_dot_product(vor,vor)
+          vor = .curl. vel       ! defined in field_m
+    enstrophy = vor .dot. vor    ! defined in field_m
 
-    Slice_vx = real(    vel%x(:,slice_j,:),SR)
-    Slice_vy = real(    vel%y(:,slice_j,:),SR)
-    Slice_vz = real(    vel%z(:,slice_j,:),SR)
+    Slice_vx = real(    vel.x(:,slice_j,:),SR)
+    Slice_vy = real(    vel.y(:,slice_j,:),SR)
+    Slice_vz = real(    vel.z(:,slice_j,:),SR)
     Slice_ps = real(       ps(:,slice_j,:),SR)
     Slice_en = real(enstrophy(:,slice_j,:),SR)
 
@@ -131,11 +130,11 @@ contains
 
   subroutine slicedata__write(nloop,time,fluid)
     !! 断面データのディスクへの書き出し
-    integer(DI),          intent(in) :: nloop !! 現在のループカウンタ
-    real(DR),             intent(in) :: time  !! 現在の時刻
-    type(field__fluid_t), intent(in) :: fluid !! 現在の流体データ
+    integer(DI) <in> :: nloop !! 現在のループカウンタ
+    real(DR) <in> :: time  !! 現在の時刻
+    type(field__fluid_t) <in> :: fluid !! 現在の流体データ
 
-    type(field__vector3d_t) :: vel 
+    type(field__vector_t) :: vel 
       ! 流れ速度ベクトル場。いまはナビエ・ストークス方程式の
       ! 基本変数を質量フラックスにしているのでこの流れ速度
       ! ベクトル場は基本変数ではなく、基本変数から計算される
@@ -153,13 +152,14 @@ contains
                                       ! 10ステップおきに断面データを計算し、
                                       ! ディスクに書き出す。
 
-    call ut__assert(Initialize_done,"<slicedata__write> Forgot init?")
+    call ut__assert( Initialize_done,  &
+                     "__MODULE__(__LINE__): Forgot init?" )
                                       ! モジュールの初期化終了確認
 
-    call solver__get_subfield(fluid,vel)
+    call solver__get_subfield( fluid, vel )
                                       ! 流体の基本変数から速度場を求める
 
-    call make_single_precision_field(vel,fluid%pressure)
+    call make_single_precision_field( vel, fluid.pressure )
                                       ! 断面データを作成
 
     write(FILE_SLICEDATA) nloop, real(time,SR),  &
@@ -168,7 +168,7 @@ contains
                                       ! ディスクへの書き出し
                                       ! 時刻も単精度に変換している
 
-    call ut__message('#slice data saved at ', nloop, time)
+    call ut__message( '#slice data saved at ', nloop, time )
                                       ! ここはデバッグモードがoffでも
                                       ! 書き出すようにしている。
                                       ! 断面データはそれほど頻繁に
@@ -176,7 +176,7 @@ contains
                                       ! のでこの出力がたくさんあって
                                       ! 邪魔になることはあまりないと
                                       ! 予想できるためである。
-    call debug__print('called slicedata__write.')
+    call debug__print( 'called slicedata__write.' )
   end subroutine slicedata__write
 
 end module slicedata_m

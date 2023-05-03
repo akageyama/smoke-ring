@@ -52,7 +52,7 @@ FFLAGS += -O0
 # FFLAGS += -Wuninitialized
 
 runme: smoke_ring params.namelist
-	./smoke_ring params.namelist
+	mpiexec -n $(mpi_nprocs) ./smoke_ring params.namelist
 
 smoke_ring: $(objlist)
 	mkdir -p ../data/vis2d

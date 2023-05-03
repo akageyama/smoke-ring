@@ -39,6 +39,7 @@ module parallel_m
     logical :: i_have_zmin
   contains
     procedure, nopass :: initialize => parallel__initialize
+    procedure, nopass :: finalize => parallel__finalize
     procedure, nopass :: io_clerk => parallel__io_clerk
     procedure, nopass :: rank_to_pos_index  &
                           => parallel__rank_to_pos_index
@@ -268,6 +269,10 @@ contains
     end subroutine iPrint
 
   end subroutine parallel__initialize
+ 
+  subroutine parallel__finalize
+    call mpiut__finalize
+  end subroutine parallel__finalize
 
 
   function parallel__io_clerk( task ) result(i_am)

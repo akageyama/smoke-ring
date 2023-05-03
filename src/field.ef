@@ -29,9 +29,10 @@ module field_m
             operator( * ),                 &
             operator( / )
   public :: assignment( = )
+  public :: field__boundary_condition
 
 
-  interface boundary_condition
+  interface field__boundary_condition
     !! 境界条件呼び出しルーチンの多重定義
     !! 境界条件を設定する変数の種類によって
     !! 実際に使用するルーチンが違うが、
@@ -80,7 +81,7 @@ module field_m
     ! ナビエ・ストークス方程式）の基本変数をどちらで
     ! 表現するか、の違いである。
   contains
-    procedure :: boundary_condition => field__fluid_boundary_condition
+    procedure :: set_boundary_condition => field__fluid_set_boundary_condition
   end type field__fluid_t
 
   !--- << Operators >> ---!
@@ -263,7 +264,7 @@ contains
       end do
     end do
 
-    call boundary_condition( operator_curl )
+    call field__boundary_condition( operator_curl )
       ! 境界の格子点は境界条件ルーチンで設定する
   end function operator_curl
 
@@ -292,7 +293,7 @@ contains
       end do
     end do
 
-    call boundary_condition( operator_div )
+    call field__boundary_condition( operator_div )
       ! 境界の格子点は境界条件ルーチンで設定する
   end function operator_div
 
@@ -423,7 +424,7 @@ contains
       end do
     end do
 
-    call boundary_condition( operator_laplacian_scalar )
+    call field__boundary_condition( operator_laplacian_scalar )
       ! 境界の格子点は境界条件ルーチンで設定する
   end function operator_laplacian_scalar
 
@@ -461,7 +462,7 @@ contains
      end do
     end do
 
-    call boundary_condition( operator_laplacian_vector )
+    call field__boundary_condition( operator_laplacian_vector )
       ! 境界の格子点は境界条件ルーチンで設定する
   end function operator_laplacian_vector
 
@@ -573,7 +574,7 @@ contains
   end function operator_vector_times_scalar
 
 
-  subroutine field__fluid_boundary_condition( fluid )
+  subroutine field__fluid_set_boundary_condition( fluid )
     class(field__fluid_t) <io> :: fluid
 
     !! 流体構造体の周期境界条件設定
@@ -594,7 +595,7 @@ contains
                           fluid.flux.y,              &
                           fluid.flux.z )
     call mpiut__barrier( Parallel.comm )
-  end subroutine field__fluid_boundary_condition
+  end subroutine field__fluid_set_boundary_condition
 
 end module field_m
 

@@ -36,29 +36,33 @@ module params_m
   use ut_m         ! ユーティリティ
   implicit none    ! 暗黙の型宣言無効化。必須
   private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
-  public :: & ![routines]
-            params__get_double,   &
-            params__get_integer,  &
-            params__get_logical,  &
-            params__read,         &
-            params__get_string
+  public :: Params
 
   logical, save :: Read_done = .false.  ! 読み込みが済んだか否か
 
-  integer(SI), parameter :: STRING_LENGTH_MAX = 200  ! 文字列長
+  integer, parameter :: STRING_LENGTH_MAX = 200  ! 文字列長
                                   ! 足りなくなったら大きくする。
 
-  integer(SI) :: Total_nloop      ! 一度のジョブで計算するループ回数
-  integer(SI) :: Slicedata_nskip  ! 何ステップに一度、断面データを書き出すか
-  character(len=STRING_LENGTH_MAX) :: Slicedata_tag  ! 断面データファイル名用
-  real(DR) :: Viscosity, Kappa    ! 粘性率と熱拡散率
-  logical  :: Debug               ! デバッグ出力用フラグ
 
   namelist /simulation/     Total_nloop
   namelist /visualization/  Slicedata_nskip,  Slicedata_tag
   namelist /fluid_property/ Viscosity, Kappa
-  namelist /flags/          Debug
 
+  type, public :: params_t
+    integer :: Total_nloop        ! 一度のジョブで計算するループ回数
+    integer :: Slicedata_nskip    ! 何ステップ毎に断面データを書き出すか
+    char(len=STRING_LENGTH_MAX) :: Slicedata_tag  
+                                  ! 断面データファイル名用
+    real(DR) :: Viscosity, Kappa  ! 粘性率と熱拡散率
+  contains
+    procedure read => params__read
+    procedure get_double => params__get_double
+    procedure get_integer => params__get_integer
+    procedure get_logical => params__get_logical
+    procedure get_string => params__get_string
+  end type params_t
+
+  type(params_t) :: Params
 
 contains
 
@@ -67,7 +71,7 @@ contains
     !! この関数は問い合わせ変数が倍精度浮動小数点数の場合。
     !! この関数の前にnamelist__readが呼ばれている必要がある。
     !! この点はassertで確認している。
-    character(len=*), intent(in) :: variable  !! 問い合わせ変数の名前
+    char(len=*) <in> :: variable  !! 問い合わせ変数の名前
     real(DR) :: params__get_double            !! その値
 
     call ut__assert(Read_done, &
@@ -90,8 +94,8 @@ contains
     !! この関数は問い合わせ変数が整数の場合。
     !! この関数の前にnamelist__readが呼ばれている必要がある。
     !! この点はassertで確認している。
-    character(len=*), intent(in) :: variable    !! 問い合わせ変数の名前
-    integer(SI) :: params__get_integer          !! その値
+    char(len=*) <in> :: variable    !! 問い合わせ変数の名前
+    integer :: params__get_integer          !! その値
 
     call ut__assert(Read_done, &
                     '<params__get_integer> Read params file first.')
@@ -113,15 +117,13 @@ contains
     !! この関数は問い合わせ変数が論理値の場合。
     !! この関数の前にnamelist__readが呼ばれている必要がある。
     !! この点はassertで確認している。
-    character(len=*), intent(in) :: variable  !! 問い合わせ変数の名前
+    char(len=*) <in> :: variable  !! 問い合わせ変数の名前
     logical :: params__get_logical            !! その値
 
     call ut__assert(Read_done, &
                     '<params__get_logical> Read params file first.')
 
     select case (variable)
-      case                  ('Debug')  ! デバッグモードか否か
-        params__get_logical = Debug
       case default                     ! 想定外
         call ut__message('? arg = ', variable)
         call ut__fatal('<params__get_logical> not in the params?')
@@ -141,7 +143,7 @@ contains
     !! namelistデータファイルの内容を変更する場合は
     !! 以下のread文も適宜変更すること。
     !!
-    character(len=STRING_LENGTH_MAX) :: params_file
+    char(len=STRING_LENGTH_MAX) :: params_file
 
     call ut__assert(command_argument_count()==1, &
                     "Usage: smoke_ring param_file")
@@ -151,20 +153,17 @@ contains
     ! &simulation      Total_nloop = 2000 /
     ! &visualization   Slicedata_nskip  = 100, Slicedata_tag = '_data_slice' /
     ! &fluid_property  Viscosity = 3.0e-2, Kappa = 3.e-2 /
-    ! &flags           Debug = .false. /
     !*******</params_file のサンプル>*********
 
     open(10,file=trim(params_file))
       read(10,nml=simulation)
       read(10,nml=visualization)
       read(10,nml=fluid_property)
-      read(10,nml=flags)
     close(10)
 
     write(6,nml=simulation)
     write(6,nml=visualization)
     write(6,nml=fluid_property)
-    write(6,nml=flags)
 
     Read_done = .true.
   end subroutine params__read
@@ -175,8 +174,8 @@ contains
     !! この関数は問い合わせ変数が文字列の場合。
     !! この関数の前にnamelist__readが呼ばれている必要がある。
     !! この点はassertで確認している。
-    character(len=*), intent(in) :: variable  !! 問い合わせ変数の名前
-    character(len=STRING_LENGTH_MAX) :: params__get_string  !! その値
+    char(len=*) <in> :: variable  !! 問い合わせ変数の名前
+    char(len=STRING_LENGTH_MAX) :: params__get_string  !! その値
 
     call ut__assert(Read_done, &
                     '<params__get_string> Read params file first.')
