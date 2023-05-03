@@ -1,0 +1,207 @@
+!*******************************************************************
+!> author: Akira Kageyama
+!  license: MIT
+!  date: 2020.01.22
+!
+!  流体場データ構造体
+!
+!  @note 配列演算を多用している。つまり一行で書かれている部分も
+!        実際は3重do loopで書かれような大量の演算をしているところが
+!        多い。このコードをOpenMP化する時には、そのような部分を
+!        3重do loopに展開して書き直す必要がある。
+!
+
+module fluid_m
+  use constants_m  ! 定数定義
+  use field_m      ! 3次元スカラー・ベクトル場
+  use grid_m       ! 格子点
+  use mpiut_m      ! MPI通信ユーティリティ
+  use parallel_m   ! 並列化
+  implicit none    ! 暗黙の型宣言無効化。必須
+  public :: operator( + ),  &
+            operator( * ),  &
+            operator( .energyintegral. )
+  public :: assignment( = )
+ 
+  interface operator( .energyintegral. )
+     !! 全エネルギーを計算（体積積分）する演算子
+     module procedure operator_energyintegral
+  end interface
+
+  type, public :: fluid_t
+    !! このシミュレーションコードで最も大事な
+    !! 変数（構造体）。流体の状態を保持する。
+    type(field__scalar_t) :: pressure  !! 圧力場
+    type(field__scalar_t) :: density   !! 質量密度場
+    type(field__vector_t) :: flux      !! 質量フラックス
+    ! 質量フラックス (flux) と速度場 (velocity_vector)
+    !    flux = density * velocity_vector
+    ! という関係がある。速度場を基本変数にしても問題ない。
+    ! 単にこのシミュレーションで解く基本方程式
+    ! ナビエ・ストークス方程式）の基本変数をどちらで
+    ! 表現するか、の違いである。
+  contains
+    procedure :: set_boundary_condition => fluid__set_boundary_condition
+  end type fluid_t
+
+  !--- << Operators >> ---!
+
+ 
+  interface operator( + )
+    !! 流体構造体の全要素の足し算を+記号で書けるように定義
+    module procedure operator_fluid_add
+  end interface
+
+  interface operator( * )
+     !! 流体構造体の全要素の整数・実数倍
+     module procedure operator_fluid_times_integer
+     module procedure operator_integer_times_fluid
+     module procedure operator_fluid_times_real
+     module procedure operator_real_times_fluid
+  end interface
+ 
+  interface assignment( = )
+    !!流体構造体に代入記号が使えるように定義
+    module procedure assignment_real_to_fluid
+  end interface
+
+
+contains
+
+
+  function operator_energyintegral( a ) result(ans)
+    !! 流体の運動エネルギーの体積積分
+    type(fluid_t) <in> :: a  !! 流体場
+    real(DR)           :: ans !! 全エネルギー
+      ! 以下のエネルギー密度の式を全空間で体積積分する
+      ! flow_energy = (1/2) * rho * vel^2 = (1/2) * (massflux)^2 / rho
+    real(DR) :: dvol
+    type(field__scalar_t) :: flux_sq  ! sq は2乗(squared)を意味する
+
+    dvol = (grid.delta.x)*(grid.delta.y)*(grid.delta.z)
+         ! 現在のシュミレーションでは格子間隔はx, y, z それぞれに
+         ! 一様であることを仮定している。つまりdx, dy, dzは空間位置に
+         ! 依存せず一定である。
+
+    flux_sq = (a.flux) .dot. (a.flux)
+      ! 質量フラックスの2乗を一時的な配列にセットする
+
+    ans = 0.5_DR * sum(    flux_sq(1:NXPP,1:NYPP,1:NZPP)  &
+                       / a.density(1:NXPP,1:NYPP,1:NZPP)  &
+                      ) * dvol
+      ! ここで配列演算の添字が1からNXではなく2からNX-1などに
+      ! 限定されていることに注意。これは体積積分の範囲を計算領域の
+      ! 内部に限定していること、つまり境界上の格子点を除いて
+      ! 積分していることを意味する。境界上の格子点まで
+      ! 入れると重複してカウントしてしまうからである 
+  end function operator_energyintegral
+
+
+  subroutine assignment_real_to_fluid( fluid, real )
+    !! 流体構造体に実数を代入。
+    !! 初期条件ですべての要素を0にセットするときに使う。
+    type(fluid_t) <out> :: fluid !! 流体場
+    real(DR) <in>  :: real  !! 代入する実数
+
+    fluid.pressure(:,:,:) = real
+    fluid.density(:,:,:)  = real
+    fluid.flux.x(:,:,:)   = real
+    fluid.flux.y(:,:,:)   = real
+    fluid.flux.z(:,:,:)   = real
+  end subroutine assignment_real_to_fluid
+
+
+  function operator_fluid_add( a, b ) result(ans)
+    !! 流体構造体の足し算演算子 
+    type(fluid_t) <in> :: a, b   !! 足し算する2つの流体場
+    type(fluid_t) :: ans !! 計算結果
+
+    ans.flux.x   = a.flux.x   + b.flux.x
+    ans.flux.y   = a.flux.y   + b.flux.y
+    ans.flux.z   = a.flux.z   + b.flux.z
+    ans.density  = a.density  + b.density
+    ans.pressure = a.pressure + b.pressure
+  end function operator_fluid_add
+
+
+  function operator_fluid_times_integer( fluid, integer ) result(ans)
+    !! 流体構造体を整数倍するための演算子 
+    type(fluid_t) <in> :: fluid    !! 流体場
+    integer <in> :: integer  !! かける整数
+    type(fluid_t) :: ans
+
+    ans.pressure = integer*(fluid.pressure)
+    ans.density  = integer*(fluid.density)
+    ans.flux.x   = integer*(fluid.flux.x)
+    ans.flux.y   = integer*(fluid.flux.y)
+    ans.flux.z   = integer*(fluid.flux.z)
+  end function operator_fluid_times_integer
+
+
+  function operator_fluid_times_real( fluid, real ) result(ans)
+    !! 流体構造体を実数倍するための演算子 
+    type(fluid_t) <in> :: fluid    !! 流体場
+    real(DR) <in> :: real     !! かける実数
+    type(fluid_t) :: ans  !! 計算結果
+
+    ans.pressure = real*(fluid.pressure)
+    ans.density  = real*(fluid.density)
+    ans.flux.x   = real*(fluid.flux.x)
+    ans.flux.y   = real*(fluid.flux.y)
+    ans.flux.z   = real*(fluid.flux.z)
+  end function operator_fluid_times_real
+
+
+  function operator_integer_times_fluid( integer, fluid ) result(ans)
+    !! 整数に流体構造体を掛け算するための演算子 
+    integer <in> :: integer  !! かける整数
+    type(fluid_t) <in> :: fluid    !! 流体場
+    type(fluid_t) :: ans  !! 計算結果
+
+    ans.pressure = integer*(fluid.pressure)
+    ans.density  = integer*(fluid.density)
+    ans.flux.x   = integer*(fluid.flux.x)
+    ans.flux.y   = integer*(fluid.flux.y)
+    ans.flux.z   = integer*(fluid.flux.z)
+  end function operator_integer_times_fluid
+
+
+  function operator_real_times_fluid( real, fluid ) result(ans)
+    !! 実数に流体場を掛ける演算子
+    real(DR) <in> :: real  !! 掛ける実数
+    type(fluid_t) <in> :: fluid !! 流体場
+    type(fluid_t) :: ans !! 計算結果
+
+    ans.pressure = real*(fluid.pressure)
+    ans.density  = real*(fluid.density)
+    ans.flux.x   = real*(fluid.flux.x)
+    ans.flux.y   = real*(fluid.flux.y)
+    ans.flux.z   = real*(fluid.flux.z)
+  end function operator_real_times_fluid
+
+
+  subroutine fluid__set_boundary_condition( fluid )
+    class(fluid_t) <io> :: fluid
+
+    !! 流体構造体の周期境界条件設定
+    call mpiut__exchange( Parallel.comm,             &
+                          Parallel.periodic_pair,    &
+                          fluid.pressure,            &
+                          fluid.density,             &
+                          fluid.flux.x,              &
+                          fluid.flux.y,              &
+                          fluid.flux.z )
+    call mpiut__barrier( Parallel.comm )
+    !! プロセス間通信で領域境界データを交換
+    call mpiut__exchange( Parallel.comm,             &
+                          Parallel.rank.next,        &
+                          fluid.pressure,            &
+                          fluid.density,             &
+                          fluid.flux.x,              &
+                          fluid.flux.y,              &
+                          fluid.flux.z )
+    call mpiut__barrier( Parallel.comm )
+  end subroutine fluid__set_boundary_condition
+
+end module fluid_m
+
