@@ -238,7 +238,7 @@ contains
   end subroutine subfield_vel_tm
 
 
-  subroutine subfield_vel_tm_divv(fluid,vel,tm,divv)
+  subroutine subfield_vel_tm_divv( fluid, vel, tm, divv )
     !! fluidの基本変数から二次的な場（速度ベクトル場velと
     !! 温度場tmと速度の発散divv）をもとめる。
     type(fluid_t)  <in>  :: fluid  !! 流体基本場

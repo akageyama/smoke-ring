@@ -30,6 +30,7 @@ program main_m
 ! use slicedata_m  ! 可視化用断面データ出力
   use solver_m     ! ナビエ・ストークス方程式ソルバ
   use ut_m         ! ユーティリティ
+  use vis2d_m      ! 断面可視化
   implicit none    ! 暗黙の型宣言無効化。必須
 
   integer(DI) :: nloop   ! シミュレーションのループカウンタ

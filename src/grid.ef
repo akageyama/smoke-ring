@@ -86,6 +86,12 @@ module grid_m
       !! 初期化関数
       !! 初期化のためのメンバー関数
       !! こうするとgrid%initializeという形でcallできる
+    procedure :: i_have_gi => grid__i_have_gi
+      !! global格子点giの位置をそのプロセスが含むかどうか。
+    procedure :: i_have_gj => grid__i_have_gj
+      !! global格子点gjの位置を
+    procedure :: i_have_gk => grid__i_have_gk
+      !! global格子点gkの位置を
     procedure :: i_have_gijk => grid__i_have_gijk
       !! global格子点(gi,gj,gk)をそのプロセスが持っている
       !! かどうか。
@@ -218,21 +224,44 @@ contains
 !
 
 
+  function grid__i_have_gi( grid, gi ) result(ans)
+    class(grid_t) <in> :: grid
+    integer <in> :: gi
+    logical :: ans
+
+    ans = gi >= grid.global_ijk.gi(1)  .and.  &
+          gi <= grid.global_ijk.gi(NXPP)
+  end function grid__i_have_gi
+
+
+  function grid__i_have_gj( grid, gj ) result(ans)
+    class(grid_t) <in> :: grid
+    integer <in> :: gj
+    logical :: ans
+
+    ans = gj >= grid.global_ijk.gj(1)  .and.  &
+          gj <= grid.global_ijk.gj(NYPP)
+  end function grid__i_have_gj
+
+
+  function grid__i_have_gk( grid, gk ) result(ans)
+    class(grid_t) <in> :: grid
+    integer <in> :: gk
+    logical :: ans
+
+    ans = gk >= grid.global_ijk.gk(1)  .and.  &
+          gk <= grid.global_ijk.gk(NZPP)
+  end function grid__i_have_gk
+
+
   function grid__i_have_gijk( grid, gi, gj, gk ) result(ans)
     class(grid_t) <in> :: grid
     integer <in> :: gi, gj, gk
     logical :: ans
 
-    logical :: i_have_gi, i_have_gj, i_have_gk
-
-    i_have_gi = gi >= grid.global_ijk.gi(1)  .and.  &
-                gi <= grid.global_ijk.gi(NXPP)
-    i_have_gj = gj >= grid.global_ijk.gj(1)  .and.  &
-                gj <= grid.global_ijk.gj(NYPP)
-    i_have_gk = gk >= grid.global_ijk.gk(1)  .and.  &
-                gk <= grid.global_ijk.gk(NZPP)
-
-    ans = i_have_gi .and. i_have_gj .and. i_have_gk
+    ans = grid.i_have_gi( gi ) .and.  &
+          grid.i_have_gj( gj ) .and.  &
+          grid.i_have_gk( gk )
   end function grid__i_have_gijk
 
 
