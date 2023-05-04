@@ -43,7 +43,7 @@ contains
 
 
   subroutine job__finalize( nloop )
-    integer(DI), intent(in) :: nloop !! ループカウンタ
+    integer, intent(in) :: nloop !! ループカウンタ
     !! ジョブ終了時の後始末。
     !! (1) 健康状態カルテに応じたメッセージを標準出力に書く
     !! (2) MPI並列化の終了処理

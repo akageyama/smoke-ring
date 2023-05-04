@@ -504,7 +504,7 @@ contains
 
   subroutine solver__diagnosis( nloop, time, fluid )
     !! 流体の「健康状態」を診断する
-    integer(DI) <in> :: nloop  !! ループカウンタ
+    integer  <in> :: nloop  !! ループカウンタ
     real(DR) <in> :: time   !! シミュレーション時刻
     type(fluid_t) <in> :: fluid  !! 流体データ
 
@@ -653,7 +653,7 @@ contains
 
   function solver__set_time_step( nloop, fluid )
     !! CFL条件に基づいて時間刻み幅dtを設定する
-    integer(DI) <in> :: nloop  !! ループカウンタ
+    integer <in> :: nloop  !! ループカウンタ
     type(fluid_t) <in> :: fluid  !! 流体データ
     real(DR) :: solver__set_time_step !! 時間刻み幅 dt
 

@@ -1,0 +1,310 @@
+module kutimer_m
+  !!>
+
+    kutimer.e95
+      * Timer utility
+
+    History
+
+    timer.f90
+      2013.06.05: This comes from my old timer.f90.
+      2013.08.04: Removed timer__start and __end.
+      2013.08.04: TM_STT & _END be public.
+      2017.07.03: use mpi. print by only rank 0.
+      2017.07.09: Merged the bugfix by T. Furuzono.
+
+    timer.e03
+      2017.07.09: Use efpp.sh macros.
+
+    kutimer.e03
+      2017.07.17: This is kutimer.e03. Renamed from timer.e03.
+
+    kutiemr.ef
+      2022.07.12: This was kutimer.e03. -kage. T
+      2022.07.12: Introduce using_mpi.
+
+  !!<
+  use mpi
+  implicit none
+  private
+  public :: & !< routines >!
+            kutimer__,            &
+            kutimer__count,       &
+            kutimer__end,         &
+            kutimer__print,       &
+            kutimer__start
+
+  integer <const> :: TM_STT = 1      ! Any numbers are fine;
+  integer <const> :: TM_END = 2      ! just be different.
+
+  integer :: C_MAX
+  integer <const> :: MAX_KEY_N    = 50
+  integer <const> :: MAX_SUBKEY_N = 100
+  integer <const> :: KEYLEN       = 6
+  integer, save :: job_start_time, job_end_time, loop_counter = 0
+  char(len=19), save :: dateandtime_start, dateandtime_end
+  ! [ ttb_t = Time table struct. When you change this,  take care of ]
+  ! [ the initialization of the array 'ttb' (see below).             ]
+
+  type ttb_t
+    integer :: stt_tim, total_tim, call_cntr, sub_last_tim
+    char(len=KEYLEN) :: keyname
+    integer, dimension(MAX_KEY_N) :: sub_total_tim
+    char(len=KEYLEN), dimension(MAX_SUBKEY_N) :: sub_keyname
+    integer :: sub_key_n            ! Number of break points
+    logical :: pair_check           ! (stt,end) must be a pair.
+  end type ttb_t
+
+  ! Decreration & initialization of array.
+  ! This is automatically saved anyway.
+  type(ttb_t), dimension(MAX_KEY_N), save :: ttb = & !
+        ttb_t(0,0,0,0,'123456',0,'******',0,.true.)  ! Initialization
+  integer :: key_n                                   ! How many key used
+
+  interface kutimer__
+    module procedure tm1, tm2
+  end interface
+
+  logical :: jump_flag = .false.   ! Jump all timer routines if this is set.
+
+contains
+
+!---------------
+!--- Private --
+!---------------
+
+  function get_dateandtime()
+    char(len=19) :: get_dateandtime
+    char(len= 8) :: date
+    char(len=10) :: time
+    call date_and_time(date=date,time=time)
+    get_dateandtime = date(1:4)//'.'//date(5:6)//'.'//date(7:8)//'-'&
+                   &//time(1:2)//':'//time(3:4)//':'//time(5:6)
+  end function get_dateandtime
+
+
+  function get_index( key )
+    char(len=KEYLEN) <in> :: key
+    ![ char string name (key)-->index integer, Returns 0 when it's new.]
+    integer :: get_index
+    integer :: i
+    get_index = 0
+    do i = 1 , key_n
+      if (ttb(i).keyname == key) then
+        get_index = i
+        return
+      end if
+    end do
+  end function get_index
+
+
+  function get_subindex( i, subkey )
+    integer <in> :: i
+    ! [ char string name (subkey)-->index integer, Returns 0 when new.]
+    char(len=KEYLEN) <in> :: subkey
+    integer :: get_subindex
+    integer :: j
+    get_subindex = 0
+    do j = 1 , ttb(i).sub_key_n
+      if( ttb(i).sub_keyname(j) == subkey ) then
+        get_subindex = j
+        return
+      end if
+    end do
+  end function get_subindex
+
+  subroutine printer
+    !  [ Print out the timer results. List them in formatted. ]
+    integer :: i, j, k, dummy, tick
+    integer :: ttl       ! total clock count
+    integer :: sbttl     ! subtotal clock count
+    real :: ts           ! total seconds
+    integer :: h,m,s     ! hour, minute, second
+
+    integer :: ttmp
+
+    if ( jump_flag ) return                         ! Error happend before.
+
+    call system_clock(dummy,tick)
+    dateandtime_end = get_dateandtime()
+    print '(50a1)', ('*',i=1,50)                    ! Horizontal line
+    print '(7x,a30,i2)',"CPU Time Table.    total key =",key_n
+    print '(2x,a19," --> ",a19)', dateandtime_start, dateandtime_end
+    print '(50a1)', ('*',i=1,50)                    ! Horizontal line
+    do i = 1 , key_n
+! debug s
+! print *,'[kutimer] i = ', i, ttb(i).keyname
+! debug e
+      ttl = ttb(i).total_tim
+      print '(/8x,a5,a6,a5,1x,i9,a8)',                      & ! Title
+                        "///  ",ttb(i).keyname,"  ///",     &
+                                ttb(i).call_cntr," call"
+      if( .not. ttb(i).pair_check ) then
+        print *," <tm> 'E' isn't called."    ! Call error.
+        cycle                                ! Ignore this.
+      end if
+      print '(2x,40a1)', ('-',k=1,40)        ! Horizontal line
+      do j = 1 , ttb(i).sub_key_n            ! Sub procedure loop
+        sbttl = ttb(i).sub_total_tim(j)      ! Subtotal tick number
+        print '(3x,a6,a3,f10.3,a4,3x,a1,f7.3,a3)',           &
+                       ttb(i).sub_keyname(j)," : ",          &
+                       real(sbttl)/real(tick)," sec",        &
+                    "(",real(sbttl)/real(ttl)*100," .)"
+      end do
+      print '(2x,40a1)', ('-',k=1,40)        ! Horizontal line
+      ts = real(ttl)/real(tick)              ! Make it second
+      h = int(ts) / 3600                     ! Hour
+      m = mod(int(ts),3600) / 60             ! Minute
+      s = int(ts)-h*3600-m*60                ! Second
+      print '(3x,a9,f10.3,a4,3x,a1,3(i2.2,a1),a1)',           &
+                       "TOTAL  : ",ts," sec",                 &
+                       "[",h,"h",m,"m",s,"s","]"
+      print '(2x,40a1)', ('-',k=1,40)        ! Horizontal line
+    end do
+    call system_clock( job_end_time )
+    print '(/50a1)', ('*',i=1,50)            ! Horizontal line
+    print '(3x,"         TOTAL LOOP = ",i12)',loop_counter
+
+    ttmp = job_end_time - job_start_time  ! Special care for a very 
+    if( ttmp<0 ) then                     ! long job. This was 
+      ttmp += C_MAX                       ! noticed by Takuya Furuzono
+    end if                                ! in Oct. 2014.
+
+    print '(3x,"             1 STEP : ",f12.5," sec")', &
+                   real(ttmp)/real(tick)/loop_counter
+    print '(50a1)', ('*',i=1,50)            ! Horizontal line
+  end subroutine printer
+
+
+  subroutine tm1( key_, stt_or_end )
+    char(len=KEYLEN) <in> :: key_
+    integer <in> :: stt_or_end
+    ! [ Called in the first and the last as a pair in a program unit. ]
+
+    integer :: ctmp
+    logical :: just_once = .true.
+    integer :: i,c                            ! i=work, c=clock ticks
+    char(len=KEYLEN):: key
+    ===<just_once>===
+      call system_clock( job_start_time, count_max=C_MAX ) ! Get default count_max.
+      dateandtime_start = get_dateandtime()
+    ===</just_once>===
+    if( jump_flag ) return                    ! Error happend before.
+    call system_clock(c)                      ! Get the clock counter.
+    key = adjustl(key_)
+    i = get_index(key)
+
+    if ( i == 0 ) then
+      if ( stt_or_end == TM_END ) then        ! Call error.
+        print *, "<tm> *** kutimer__end called before kutimer_start for key = ",key
+        jump_flag = .true.                    ! Error flag.
+        return
+      end if
+      i = key_n + 1                           ! Call is OK, but too much.
+      if ( i > MAX_KEY_N ) then               ! Too many keys?
+        print *, "<tm>  *** over max key number"  ! Must increase MAX_KEY_N.
+        jump_flag = .true.                    ! Error flag.
+        return
+      end if
+      key_n = i
+      ttb(i).keyname = key
+    end if
+    select case (stt_or_end)
+    case (TM_STT)
+      ttb(i).call_cntr += 1
+      ttb(i).stt_tim = c
+      ttb(i).sub_last_tim = c
+      ttb(i).pair_check = .false.
+    case (TM_END)
+      ctmp = c-ttb(i).stt_tim
+      if(ctmp<0) then
+        ctmp += C_MAX
+      end if
+      ttb(i).total_tim += ctmp
+      ttb(i).pair_check = .true.
+    end select
+  end subroutine tm1
+
+
+  subroutine tm2(key_,subkey_)
+    char(len=KEYLEN) <in> :: key_, subkey_
+    !  [ Called at break points in a program unit. ]
+    integer :: i,j,c                    ! (i,j)=work, c=clock ticks
+    !---Added by Takuya Furuzono on 2014.10.27--!
+    integer :: ctmp
+    !-------------------------------------------!
+    char(len=KEYLEN) :: key, subkey
+    if (jump_flag) return               ! Error happend before.
+    call system_clock(c)                ! Get the clock counter.
+    key = adjustl(key_)
+    subkey = adjustl(subkey_)
+    i = get_index(key)
+    if(i == 0) then                     ! Forgot to call tm1 before.
+      print *, '<__FUNC__> *** No key for '  &
+            // 'this subkey. key=', key,     &
+                        ' subkey= ',subkey
+      jump_flag = .true.                ! Error flag on.
+      return
+    end if
+    j = get_subindex( i, subkey )
+    if ( j == 0 ) then
+      j = ttb(i).sub_key_n + 1
+      if ( j > MAX_SUBKEY_N ) then
+        print *,"<__FUNC__> *** over max sub key number." ! Increase MAX_SUBKEY_N.
+        print *,"                     at key = ", key
+        jump_flag = .true.                                ! Error flag on.
+        return
+      end if
+      ttb(i).sub_key_n = j
+      ttb(i).sub_keyname(j) = subkey
+    end if
+
+    ctmp = c - ttb(i).sub_last_tim  ! This part was
+    if( ctmp < 0 ) then             ! revised by 
+      ctmp += C_MAX                 ! Takuya Furuzono.
+    end if
+    ttb(i).sub_total_tim(j) += ctmp
+
+    call system_clock(c)
+    ttb(i).sub_last_tim = c
+  end subroutine tm2
+
+
+!--------------
+!--- Public --
+!--------------
+
+  subroutine kutimer__count
+    loop_counter += 1
+  end subroutine kutimer__count
+
+  subroutine kutimer__end( key_ )
+    char(len=KEYLEN) <in> :: key_
+    call tm1( key_, TM_END )
+  end subroutine kutimer__end
+
+
+  subroutine kutimer__print
+    logical :: using_mpi = .true.
+    logical :: mpi_is_on
+    integer :: myrank, ierr
+
+    if ( .not. using_mpi ) then
+      call printer
+    else 
+      call MPI_INITIALIZED(mpi_is_on, ierr)
+      if ( mpi_is_on ) then
+        call MPI_COMM_RANK(MPI_COMM_WORLD, myrank, ierr)
+        if ( myrank==0 ) call printer
+      end if
+    end if
+  end subroutine kutimer__print
+
+
+  subroutine kutimer__start( key_ )
+    char(len=KEYLEN) <in> :: key_
+    ! [ Called first and last in a pair in a program unit. ]
+    call tm1(key_,TM_STT)
+  end subroutine kutimer__start
+
+end module kutimer_m

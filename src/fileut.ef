@@ -1,0 +1,82 @@
+module fileut_m
+!!>
+     This module is a substitute of "open(newunit" feature
+     introduced in Fortran2008. I find some compilers do not 
+     implement this fature yet.
+!!<
+  implicit none
+  private
+  public :: fileut__close,  &
+            fileut__open
+
+  integer <const> :: UNIT_MIN = 100
+  integer <const> :: UNIT_MAX = 999
+
+  char(len=4), dimension(UNIT_MIN:UNIT_MAX) :: List = 'open' 
+                                                 ! or 'used'
+
+contains
+
+  subroutine assert( condition, lastwill )
+    logical <in> :: condition
+    char(len=*) <in> :: lastwill
+    if ( .not. condition ) then
+      print *, "__MODULE__(__LINE__): "//trim(lastwill)
+      stop
+    end if
+  end subroutine assert
+
+  function get_a_new_unit() result(unit)
+    integer :: unit
+
+    integer :: u
+    do u = UNIT_MIN, UNIT_MAX
+      if ( List(u) == 'open' ) then
+        unit = u
+        List(u) = 'used'
+        return
+      end if
+    end do
+
+    print *, '__MODULE__(__LINE__): Out of file_unit number.'
+    stop
+  end function get_a_new_unit
+
+
+  subroutine turn_to_open( unit )
+    integer <in> :: unit
+
+    call assert( List(unit) == "used",  &
+                 "Trying to close non-open unit?" )
+
+    List(unit) = 'open'
+  end subroutine turn_to_open
+
+
+  subroutine fileut__close( unit )
+    integer <in> :: unit
+    call turn_to_open( unit )
+    close(unit)
+  end subroutine fileut__close
+
+
+  function fileut__open( file, action, status ) result( unit )
+    char(len=*) <in> :: file
+    char(len=*) <optin> :: action
+    char(len=*) <optin> :: status
+    integer :: unit
+
+    unit = get_a_new_unit()
+    if ( present(action) .and. present(status) ) then
+      ! Case of full-potion.
+      open(unit, file=trim(file), action=action, status=status )
+    else if ( present(action) ) then
+      open(unit, file=trim(file), action=action )
+    else if ( present(status) ) then
+      open(unit, file=trim(file), status=status )
+    else 
+      open(unit, file=trim(file) )
+    end if
+  end function fileut__open
+
+end module fileut_m
