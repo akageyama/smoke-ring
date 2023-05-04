@@ -31,6 +31,7 @@ module vis2d_m
     integer :: gk_cut
     char(len=TAG_NAME_MAX) :: tag
     type(vv_slice_scalar_t) :: pressure
+    type(vv_slice_scalar_t) :: delta_pressure
     type(vv_slice_scalar_t) :: flow_helicity
     type(vv_slice_scalar_t) :: velocity_z
     type(vv_slice_scalar_t) :: enstrophy
@@ -46,6 +47,7 @@ module vis2d_m
     integer :: gj_cut
     char(len=TAG_NAME_MAX) :: tag
     type(vv_slice_scalar_t) :: pressure
+    type(vv_slice_scalar_t) :: delta_pressure
     type(vv_slice_scalar_t) :: flow_helicity
     type(vv_slice_scalar_t) :: velocity_y
     type(vv_slice_scalar_t) :: enstrophy
@@ -72,6 +74,7 @@ module vis2d_m
 
 
   type, private :: vissubfield3d_t
+    type(field__scalar_t) :: delta_pressure  !! 
     type(field__scalar_t) :: enstrophy  !! エンストロフィ（渦度の2乗）
     type(field__scalar_t) :: helicity   !! ヘリシティ
     type(field__vector_t) :: velocity   !! 流れ場
@@ -91,6 +94,8 @@ contains
     vf.vorticity = .curl. vf.velocity              ! curl演算子はfield_mで定義
     vf.helicity = vf.velocity .dot. vf.vorticity   ! ヘリシティ = 流れと渦度の内積
     vf.enstrophy = vf.vorticity .dot. vf.vorticity ! 内積演算子はfield_mで定義
+
+    vf.delta_pressure = fluid.pressure - sum(fluid.pressure)/(NXPP*NYPP*NZPP)
   end subroutine vissubfield3d__update
 
 
@@ -111,9 +116,15 @@ contains
                                               !{drawxy}{{STT}}
     call make_time_and_step_string( t, step, tas )
 
+!!>
     call make_filename( tas, plane.tag, plane.pressure.tag, filename )
     call draw_contour( ll, ur, filename, plane.pressure )       
                                               !{drawxy}{only p}
+!!<
+
+    call make_filename( tas, plane.tag, plane.delta_pressure.tag, filename )
+    call draw_contour( ll, ur, filename, plane.delta_pressure )       
+                                              !{drawxy}{onlydp}
 !!>
     call make_filename( tas, plane.tag, plane.flow_helicity.tag, filename )
     call draw_contour( ll, ur, filename, plane.flow_helicity )  
@@ -165,6 +176,9 @@ contains
     call make_filename( tas, plane.tag, plane.pressure.tag, filename )
     call draw_contour( ll, ur, filename, plane.pressure )       
                                               !{drawxz}{only p}
+    call make_filename( tas, plane.tag, plane.delta_pressure.tag, filename )
+    call draw_contour( ll, ur, filename, plane.delta_pressure )       
+                                              !{drawxz}{onlydp}
     call make_filename( tas, plane.tag, plane.flow_helicity.tag, filename )
     call draw_contour( ll, ur, filename, plane.flow_helicity )  
                                               !{drawxz}{onlyfh}
@@ -264,6 +278,11 @@ contains
                                     nv,         &
                                     grid_u,     &
                                     grid_v )
+    call plane.delta_pressure.initialize( 'delta_pressure', &
+                                    nu,         &
+                                    nv,         &
+                                    grid_u,     &
+                                    grid_v )
     call plane.flow_helicity.initialize( 'flow_helicity', &
                                          nu,              &
                                          nv,              &
@@ -318,6 +337,11 @@ contains
                                     nv,         &
                                     grid_u,     &
                                     grid_v )
+    call plane.delta_pressure.initialize( 'delta_pressure', &
+                                    nu,         &
+                                    nv,         &
+                                    grid_u,     &
+                                    grid_v )
     call plane.flow_helicity.initialize( 'flow_helicity', &
                                          nu,              &
                                          nv,              &
@@ -355,12 +379,14 @@ contains
 
     integer :: nu, nv, gk_cut
 
-    nu = plane.pressure.mesh.vert.nu
-    nv = plane.pressure.mesh.vert.nv
+    nu = plane.delta_pressure.mesh.vert.nu
+    nv = plane.delta_pressure.mesh.vert.nv
     gk_cut = plane.gk_cut
 
     plane.pressure.val_vert      = iCut( nu, nv, gk_cut,  &
                                          fluid.pressure )
+    plane.delta_pressure.val_vert = iCut( nu, nv, gk_cut,  &
+                                          vf.delta_pressure )
     plane.flow_helicity.val_vert = iCut( nu, nv, gk_cut,  &
                                          vf.helicity )
     plane.velocity_z.val_vert    = iCut( nu, nv, gk_cut,  &
@@ -460,12 +486,14 @@ contains
 
     integer :: nu, nv, gj_cut
 
-    nu = plane.pressure.mesh.vert.nu
-    nv = plane.pressure.mesh.vert.nv
+    nu = plane.delta_pressure.mesh.vert.nu
+    nv = plane.delta_pressure.mesh.vert.nv
     gj_cut = plane.gj_cut
 
     plane.pressure.val_vert      = iCut( nu, nv, gj_cut,  &
                                          fluid.pressure )
+    plane.delta_pressure.val_vert      = iCut( nu, nv, gj_cut,  &
+                                         vf.delta_pressure )
     plane.flow_helicity.val_vert = iCut( nu, nv, gj_cut,  &
                                          vf.helicity )
     plane.velocity_y.val_vert    = iCut( nu, nv, gj_cut,  &
