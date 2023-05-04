@@ -76,7 +76,7 @@ program main_m
     ! 音速によって決まるCFL条件が厳しくなる（つまりdtが小さくなる）
     ! ここでは初期状態における流体の状態に基づいてdtが決まる
 
-  do while( Job.karte == "fine" )
+  do while( Job.karte == "fine" )               !{{count}}
     ! このシミュレーションのメインループである。ジョブカルテが
     ! 「健康 (fine)」状態である限りシミュレーションを続行する。 
     call Solver.advance( time, dt, fluid )      !{main  }{solv a}
