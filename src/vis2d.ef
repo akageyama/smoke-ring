@@ -119,15 +119,13 @@ contains
     call make_filename( tas, plane.tag, plane.flow_helicity.tag, filename )
     call draw_contour( ll, ur, filename, plane.flow_helicity )  
                                               !{drawxy}{onlyfh}
-!!>
     call make_filename( tas, plane.tag, plane.velocity_z.tag, filename )
-!debugp trim(filename)
-!debugp 'calling draw_contour'
     call draw_contour( ll, ur, filename, plane.velocity_z )     
                                               !{drawxy}{onlyvz}
     call make_filename( tas, plane.tag, plane.enstrophy.tag, filename )
     call draw_contour( ll, ur, filename, plane.enstrophy )     
                                               !{drawxy}{onlyen}
+!!>
     call make_filename( tas, plane.tag, plane.velocity.tag, filename )
     call draw_arrows( ll, ur, filename, plane.velocity )       
                                               !{drawxy}{only v}
@@ -261,19 +259,16 @@ contains
     plane.gk_cut = gk_cut
     plane.tag = tag
 
-!debugp 'calling plane.pressure.initialize'
     call plane.pressure.initialize( 'pressure', &
                                     nu,         &
                                     nv,         &
                                     grid_u,     &
                                     grid_v )
-!debugp 'calling plane.flow_helicity.initialize'
     call plane.flow_helicity.initialize( 'flow_helicity', &
                                          nu,              &
                                          nv,              &
                                          grid_u,          &
                                          grid_v )
-!debugp 'calling plane.velocity_z.initialize'
     call plane.velocity_z.initialize( 'velocity_z', &
                                       nu,           &
                                       nv,           &
@@ -619,7 +614,8 @@ contains
     type(vv_color_t) :: color, color_black, color_magenta
     integer :: l
     character(len=TAG_NAME_MAX) :: message
-    real <const> :: ALMOST_ZERO = 1.e-20_DR
+    real <const> :: TOO_SMALL_DIFF_FOR_CONTOUR = 1.e-4_SR
+    real :: relative_diff 
 
     color_black   = VV_COLOR__CONST.black
     color_magenta = VV_COLOR__CONST.magenta
@@ -638,11 +634,10 @@ contains
     call vv_sketch.group_push( line_color=color_magenta,  &
                                line_width_in_pixel=2.0 )
       level_range = level_max - level_min
-!debugp level_range
-      if ( level_range > ALMOST_ZERO ) then
+      relative_diff = level_range / (abs(level_max) + abs(level_min))
+      if ( relative_diff > TOO_SMALL_DIFF_FOR_CONTOUR ) then
         dlevel = level_range / 10
-!DEBUG  do l = 1, 10
-        do l = 5, 5
+        do l = 1, 10
           level = level_min + dlevel*(real(l)-0.5)
           level_nrm = (level-level_min) / level_range
           color = vv_color__normalized_real_to_color( level_nrm )
@@ -859,10 +854,8 @@ contains
 
                                                 !{vis2d }{{STT}}
     ===<skip ctr:50>===
-!debugp 'calling vis2d.set_data'
       call vis2d.set_data( fluid )              !{vis2d }{set d}
       if ( Parallel.rank.me == 0 ) then
-!debugp 'calling z_upper.draw'
       call vis2d.z_upper.draw ( t, nloop )
 !     call vis2d.z_middle.draw( t, nloop )
 !     call vis2d.z_lower.draw ( t, nloop )      !{vis2d }{    z}
