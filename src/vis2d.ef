@@ -111,18 +111,15 @@ contains
                                               !{drawxy}{{STT}}
     call make_time_and_step_string( t, step, tas )
 
-!!>
     call make_filename( tas, plane.tag, plane.pressure.tag, filename )
     call draw_contour( ll, ur, filename, plane.pressure )       
                                               !{drawxy}{only p}
     call make_filename( tas, plane.tag, plane.flow_helicity.tag, filename )
     call draw_contour( ll, ur, filename, plane.flow_helicity )  
                                               !{drawxy}{onlyfh}
-!!<
     call make_filename( tas, plane.tag, plane.velocity_z.tag, filename )
     call draw_contour( ll, ur, filename, plane.velocity_z )     
                                               !{drawxy}{onlyvz}
-!!>
     call make_filename( tas, plane.tag, plane.enstrophy.tag, filename )
     call draw_contour( ll, ur, filename, plane.enstrophy )     
                                               !{drawxy}{onlyen}
@@ -140,7 +137,6 @@ contains
     call draw_contour_and_arrows( ll, ur, filename, plane.flow_helicity,  &
                                                     plane.vorticity  )
                                               !{drawxy}{   vor}
-!!<
                                               !{drawxy}{{END}}
   end subroutine vis2d_plane_xy__draw
 
@@ -613,13 +609,13 @@ contains
     flag_skip_contour = .false. !! default
 
     call vv_sketch.initialize( ll, ur, &
-                               screen_width_in_pixel=800.0,  &
-                               title=scalar.tag,             &
+                               screen_width_in_pixel=1000.0,  &
+                               title=scalar.tag,              &
                                filename=trim(filename) )
     ! --<boundary curve>--
     call scalar.mesh.draw( vv_sketch, &
                            line_color=VV_COLOR__CONST.black,  &
-                           width_in_pixels=2.0 )
+                           width_in_pixels=1.0 )
 
     level_min = minval(scalar.val_vert)
     level_max = maxval(scalar.val_vert)
@@ -640,10 +636,9 @@ contains
     end if
 
     call vv_sketch.group_push( line_color=VV_COLOR__CONST.magenta,  &
-                               line_width_in_pixel=2.0 )
+                               line_width_in_pixel=1.0 )
       dlevel = level_range / 10
-      ! do l = 1, 10
-      do l = 5, 5
+      do l = 1, 10
         level = level_min + dlevel*(real(l)-0.5)
         level_nrm = (level-level_min) / level_range
         color = vv_color__normalized_real_to_color( level_nrm )
@@ -663,24 +658,33 @@ contains
     subroutine iText_in_header_and_footer( message )
       char(len=TAG_NAME_MAX) <in> :: message
 
+      real :: text_v_pos_in_physical_unit
+      real :: tsep ! text v position separation betwen lines
+
       call vv_sketch.group_push( line_color=color_black,  &
                                  line_width_in_pixel=1.0 )
+
+      tsep = (ur.v-ll.v)*0.1
+
       ! --<figure title in the header>--
+      text_v_pos_in_physical_unit = ur.v + tsep
       call vv_sketch.text( (ll.u+ur.u)/2,  &
-                           (ur.v*1.1),  &
+                           text_v_pos_in_physical_unit,  &
                            vv_sketch.title,  &
                            font_size_in_pixel=30.0,  &
                            text_anchor='middle' )
       ! --<simple text in the footer>--
+      text_v_pos_in_physical_unit = ll.v - tsep
       call vv_sketch.text( ll.u,  &
-                           (ll.v-(ur.v-ll.v)*0.04),  &
+                           text_v_pos_in_physical_unit,  &
                            trim(filename),  &
-                           font_size_in_pixel=20.0,  &
+                           font_size_in_pixel=15.0,  &
                            text_anchor='start' )
+      text_v_pos_in_physical_unit -= tsep
       call vv_sketch.text( ll.u,  &
-                           (ll.v-(ur.v-ll.v)*0.07),  &
+                           text_v_pos_in_physical_unit,    &
                            message,  &
-                           font_size_in_pixel=20.0,  &
+                           font_size_in_pixel=15.0,  &
                            text_anchor='start' )
       call vv_sketch.group_pop
     end subroutine iText_in_header_and_footer
@@ -712,7 +716,7 @@ contains
     ! --<boundary curve>--
     call vector.mesh.draw( vv_sketch, &
                            line_color=VV_COLOR__CONST.black,  &
-                           width_in_pixels=2.0 )
+                           width_in_pixels=1.0 )
 
     vec_amp_max = sqrt(maxval(vector.comp_u(:,:)**2  &
                             + vector.comp_v(:,:)**2))
@@ -726,7 +730,7 @@ contains
 
     call vv_sketch.group_push( line_color=color_limegreen,  &
                                fill_color=color_darkgreen,  &
-                               line_width_in_pixel=2.0 )
+                               line_width_in_pixel=1.0 )
       vector.comp_u(:,:) = vector.comp_u(:,:) / vec_amp_max
       vector.comp_v(:,:) = vector.comp_v(:,:) / vec_amp_max
       call vector.vis_arrows( vv_sketch )
@@ -739,24 +743,33 @@ contains
     subroutine iText_in_header_and_footer( message )
       char(len=TAG_NAME_MAX) <in> :: message
 
+      real :: text_v_pos_in_physical_unit
+      real :: tsep ! text v position separation betwen lines
+
       call vv_sketch.group_push( line_color=color_black,  &
                                  line_width_in_pixel=1.0 )
+
+      tsep = (ur.v-ll.v)*0.1
+
       ! --<figure title in the header>--
+      text_v_pos_in_physical_unit = ur.v + tsep
       call vv_sketch.text( (ll.u+ur.u)/2,  &
-                           (ur.v*1.1),  &
+                           text_v_pos_in_physical_unit,  &
                            vv_sketch.title,  &
                            font_size_in_pixel=30.0,  &
                            text_anchor='middle' )
       ! --<simple text in the footer>--
+      text_v_pos_in_physical_unit = ll.v - tsep
       call vv_sketch.text( ll.u,  &
-                           (ll.v-(ur.v-ll.v)*0.04),  &
+                           text_v_pos_in_physical_unit,  &
                            trim(filename),  &
-                           font_size_in_pixel=20.0,  &
+                           font_size_in_pixel=15.0,  &
                            text_anchor='start' )
+      text_v_pos_in_physical_unit -= tsep
       call vv_sketch.text( ll.u,  &
-                           (ll.v-(ur.v-ll.v)*0.07),  &
+                           text_v_pos_in_physical_unit,  &
                            message,  &
-                           font_size_in_pixel=20.0,  &
+                           font_size_in_pixel=15.0,  &
                            text_anchor='start' )
       call vv_sketch.group_pop
     end subroutine iText_in_header_and_footer
@@ -792,13 +805,13 @@ contains
     figure_title = trim(scalar.tag) // ' (contour) and ' // &
                    trim(vector.tag) // ' (arrows)'
     call vv_sketch.initialize( ll, ur,  &
-                               screen_width_in_pixel=800.0,  &
+                               screen_width_in_pixel=1000.0,  &
                                title=figure_title,  &
                                filename=trim(filename) )
     ! --<boundary curve>--
     call scalar.mesh.draw( vv_sketch, &
                            line_color=VV_COLOR__CONST.black,  &
-                           width_in_pixels=2.0 )
+                           width_in_pixels=1.0 )
 
     level_min = minval(scalar.val_vert)
     level_max = maxval(scalar.val_vert)
@@ -817,7 +830,7 @@ contains
     if ( level_amplitude > ALMOST_ZERO ) then
       call vv_sketch.group_push( line_color=color_sandybrown,  &
                                  fill_color=color_bisquebrown, &
-                                 line_width_in_pixel=2.0 )
+                                 line_width_in_pixel=1.0 )
         level_range = level_max - level_min
         max_min_diff_normalized = level_range / level_amplitude
         if ( max_min_diff_normalized >= TOO_SMALL_DIFF_FOR_CONTOUR )  then
@@ -839,9 +852,9 @@ contains
         Arrows
     !!<
     if ( vec_amp_max > ALMOST_ZERO ) then
-      call vv_sketch.group_push( line_color=VV_COLOR__CONST.magenta, &
-                                 fill_color=VV_COLOR__CONST.yellow,  &
-                                 line_width_in_pixel=2.0 )
+      call vv_sketch.group_push( line_color=color_sandybrown,  &
+                                 fill_color=color_bisquebrown, &
+                                 line_width_in_pixel=1.0 )
           vector.comp_u(:,:) = vector.comp_u(:,:) / vec_amp_max
           vector.comp_v(:,:) = vector.comp_v(:,:) / vec_amp_max
           call vector.vis_arrows( vv_sketch )
@@ -854,29 +867,40 @@ contains
     
     subroutine iText_in_header_and_footer( message1, message2 )
       character(len=TAG_NAME_MAX) <in> :: message1, message2
+
+      real :: text_v_pos_in_physical_unit
+      real :: tsep ! text v position separation betwen lines
+      
       call vv_sketch.group_push( line_color=color_black,  &
                                  line_width_in_pixel=1.0 )
+
+      tsep = (ur.v-ll.v)*0.1
+
       ! --<figure title in the header>--
-      call vv_sketch.text( (ll.u+ur.u)/2,            &
-                           (ur.v*1.1),               &
-                           vv_sketch.title,          &
-                           font_size_in_pixel=30.0,  &
+      text_v_pos_in_physical_unit = ur.v + tsep
+      call vv_sketch.text( (ll.u+ur.u)/2,                &
+                           text_v_pos_in_physical_unit,  &
+                           vv_sketch.title,              &
+                           font_size_in_pixel=30.0,      &
                            text_anchor='middle' )
       ! --<simple text in the footer>--
-      call vv_sketch.text( ll.u,                     &
-                           (ll.v-(ur.v-ll.v)*0.04),  &
-                           trim(filename),           &
-                           font_size_in_pixel=20.0,  &
-                           text_anchor='start' )
-      call vv_sketch.text( ll.u,                           &
-                           (ll.v-(ur.v-ll.v)*0.07),        &
-                           'Contour: ' // trim(message1),  &
-                           font_size_in_pixel=20.0,        &
-                           text_anchor='start' )
+      text_v_pos_in_physical_unit = ll.v - tsep
       call vv_sketch.text( ll.u,                         &
-                           (ll.v-(ur.v-ll.v)*0.10),      &
+                           text_v_pos_in_physical_unit,  &
+                           trim(filename),               &
+                           font_size_in_pixel=15.0,      &
+                           text_anchor='start' )
+      text_v_pos_in_physical_unit -= tsep
+      call vv_sketch.text( ll.u,                           &
+                           text_v_pos_in_physical_unit,    &
+                           'Contour: ' // trim(message1),  &
+                           font_size_in_pixel=15.0,        &
+                           text_anchor='start' )
+      text_v_pos_in_physical_unit -= tsep
+      call vv_sketch.text( ll.u,                         &
+                           text_v_pos_in_physical_unit,  &
                            'Arrow: ' // trim(message2),  &
-                           font_size_in_pixel=20.0,      &
+                           font_size_in_pixel=15.0,      &
                            text_anchor='start' )
       call vv_sketch.group_pop
     end subroutine iText_in_header_and_footer
