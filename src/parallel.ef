@@ -136,15 +136,6 @@ contains
     Parallel.pos.index = Parallel.rank_to_pos_index( me )
 
     Parallel.rank.next = calc_rank_next( Parallel.pos.index )
-if ( Parallel.rank.me == 2 ) then 
-!debugp Parallel.rank.me
-!debugp Parallel.rank.next.ip1
-!debugp Parallel.rank.next.im1
-!debugp Parallel.rank.next.jp1
-!debugp Parallel.rank.next.jm1
-!debugp Parallel.rank.next.kp1
-!debugp Parallel.rank.next.km1
-end if
 
                 ! Sample: "p012_035_064"
     Parallel.pos.string = "p"                           & ! 1 letter
@@ -190,14 +181,6 @@ end if
       if ( have_ymin ) periodic_pair.jm1 = me + NPROC_X*(NPROC_Y-1)
       if ( have_zmax ) periodic_pair.kp1 = me - NPROC_X*NPROC_Y*(NPROC_Z-1)
       if ( have_zmin ) periodic_pair.km1 = me + NPROC_X*NPROC_Y*(NPROC_Z-1)
-if ( Parallel.rank.me == 1 ) then
-!debugp periodic_pair.ip1 
-!debugp periodic_pair.im1 
-!debugp periodic_pair.jp1 
-!debugp periodic_pair.jm1 
-!debugp periodic_pair.kp1 
-!debugp periodic_pair.km1 
-endif
     end associate
 
     call iPrint

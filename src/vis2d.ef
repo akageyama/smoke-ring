@@ -791,7 +791,7 @@ contains
     real :: level_range
     real :: level_amplitude
     type(vv_color_t) :: color, color_black
-    type(vv_color_t) :: color_bisquebrown, color_sandybrown
+    type(vv_color_t) :: color_brown, color_sandybrown
     integer :: l
     character(len=TAG_NAME_MAX) :: message1, message2
     char(len=TAG_NAME_MAX*2) :: figure_title
@@ -799,7 +799,7 @@ contains
     real <const> :: TOO_SMALL_DIFF_FOR_CONTOUR = 1.e-3_SR
 
     color_black       = VV_COLOR__CONST.black
-    color_bisquebrown = VV_COLOR__CONST.bisquebrown
+    color_brown = VV_COLOR__CONST.brown
     color_sandybrown  = VV_COLOR__CONST.sandybrown
 
     figure_title = trim(scalar.tag) // ' (contour) and ' // &
@@ -828,8 +828,7 @@ contains
     !!<
     level_amplitude = max(abs(level_max),abs(level_min))
     if ( level_amplitude > ALMOST_ZERO ) then
-      call vv_sketch.group_push( line_color=color_sandybrown,  &
-                                 fill_color=color_bisquebrown, &
+      call vv_sketch.group_push( line_color=color_black,  &
                                  line_width_in_pixel=1.0 )
         level_range = level_max - level_min
         max_min_diff_normalized = level_range / level_amplitude
@@ -852,8 +851,8 @@ contains
         Arrows
     !!<
     if ( vec_amp_max > ALMOST_ZERO ) then
-      call vv_sketch.group_push( line_color=color_sandybrown,  &
-                                 fill_color=color_bisquebrown, &
+      call vv_sketch.group_push( line_color=color_brown,  &
+                                 fill_color=color_sandybrown, &
                                  line_width_in_pixel=1.0 )
           vector.comp_u(:,:) = vector.comp_u(:,:) / vec_amp_max
           vector.comp_v(:,:) = vector.comp_v(:,:) / vec_amp_max
@@ -920,7 +919,7 @@ contains
     t = real(t_double,SR)
 
                                                 !{vis2  }{{STT}}
-    ===<skip ctr:10>===
+    ===<skip ctr:100>===
       call vis2d.set_data( fluid )              !{vis2  }{set d}
       if ( Parallel.rank.me == 0 ) then
 !       call vis2d.z_upper.draw ( t, nloop )

@@ -57,11 +57,13 @@ program main_m
   call Solver.initialize( fluid )               !{main  }{solv i}
     ! solverジュール（solver_m）の初期化。
   call vis2d.initialize                         !{main  }{vis  i}
-    ! solverジュール（solver_m）の初期化。
-    ! このモジュールはシミュレーション領域の断面図を出力する。
+    ! 可視化モジュール（vis2d_m）の初期化。
 
   time = 0.0_DR  ! 時刻の初期化。単位は秒。
   nloop = 0      ! ループカウンタの初期化。
+
+  call vis2d.draw( time, nloop, fluid )
+    ! このモジュールはシミュレーション領域の断面図をSVGで出力する。
 
   call Solver.diagnosis( nloop, time, fluid )   !{main  }{solv d}
     ! solverモジュールで定義されているdiagnosis（診断）
@@ -95,6 +97,7 @@ program main_m
     call Solver.diagnosis( nloop, time, fluid ) !{main  }{solv d}
       ! 診断。異常があればjob.carteにセットする。
     call vis2d.draw( time, nloop, fluid )
+      ! シミュレーション領域の断面図をSVGで出力する。
     if ( nloop >= Params.get_integer( 'Total_nloop' ) ) then
       Job.karte = "loop_max"
       ! あらかじめparamsモジュールで設定されたループカウンタの
