@@ -34,8 +34,8 @@ module kutimer_m
             kutimer__print,       &
             kutimer__start
 
-  integer <const> :: TM_STT = 1      ! Any numbers are fine;
-  integer <const> :: TM_END = 2      ! just be different.
+  integer <const> :: TM_STT = 1     !! Any numbers are fine;
+  integer <const> :: TM_END = 2     !! just be different.
 
   integer :: C_MAX
   integer <const> :: MAX_KEY_N    = 50
@@ -51,21 +51,22 @@ module kutimer_m
     char(len=KEYLEN) :: keyname
     integer, dimension(MAX_KEY_N) :: sub_total_tim
     char(len=KEYLEN), dimension(MAX_SUBKEY_N) :: sub_keyname
-    integer :: sub_key_n            ! Number of break points
-    logical :: pair_check           ! (stt,end) must be a pair.
+    integer :: sub_key_n           !! Number of break points
+    logical :: pair_check          !! (stt,end) must be a pair.
   end type ttb_t
 
-  ! Decreration & initialization of array.
-  ! This is automatically saved anyway.
-  type(ttb_t), dimension(MAX_KEY_N), save :: ttb = & !
-        ttb_t(0,0,0,0,'123456',0,'******',0,.true.)  ! Initialization
-  integer :: key_n                                   ! How many key used
+  !! Decreration & initialization of array.
+  !! This is automatically saved anyway.
+  type(ttb_t), dimension(MAX_KEY_N), save :: ttb = &  
+        ttb_t(0,0,0,0,'123456',0,'******',0,.true.)  !! Initialization
+  integer :: key_n                                   !! How many key used
 
   interface kutimer__
     module procedure tm1, tm2
   end interface
 
   logical :: jump_flag = .false.   ! Jump all timer routines if this is set.
+
 
 contains
 
@@ -140,7 +141,7 @@ contains
                         "///  ",ttb(i).keyname,"  ///",     &
                                 ttb(i).call_cntr," call"
       if( .not. ttb(i).pair_check ) then
-        print *," <tm> 'E' isn't called."    ! Call error.
+        print *," <tm> 'E' isn't called."    !! Call error.
         cycle                                ! Ignore this.
       end if
       print '(2x,40a1)', ('-',k=1,40)        ! Horizontal line

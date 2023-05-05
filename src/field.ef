@@ -1,15 +1,14 @@
-!*******************************************************************
-!> author: Akira Kageyama
-!  license: MIT
-!  date: 2020.01.22
-!
-!  流体場データ構造体
-!
-!  @note 配列演算を多用している。つまり一行で書かれている部分も
-!        実際は3重do loopで書かれような大量の演算をしているところが
-!        多い。このコードをOpenMP化する時には、そのような部分を
-!        3重do loopに展開して書き直す必要がある。
-!
+!!>
+   author: Akira Kageyama
+   date: 2023.05.05
+ 
+   流体場データ構造体
+ 
+   @note 配列演算を多用している。つまり一行で書かれている部分も
+         実際は3重do loopで書かれような大量の演算をしているところが
+         多い。このコードをOpenMP化する時には、そのような部分を
+         3重do loopに展開して書き直す必要がある。
+!!<
 
 module field_m
   use constants_m  ! 定数定義
@@ -30,7 +29,6 @@ module field_m
   public :: assignment( = )
   public :: field__boundary_condition
 
-
   interface field__boundary_condition
     !! 境界条件呼び出しルーチンの多重定義
     !! 境界条件を設定する変数の種類によって
@@ -42,10 +40,12 @@ module field_m
                      boundary_condition_vector
   end interface 
 
-  ! type field__scalar_t
-  !  この構造体は efpp_alias.list で以下のようにマクロ定義されている
-  !   => "real(DR), dimension(0:NXPP1,0:NYPP1,0:NZPP1)"
-  ! end type field__scalar_t
+  !!>
+  type field__scalar_t
+     !この構造体は efpp_alias.list で以下のようにマクロ定義されている
+     !=> "real(DR), dimension(0:NXPP1,0:NYPP1,0:NZPP1)"
+  end type field__scalar_t
+  !!<
 
   type, public :: field__vector_t
     !! 3次元ベクトル場構造体

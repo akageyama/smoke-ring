@@ -6,7 +6,6 @@
     2023.05.01: Copied from tetra_dynamo project.
 !!<
 
-
 module parallel_m
   use constants_m
   use mpi

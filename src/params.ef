@@ -1,35 +1,34 @@
-!*******************************************************************
-!> author: Akira Kageyama
-!  license: MIT
-!  date: 2020.01.22
-!
-!  シミュレーションパラメータ
-!
-!  @note 
-!     パラメーターはnamelistを使ってファイルから読み込む
-!
-!  @note 
-!     先頭一文字だけが大文字になっている変数例えば Read_done などは
-!     このモジュールを名前空間とする変数を意味する。つまりモジュール
-!     外からはアクセスできないがモジュール内のルーチン関数からは
-!     アクセスできるものである。
-!     このようにスコープの広い変数を乱用するとバグの温床になるが
-!     この程度の小さなプログラムであれば問題ないであろう。
-!
-!  @note
-!     ファイル番号10番をparams__readで使っている。
-!
-!  @note
-!    namelistファイルの内容を変更する場合は:
-!      (1) このファイルの少し下の行にあるnamelist文を書き換える。
-!      (2) params__readを書き換える。
-!      (3) namelist__get_double, _integer等の対応する行も書き換える。
-!
-!  @note
-!    namelist文中のスラッシュで囲まれた名称（たとえば/simulation/）
-!    や、namelist変数名（たとえばTotal_nloop）はnamelistファイル
-!    の中での記述と対応していなければいけない。
-!  
+!!>
+   author: Akira Kageyama
+   date: 2023.05.05
+ 
+   シミュレーションパラメータ
+ 
+   @note 
+      パラメーターはnamelistを使ってファイルから読み込む
+ 
+   @note 
+      先頭一文字だけが大文字になっている変数例えば Read_done などは
+      このモジュールを名前空間とする変数を意味する。つまりモジュール
+      外からはアクセスできないがモジュール内のルーチン関数からは
+      アクセスできるものである。
+      このようにスコープの広い変数を乱用するとバグの温床になるが
+      この程度の小さなプログラムであれば問題ないであろう。
+ 
+   @note
+      ファイル番号10番をparams__readで使っている。
+ 
+   @note
+     namelistファイルの内容を変更する場合は:
+       (1) このファイルの少し下の行にあるnamelist文を書き換える。
+       (2) params__readを書き換える。
+       (3) namelist__get_double, _integer等の対応する行も書き換える。
+ 
+   @note
+     namelist文中のスラッシュで囲まれた名称（たとえば/simulation/）
+     や、namelist変数名（たとえばTotal_nloop）はnamelistファイル
+     の中での記述と対応していなければいけない。
+!!<
 
 module params_m
   use constants_m  ! 定数定義
@@ -39,8 +38,8 @@ module params_m
 
   logical, save :: Read_done = .false.  ! 読み込みが済んだか否か
 
-  integer, parameter :: STRING_LENGTH_MAX = 200  ! 文字列長
-                                  ! 足りなくなったら大きくする。
+  integer <const> :: STRING_LENGTH_MAX = 200  ! 文字列長
+                                ! 足りなくなったら大きくする。
 
   integer :: Total_nloop        ! 一度のジョブで計算するループ回数
   integer :: Slicedata_nskip    ! 何ステップ毎に断面データを書き出すか

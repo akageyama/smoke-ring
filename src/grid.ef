@@ -1,14 +1,13 @@
-!*******************************************************************
-!> author: Akira Kageyama
-!  license: MIT
-!  date: 2020.01.22
-!
-!  格子点関連情報
-!
-!  @note 
-!     モジュール名と同じgridというpublicな変数（構造体）を
-!     定義し、その実体をこのモジュール内に保持している。
-!
+!!>
+   author: Akira Kageyama
+   date: 2023.05.05
+ 
+   格子点関連情報
+ 
+   @note 
+      モジュール名と同じgridというpublicな変数（構造体）を
+      定義し、その実体をこのモジュール内に保持している。
+!!<
 module grid_m
   use constants_m  ! 定数定義
   use parallel_m   ! 並列化モジュール
@@ -277,7 +276,7 @@ contains
     !! は
     !!     call grid__initialize(sample_grid)
     !! と解釈される。gridという名前でなくても構わない。
-    class(grid_t), intent(out) :: grid  !! 格子構造体
+    class(grid_t) <out> :: grid  !! 格子構造体
 
     real(DR) :: dx, dy, dz  ! 格子間隔
 
