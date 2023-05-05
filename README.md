@@ -1,8 +1,6 @@
-# class-hpc-smoke-ring
+# smoke-ring
 
-A simple sample field solver, or a CFD (Computational Fluid Dynamics)
-code for the class "HPC", which is for undergraduate students of
-Department of Engineering, Kobe University, Japan.
+A simple sample CFD (Computational Fluid Dynamics) code.
 
 ## Physical Model
 A gas contained in a rectangular box is driven by a localized force
@@ -15,9 +13,7 @@ or smoke-ring.
     --+--src (For the smoke-ring simulation. The output is a file
       |       named "_data_slice".)
       |
-      +--slice_grapher (For visualization. It reads "_data_slice"
-      |                 and makes an animated gif of the flow in a
-      |                 a cross section.)
+      +--data/vis2d (Cross section visualization in SVG format)
       |
       +--warming_up (A supplementary, simple, sample, and stand-alone,
                      simulation program. It solves 1-D Burgers
@@ -27,22 +23,15 @@ or smoke-ring.
                      and run this program before you proceed to the
                      main smoke-ring ring codes (src and slice_grapher).
 
-## Prerequisite
-
-- Fortran 2003 compiler, for the simulation.
-- gnuplot and ImageMagic (convert command), for the visualization.
-- An animated gif viewer. Here we use Safari.
 
 ## Usage
 
     1. cd src
     2. make  (for simulation)
-    3. cd ../slice_grapher
-    4. make (for visualization)
 
 ## Easy experiments
 
-- Change the grid size (NX,NY,NZ) in src/constants.f90
+- Change the grid size (NX,NY,NZ) in src/constants.ef
 - Change dissipation params in src/params.namelist
 
 
@@ -61,7 +50,7 @@ Periodic boundary in all (three) dimensions.
 
 ## Programing language
 
-Fortran 2003.
+eFortran.
 
 ## Author
 Akira Kageyama, Kobe Univ., Japan
