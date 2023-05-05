@@ -114,11 +114,9 @@ contains
     call make_filename( tas, plane.tag, plane.pressure.tag, filename )
     call draw_contour( ll, ur, filename, plane.pressure )       
                                               !{drawxy}{only p}
-!!>
     call make_filename( tas, plane.tag, plane.flow_helicity.tag, filename )
     call draw_contour( ll, ur, filename, plane.flow_helicity )  
                                               !{drawxy}{onlyfh}
-!!<
     call make_filename( tas, plane.tag, plane.velocity_z.tag, filename )
     call draw_contour( ll, ur, filename, plane.velocity_z )     
                                               !{drawxy}{onlyvz}
@@ -644,21 +642,15 @@ contains
         level = level_min + dlevel*(real(l)-0.5)
         level_nrm = (level-level_min) / level_range
         color = vv_color__normalized_real_to_color( level_nrm )
-        if ( Parallel.rank.me == 0 ) then
-          call scalar.vis_contour( vv_sketch,              &
-                                   level,                  &
-                                   line_color=color_black, &
-                                   fill_color=color,       &
-                                   debug_print=.true. )
-        else
-          call scalar.vis_contour( vv_sketch,              &
-                                   level,                  &
-                                   line_color=color_black, &
-                                   fill_color=color )
-        end if
+        call scalar.vis_contour( vv_sketch,              &
+                                 level,                  &
+                                 line_color=color_black, &
+                                 fill_color=color )
+                               ! debug_print=.true. ) ! for debug.
       end do
 
     call vv_sketch.group_pop
+
     call vv_sketch.finalize                 
 
   contains
@@ -905,7 +897,7 @@ contains
       call vis2d.z_upper.draw ( t, nloop )
 !     call vis2d.z_middle.draw( t, nloop )
 !     call vis2d.z_lower.draw ( t, nloop )      !{vis2d }{    z}
-!     call vis2d.y_upper.draw ( t, nloop )
+      call vis2d.y_upper.draw ( t, nloop )
 !     call vis2d.y_middle.draw( t, nloop )
 !     call vis2d.y_lower.draw ( t, nloop )      !{vis2d }{    y}
       end if
