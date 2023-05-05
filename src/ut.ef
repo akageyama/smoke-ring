@@ -32,6 +32,7 @@ module ut_m
             ut__int_to_str6,              &
             ut__int_to_str8,              &
             ut__int_to_str10,             &
+            ut__real_to_str13,            &
             ut__make_queue,               &
             ut__message,                  &
             ut__message_leader,           &
@@ -98,6 +99,11 @@ module ut_m
   interface ut__real_to_str10
     module procedure real_to_str10_dr,  &
                      real_to_str10_sr
+  end interface
+
+  interface ut__real_to_str13
+    module procedure real_to_str13_dr,  &
+                     real_to_str13_sr
   end interface
 
   interface ut__positive_real_to_str9
@@ -910,6 +916,28 @@ contains
     write(str,'(1pe10.3)') f
     if(str(1:1)==' ') str(1:1)='+'
   end function real_to_str10_sr
+
+
+  function real_to_str13_dr( d ) result(str)
+    real(DR) <in> :: d
+    char(len=13)  :: str
+    !!>
+      double to character string, e.g., d=0.123456789 ==> str="+1.234567E-01"
+    !!<
+    write(str,'(1pe13.6)') d
+    if(str(1:1)==' ') str(1:1)='+'
+  end function real_to_str13_dr
+
+
+  function real_to_str13_sr( f ) result(str)
+    real(SR) <in> :: f
+    char(len=13)  :: str
+    !!>
+      double to character string, e.g., f=0.123456789 ==> str="+1.234567E-01"
+    !!<
+    write(str,'(1pe13.6)') f
+    if(str(1:1)==' ') str(1:1)='+'
+  end function real_to_str13_sr
 
 
   function sizeof_0d_di( i ) result(size)
