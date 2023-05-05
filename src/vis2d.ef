@@ -116,10 +116,10 @@ contains
                                               !{drawxy}{{STT}}
     call make_time_and_step_string( t, step, tas )
 
-!!>
     call make_filename( tas, plane.tag, plane.pressure.tag, filename )
     call draw_contour( ll, ur, filename, plane.pressure )       
                                               !{drawxy}{only p}
+!!>
     call make_filename( tas, plane.tag, plane.delta_pressure.tag, filename )
     call draw_contour( ll, ur, filename, plane.delta_pressure )       
                                               !{drawxy}{onlydp}
@@ -594,23 +594,6 @@ contains
   end subroutine vis2d__set_data
 
 
-  subroutine get_min_max_scalar( scal2d, &
-                                 vmin,   &
-                                 vmax,   &
-                                 string )
-      real, dimension(:,:) <in> :: scal2d
-      real <out> :: vmin, vmax
-      char(len=TAG_NAME_MAX) <out> :: string
-
-      char(len=10) :: str10_vmax, str10_vmin
-      vmin = minval(scal2d(:,:))
-      vmax = maxval(scal2d(:,:))
-      str10_vmin = ut__real_to_str10( vmin )
-      str10_vmax = ut__real_to_str10( vmax )
-      string = 'vmin = '//str10_vmin//' vmax = '//str10_vmax
-  end subroutine get_min_max_scalar
-
-
   function min_max_string( vmin, vmax ) result(string)
       real <in> :: vmin, vmax
       char(len=TAG_NAME_MAX) :: string
@@ -622,20 +605,14 @@ contains
   end function min_max_string
 
 
-  subroutine get_max_amp_vector( vec_u,  &
-                                 vec_v,  &
-                                 vmax,   &
-                                 string )
-      real, dimension(:,:) <in> :: vec_u, vec_v
-      real <out> :: vmax
-      char(len=TAG_NAME_MAX) <out> :: string
+  function vec_amp_max_string( vmax ) result(string)
+    real <in> :: vmax
+    char(len=TAG_NAME_MAX) :: string
 
-      char(len=10) :: str10_vmax
-      vmax = sqrt(maxval(vec_u(:,:)**2  &
-                       + vec_v(:,:)**2))
-      str10_vmax = ut__real_to_str10( vmax )
-      string = 'vmax = '//str10_vmax
-  end subroutine get_max_amp_vector
+    char(len=10) :: str10_vmax
+    str10_vmax = ut__real_to_str10( vmax )
+    string = 'vmax = ' // str10_vmax
+  end function vec_amp_max_string
 
 
   subroutine draw_contour( ll, ur, filename, scalar )
@@ -647,7 +624,7 @@ contains
     type(vv_sketch_t) :: vv_sketch
     real :: level_min, level_max, dlevel, level, level_nrm
     real :: level_range
-    type(vv_color_t) :: color, color_black, color_magenta
+    type(vv_color_t) :: color, color_black
     integer :: l
     character(len=TAG_NAME_MAX) :: message
     real <const> :: ALMOST_ZERO = 1.e-20_SR
@@ -657,7 +634,6 @@ contains
     logical :: flag_skip_contour
 
     color_black   = VV_COLOR__CONST.black
-    color_magenta = VV_COLOR__CONST.magenta
 
     flag_skip_contour = .false. !! default
 
@@ -688,13 +664,11 @@ contains
       return
     end if
 
-    call vv_sketch.group_push( line_color=color_magenta,  &
+    call vv_sketch.group_push( line_color=VV_COLOR__CONST.magenta,  &
                                line_width_in_pixel=2.0 )
       dlevel = level_range / 10
-      ! do l = 1, 10
-      do l = 5, 5
+      do l = 1, 10
         level = level_min + dlevel*(real(l)-0.5)
-!debugp level
         level_nrm = (level-level_min) / level_range
         color = vv_color__normalized_real_to_color( level_nrm )
         if ( Parallel.rank.me == 0 ) then
@@ -716,7 +690,6 @@ contains
 
   contains
 
-    
     subroutine iText_in_header_and_footer( message )
       char(len=TAG_NAME_MAX) <in> :: message
 
@@ -771,22 +744,31 @@ contains
                            line_color=VV_COLOR__CONST.black,  &
                            width_in_pixels=2.0 )
 
-    call iText_in_header_and_footer
+    vec_amp_max = sqrt(maxval(vector.comp_u(:,:)**2  &
+                            + vector.comp_v(:,:)**2))
+    message = vec_amp_max_string( vec_amp_max )
+    call iText_in_header_and_footer( message )
+
+    if ( vec_amp_max <= ALMOST_ZERO ) then
+      call vv_sketch.finalize
+      return
+    end if
 
     call vv_sketch.group_push( line_color=color_limegreen,  &
                                fill_color=color_darkgreen,  &
                                line_width_in_pixel=2.0 )
-      if ( vec_amp_max > ALMOST_ZERO ) then
-        vector.comp_u(:,:) = vector.comp_u(:,:) / vec_amp_max
-        vector.comp_v(:,:) = vector.comp_v(:,:) / vec_amp_max
-        call vector.vis_arrows( vv_sketch )
-      end if
+      vector.comp_u(:,:) = vector.comp_u(:,:) / vec_amp_max
+      vector.comp_v(:,:) = vector.comp_v(:,:) / vec_amp_max
+      call vector.vis_arrows( vv_sketch )
     call vv_sketch.group_pop
+
     call vv_sketch.finalize                 
 
   contains
     
-    subroutine iText_in_header_and_footer
+    subroutine iText_in_header_and_footer( message )
+      char(len=TAG_NAME_MAX) <in> :: message
+
       call vv_sketch.group_push( line_color=color_black,  &
                                  line_width_in_pixel=1.0 )
       ! --<figure title in the header>--
@@ -796,7 +778,6 @@ contains
                            font_size_in_pixel=30.0,  &
                            text_anchor='middle' )
       ! --<simple text in the footer>--
-      call get_max_amp_vector( vector.comp_u, vector.comp_v, vec_amp_max, message  )
       call vv_sketch.text( ll.u,  &
                            (ll.v-(ur.v-ll.v)*0.04),  &
                            trim(filename),  &
@@ -823,13 +804,16 @@ contains
     real :: vec_amp_max
     type(vv_sketch_t) :: vv_sketch
     real :: level_min, level_max, dlevel, level, level_nrm
+    real :: max_min_diff_normalized 
     real :: level_range
+    real :: level_amplitude
     type(vv_color_t) :: color, color_black
     type(vv_color_t) :: color_bisquebrown, color_sandybrown
     integer :: l
-    character(len=TAG_NAME_MAX) :: message
+    character(len=TAG_NAME_MAX) :: message1, message2
     char(len=TAG_NAME_MAX*2) :: figure_title
     real <const> :: ALMOST_ZERO = 1.e-20_SR
+    real <const> :: TOO_SMALL_DIFF_FOR_CONTOUR = 1.e-3_SR
 
     color_black       = VV_COLOR__CONST.black
     color_bisquebrown = VV_COLOR__CONST.bisquebrown
@@ -846,60 +830,83 @@ contains
                            line_color=VV_COLOR__CONST.black,  &
                            width_in_pixels=2.0 )
 
-    call iText_in_header_and_footer
+    level_min = minval(scalar.val_vert)
+    level_max = maxval(scalar.val_vert)
+    message1 = min_max_string( level_min, level_max )
 
-    call vv_sketch.group_push( line_color=color_sandybrown,  &
-                               fill_color=color_bisquebrown, &
-                               line_width_in_pixel=2.0 )
-      level_range = level_max - level_min
-      if ( level_range > ALMOST_ZERO ) then
-        dlevel = level_range / 10
-        do l = 1, 10
-          level = level_min + dlevel*(real(l)-0.5)
-          level_nrm = (level-level_min) / level_range
-          color = vv_color__normalized_real_to_color( level_nrm )
-          call scalar.vis_contour( vv_sketch,              &
-                                   level,                  &
-                                   line_color=color_black, &
-                                   fill_color=color )
-        end do
-      end if
-      if ( vec_amp_max > ALMOST_ZERO ) then
-        vector.comp_u(:,:) = vector.comp_u(:,:) / vec_amp_max
-        vector.comp_v(:,:) = vector.comp_v(:,:) / vec_amp_max
-        call vector.vis_arrows( vv_sketch )
-      end if
-    call vv_sketch.group_pop
+    vec_amp_max = sqrt(maxval(vector.comp_u(:,:)**2  &
+                            + vector.comp_v(:,:)**2))
+    message2 = vec_amp_max_string( vec_amp_max )
+
+    call iText_in_header_and_footer( message1, message2 )
+
+    !!>
+        Contours 
+    !!<
+    level_amplitude = max(abs(level_max),abs(level_min))
+    if ( level_amplitude > ALMOST_ZERO ) then
+      call vv_sketch.group_push( line_color=color_sandybrown,  &
+                                 fill_color=color_bisquebrown, &
+                                 line_width_in_pixel=2.0 )
+        level_range = level_max - level_min
+        max_min_diff_normalized = level_range / level_amplitude
+        if ( max_min_diff_normalized >= TOO_SMALL_DIFF_FOR_CONTOUR )  then
+          dlevel = level_range / 10
+          do l = 1, 10
+            level = level_min + dlevel*(real(l)-0.5)
+            level_nrm = (level-level_min) / level_range
+            color = vv_color__normalized_real_to_color( level_nrm )
+            call scalar.vis_contour( vv_sketch,              &
+                                     level,                  &
+                                     line_color=color_black, &
+                                     fill_color=color )
+          end do
+        end if
+      call vv_sketch.group_pop
+    end if
+
+    !!>
+        Arrows
+    !!<
+    if ( vec_amp_max > ALMOST_ZERO ) then
+      call vv_sketch.group_push( line_color=VV_COLOR__CONST.magenta, &
+                                 fill_color=VV_COLOR__CONST.yellow,  &
+                                 line_width_in_pixel=2.0 )
+          vector.comp_u(:,:) = vector.comp_u(:,:) / vec_amp_max
+          vector.comp_v(:,:) = vector.comp_v(:,:) / vec_amp_max
+          call vector.vis_arrows( vv_sketch )
+      call vv_sketch.group_pop
+    end if
+
     call vv_sketch.finalize                 
 
   contains
     
-    subroutine iText_in_header_and_footer
+    subroutine iText_in_header_and_footer( message1, message2 )
+      character(len=TAG_NAME_MAX) <in> :: message1, message2
       call vv_sketch.group_push( line_color=color_black,  &
                                  line_width_in_pixel=1.0 )
       ! --<figure title in the header>--
-      call vv_sketch.text( (ll.u+ur.u)/2,  &
-                           (ur.v*1.1),  &
-                           vv_sketch.title,  &
+      call vv_sketch.text( (ll.u+ur.u)/2,            &
+                           (ur.v*1.1),               &
+                           vv_sketch.title,          &
                            font_size_in_pixel=30.0,  &
                            text_anchor='middle' )
       ! --<simple text in the footer>--
-      call get_min_max_scalar( scalar.val_vert, level_min, level_max, message )
-      call vv_sketch.text( ll.u,  &
+      call vv_sketch.text( ll.u,                     &
                            (ll.v-(ur.v-ll.v)*0.04),  &
-                           trim(filename),  &
+                           trim(filename),           &
                            font_size_in_pixel=20.0,  &
                            text_anchor='start' )
-      call vv_sketch.text( ll.u,  &
-                           (ll.v-(ur.v-ll.v)*0.07),  &
-                           'Contour: ' // trim(message),  &
-                           font_size_in_pixel=20.0,  &
+      call vv_sketch.text( ll.u,                           &
+                           (ll.v-(ur.v-ll.v)*0.07),        &
+                           'Contour: ' // trim(message1),  &
+                           font_size_in_pixel=20.0,        &
                            text_anchor='start' )
-      call get_max_amp_vector( vector.comp_u, vector.comp_v, vec_amp_max, message  )
-      call vv_sketch.text( ll.u,  &
-                           (ll.v-(ur.v-ll.v)*0.10),  &
-                           'Arrow: ' // trim(message),  &
-                           font_size_in_pixel=20.0,  &
+      call vv_sketch.text( ll.u,                         &
+                           (ll.v-(ur.v-ll.v)*0.10),      &
+                           'Arrow: ' // trim(message2),  &
+                           font_size_in_pixel=20.0,      &
                            text_anchor='start' )
       call vv_sketch.group_pop
     end subroutine iText_in_header_and_footer
