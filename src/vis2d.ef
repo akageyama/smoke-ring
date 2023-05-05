@@ -108,36 +108,36 @@ contains
     ll.v = YMIN
     ur.u = XMAX
     ur.v = YMAX
-                                              !{drawxy}{{STT}}
+                                              !{vis2xy}{{STT}}
     call make_time_and_step_string( t, step, tas )
 
+!!>
     call make_filename( tas, plane.tag, plane.pressure.tag, filename )
     call draw_contour( ll, ur, filename, plane.pressure )       
-                                              !{drawxy}{only p}
+                                              !{vis2xy}{  pres}
     call make_filename( tas, plane.tag, plane.flow_helicity.tag, filename )
     call draw_contour( ll, ur, filename, plane.flow_helicity )  
-                                              !{drawxy}{onlyfh}
+                                              !{vis2xy}{f heli}
     call make_filename( tas, plane.tag, plane.velocity_z.tag, filename )
     call draw_contour( ll, ur, filename, plane.velocity_z )     
-                                              !{drawxy}{onlyvz}
+                                              !{vis2xy}{ vel z}
+!!<
     call make_filename( tas, plane.tag, plane.enstrophy.tag, filename )
     call draw_contour( ll, ur, filename, plane.enstrophy )     
-                                              !{drawxy}{onlyen}
+                                              !{vis2xy}{   ens}
+!!>
     call make_filename( tas, plane.tag, plane.velocity.tag, filename )
     call draw_arrows( ll, ur, filename, plane.velocity )       
-                                              !{drawxy}{only v}
+                                              !{vis2xy}{   vel}
     call make_filename( tas, plane.tag, plane.vorticity.tag, filename )
     call draw_arrows( ll, ur, filename, plane.vorticity )       
-                                              !{drawxy}{only o}
-    call make_filename( tas, plane.tag, 'velocity_combined', filename )
-    call draw_contour_and_arrows( ll, ur, filename, plane.velocity_z,  &
+                                              !{vis2xy}{   vor}
+!!<
+    call make_filename( tas, plane.tag, 'combined_ens_vel', filename )
+    call draw_contour_and_arrows( ll, ur, filename, plane.enstrophy,  &
                                                     plane.velocity  )
-                                              !{drawxy}{   vec}
-    call make_filename( tas, plane.tag, 'vorticity_combined', filename )
-    call draw_contour_and_arrows( ll, ur, filename, plane.flow_helicity,  &
-                                                    plane.vorticity  )
-                                              !{drawxy}{   vor}
-                                              !{drawxy}{{END}}
+                                              !{vis2xy}{ensvel}
+                                              !{vis2xy}{{END}}
   end subroutine vis2d_plane_xy__draw
 
 
@@ -155,36 +155,36 @@ contains
     ll.v = ZMIN
     ur.u = XMAX
     ur.v = ZMAX
-                                              !{drawxz}{{STT}}
+                                              !{vis2xz}{{STT}}
     call make_time_and_step_string( t, step, tas )
 
+!!>
     call make_filename( tas, plane.tag, plane.pressure.tag, filename )
     call draw_contour( ll, ur, filename, plane.pressure )       
-                                              !{drawxz}{only p}
+                                              !{vis2xz}{  pres}
     call make_filename( tas, plane.tag, plane.flow_helicity.tag, filename )
     call draw_contour( ll, ur, filename, plane.flow_helicity )  
-                                              !{drawxz}{onlyfh}
+                                              !{vis2xz}{f heli}
     call make_filename( tas, plane.tag, plane.velocity_y.tag, filename )
     call draw_contour( ll, ur, filename, plane.velocity_y )     
-                                              !{drawxz}{onlyvy}
+                                              !{vis2xz}{ vel z}
+!!<
     call make_filename( tas, plane.tag, plane.enstrophy.tag, filename )
     call draw_contour( ll, ur, filename, plane.enstrophy )     
-                                              !{drawxz}{onlyen}
+                                              !{vis2xz}{   ens}
+!!>
     call make_filename( tas, plane.tag, plane.velocity.tag, filename )
     call draw_arrows( ll, ur, filename, plane.velocity )       
-                                              !{drawxz}{only v}
+                                              !{vis2xz}{   vel}
     call make_filename( tas, plane.tag, plane.vorticity.tag, filename )
     call draw_arrows( ll, ur, filename, plane.vorticity )       
-                                              !{drawxz}{only o}
-    call make_filename( tas, plane.tag, 'velocity_combined', filename )
-    call draw_contour_and_arrows( ll, ur, filename, plane.velocity_y, &
-                                                    plane.velocity  )
-                                              !{drawxz}{   vec}
-    call make_filename( tas, plane.tag, 'vorticity_combined', filename )
-    call draw_contour_and_arrows( ll, ur, filename, plane.flow_helicity, &
-                                                    plane.vorticity )
-                                              !{drawxz}{   vor}
-                                              !{drawxz}{{END}}
+                                              !{vis2xz}{   vor}
+!!<
+    call make_filename( tas, plane.tag, 'combined_ens_vel', filename )
+    call draw_contour_and_arrows( ll, ur, filename, plane.enstrophy, &
+                                                    plane.velocity )
+                                              !{vis2xz}{ensvel}
+                                              !{vis2xz}{{END}}
   end subroutine vis2d_plane_xz__draw
 
 
@@ -919,20 +919,20 @@ contains
 
     t = real(t_double,SR)
 
-                                                !{vis2d }{{STT}}
+                                                !{vis2  }{{STT}}
     ===<skip ctr:10>===
-      call vis2d.set_data( fluid )              !{vis2d }{set d}
+      call vis2d.set_data( fluid )              !{vis2  }{set d}
       if ( Parallel.rank.me == 0 ) then
-!     call vis2d.z_upper.draw ( t, nloop )
-      call vis2d.z_middle.draw( t, nloop )
-!     call vis2d.z_lower.draw ( t, nloop )      !{vis2d }{    z}
-!     call vis2d.y_upper.draw ( t, nloop )
-!     call vis2d.y_middle.draw( t, nloop )
-!     call vis2d.y_lower.draw ( t, nloop )      !{vis2d }{    y}
+!       call vis2d.z_upper.draw ( t, nloop )
+        call vis2d.z_middle.draw( t, nloop )    !{vis2  }{   xy}
+!       call vis2d.z_lower.draw ( t, nloop )
+!       call vis2d.y_upper.draw ( t, nloop )
+!       call vis2d.y_middle.draw( t, nloop )
+        call vis2d.y_lower.draw ( t, nloop )    !{vis2  }{   xz}
       end if
       call mpiut__barrier( Parallel.comm )
     ===</skip ctr>===
-                                                !{vis2d }{{END}}
+                                                !{vis2  }{{END}}
   end subroutine vis2d__draw
 
 end module vis2d_m
