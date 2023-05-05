@@ -33,6 +33,7 @@
 module params_m
   use constants_m  ! 定数定義
   use ut_m         ! ユーティリティ
+  use iso_fortran_env, only : output_unit
   implicit none    ! 暗黙の型宣言無効化。必須
   private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
 
@@ -137,15 +138,11 @@ contains
     !! namelistファイルをディスクから読み込む。
     !! ファイル名はコマンド第一引数。
     !!
-    !! ファイル番号10番をここで使っている。他の場所で
-    !! 10番を使う（開きっぱなしにする）場合は問題だが、
-    !! その場所でもここのようにopenした後、closeしていれば
-    !! 特に問題ではない。
-    !!
     !! namelistデータファイルの内容を変更する場合は
-    !! 以下のread文も適宜変更すること。
+    !! 以下のread文も適宜変更する。
     !!
     char(len=STRING_LENGTH_MAX) :: params_file
+    integer :: file_unit
 
     call ut__assert( command_argument_count()==1, &
                      "__MODULE__(__LINE__): Usage: smoke_ring param_file")
@@ -157,15 +154,15 @@ contains
     ! &fluid_property  Viscosity = 3.0e-2, Kappa = 3.e-2 /
     !*******</params_file のサンプル>*********
 
-    open(10,file=trim(params_file))
-      read(10,nml=simulation)
-      read(10,nml=visualization)
-      read(10,nml=fluid_property)
-    close(10)
+    open(newunit=file_unit,file=trim(params_file))
+      read(file_unit,nml=simulation)
+      read(file_unit,nml=visualization)
+      read(file_unit,nml=fluid_property)
+    close(file_unit)
 
-    write(6,nml=simulation)
-    write(6,nml=visualization)
-    write(6,nml=fluid_property)
+    write(output_unit,nml=simulation)
+    write(output_unit,nml=visualization)
+    write(output_unit,nml=fluid_property)
 
     Read_done = .true.
   end subroutine params__read

@@ -8,7 +8,6 @@ module vis2d_m
   use constants_m
   use grid_m
   use field_m
-  use fileut_m
   use fluid_m
   use kutimer_m
   use mpiut_m 
