@@ -709,9 +709,11 @@ contains
     color_darkgreen = VV_COLOR__CONST.darkgreen
 
     call vv_sketch.initialize( ll, ur, &
-                               screen_width_in_pixel=800.0,  &
+                               screen_width_in_pixel=1000.0, &
                                title=vector.tag,             &
-                               filename=trim(filename) )
+                               filename=trim(filename),      &
+                               unit_arrow_in_pixel=20.0,     &
+                               write_arrow_template=.true. )
     ! --<boundary curve>--
     call vector.mesh.draw( vv_sketch, &
                            line_color=VV_COLOR__CONST.black,  &
@@ -732,7 +734,7 @@ contains
                                line_width_in_pixel=1.0 )
       vector.comp_u(:,:) = vector.comp_u(:,:) / vec_amp_max
       vector.comp_v(:,:) = vector.comp_v(:,:) / vec_amp_max
-      call vector.vis_arrows( vv_sketch )
+      call vector.vis_arrows( vv_sketch, arrow_template="#arrow02" )
     call vv_sketch.group_pop
 
     call vv_sketch.finalize                 
@@ -804,9 +806,11 @@ contains
     figure_title = trim(scalar.tag) // ' (contour) and ' // &
                    trim(vector.tag) // ' (arrows)'
     call vv_sketch.initialize( ll, ur,  &
-                               screen_width_in_pixel=1000.0,  &
-                               title=figure_title,  &
-                               filename=trim(filename) )
+                               screen_width_in_pixel=1000.0, &
+                               title=figure_title,           &
+                               filename=trim(filename),      &
+                               unit_arrow_in_pixel=20.0,     &
+                               write_arrow_template=.true. )
     ! --<boundary curve>--
     call scalar.mesh.draw( vv_sketch, &
                            line_color=VV_COLOR__CONST.black,  &
@@ -855,7 +859,7 @@ contains
                                  line_width_in_pixel=1.0 )
           vector.comp_u(:,:) = vector.comp_u(:,:) / vec_amp_max
           vector.comp_v(:,:) = vector.comp_v(:,:) / vec_amp_max
-          call vector.vis_arrows( vv_sketch )
+          call vector.vis_arrows( vv_sketch, arrow_template="#arrow02" )
       call vv_sketch.group_pop
     end if
 
