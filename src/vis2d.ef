@@ -120,11 +120,9 @@ contains
     call make_filename( tas, plane.tag, plane.velocity_z.tag, filename )
     call draw_contour( ll, ur, filename, plane.velocity_z )     
                                               !{vis2xy}{ vel z}
-!!<
     call make_filename( tas, plane.tag, plane.enstrophy.tag, filename )
     call draw_contour( ll, ur, filename, plane.enstrophy )     
                                               !{vis2xy}{   ens}
-!!>
     call make_filename( tas, plane.tag, plane.velocity.tag, filename )
     call draw_arrows( ll, ur, filename, plane.velocity )       
                                               !{vis2xy}{   vel}
@@ -132,7 +130,7 @@ contains
     call draw_arrows( ll, ur, filename, plane.vorticity )       
                                               !{vis2xy}{   vor}
 !!<
-    call make_filename( tas, plane.tag, 'combined_ens_vel', filename )
+    call make_filename( tas, plane.tag, 'enstrophy_and_flow', filename )
     call draw_contour_and_arrows( ll, ur, filename, plane.enstrophy,  &
                                                     plane.velocity  )
                                               !{vis2xy}{ensvel}
@@ -925,12 +923,12 @@ contains
     ===<skip ctr:100>===
       call vis2d.set_data( fluid )              !{vis2  }{set d}
       if ( Parallel.rank.me == 0 ) then
-!       call vis2d.z_upper.draw ( t, nloop )
+        call vis2d.z_upper.draw ( t, nloop )
         call vis2d.z_middle.draw( t, nloop )    !{vis2  }{   xy}
 !       call vis2d.z_lower.draw ( t, nloop )
 !       call vis2d.y_upper.draw ( t, nloop )
 !       call vis2d.y_middle.draw( t, nloop )
-        call vis2d.y_lower.draw ( t, nloop )    !{vis2  }{   xz}
+!       call vis2d.y_lower.draw ( t, nloop )    !{vis2  }{   xz}
       end if
       call mpiut__barrier( Parallel.comm )
     ===</skip ctr>===

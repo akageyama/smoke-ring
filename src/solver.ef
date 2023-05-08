@@ -732,8 +732,8 @@ contains
       call mpiut__minval( Parallel.comm, dt_local, dt_global )
         !! すべてのプロセスでの最小値をとる
 
-      if ( mod(nloop,SKIP*10)==0 ) then
-        !! 出力が長くなるが、流体の状態を推測するのに便利なデータ
+      if ( mod(nloop,SKIP*100)==0 ) then
+        !! 出力が長くなるが、流体の状態を推測するのに便利なデータ。
         !! SKIPをさらに10倍しているのは、それほど頻繁に出力する
         !! 必要は通常ないからである。
         associate ( comm => Parallel.comm )
