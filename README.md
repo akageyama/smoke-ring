@@ -15,7 +15,7 @@ or smoke-ring.
       |
       +--data/vis2d (Cross section visualization in SVG format)
       |
-      +--warming_up (A supplementary, simple, sample, and stand-alone,
+      +--warming_up (A supplementary stand-alone simulation
                      simulation program. It solves 1-D Burgers
                      equation with the same numerical scheme (finite
                      difference + Runge-Kutta integration) and with
@@ -28,6 +28,7 @@ or smoke-ring.
 
     1. cd src
     2. make  (for simulation)
+    3. cd ../data/vis2d and view svg files.
 
 ## Easy experiments
 
@@ -43,6 +44,11 @@ Compressible Navier-Stokes equations for an ideal gas.
 ## Numerical method
 
 Second-order central difference with 4-th order Runge-Kutta integration.
+
+
+## Parallelization
+
+MPI with domain decomposition.
 
 ## Boundary condition
 

@@ -4,9 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-   
-   <meta name="description" content="渦輪の形成と伝播の3次元シミュレーション + 可視化">
-    
+      <meta name="description" content="渦輪の形成と伝播の3次元シミュレーション + 可視化">
     <meta name="author" content="" >
     <link rel="icon" href="../favicon.png">
 
@@ -16,19 +14,16 @@
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
-    
-    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
-    
-    
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-    
-    <script src="../js/jquery-2.1.3.min.js"></script>
-    <script src="../js/svg-pan-zoom.min.js"></script>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
 
   </head>
 
@@ -48,240 +43,226 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-        
             <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
               <a href="#" class="dropdown-toggle"
-              data-toggle="dropdown" role="button"
-              aria-haspopup="true"
-     aria-expanded="false">Contents <span class="caret"></span></a>
-        <ul class="dropdown-menu">
-          
-              
-            <li><a href="../lists/files.html">Source Files</a></li>
-        
-        
-        
-            <li><a href="../lists/modules.html">Modules</a></li>
-        
-            
-                                
-            <li><a href="../lists/procedures.html">Procedures</a></li>
-        
-               
-            <li><a href="../lists/types.html">Derived Types</a></li>
-        
-        
-            <li><a href="../program/main_m.html">Program</a></li>
-      
-            </ul>
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../program/main_m.html">Program</a></li>
+              </ul>
             </li>
-
-
-<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
-
-
-
-<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
-
-
-
-<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
-
-                             
-<li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
-
-
-<li class="visible-xs hidden-sm visible-lg"><a href="../program/main_m.html">Program</a></li>
-
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../program/main_m.html">Program</a>
+              </li>
           </ul>
-        
-        <form action="../search.html" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-        </div>
-<!--
-        <button type="submit" class="btn btn-default">Submit</button>
--->
-        </form>
-        
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
 
     <div class="container">
-    
-  
   <div class="row">
     <h1>solver__diagnosis
       <small>Subroutine</small>
-    
+      
     </h1>
-    
-<div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     
-     
-     
-     
-    
-    
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 6.0% of total for procedures.">50 statements</a>
-     </li> 
-     
-     
-     
-    <li><i class="fa fa-code"></i><a href="../src/solver.f90"> Source File</a></li>
-     
-     
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-  
-    
-     <li><a href='../sourcefile/solver.f90.html'>solver.f90</a></li>
-    
-     <li><a href='../module/solver_m.html'>solver_m</a></li>
-    
-  
-     <li class="active">solver__diagnosis</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 3.7% of total for procedures.">49 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/solver.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/solver.f90.html'>solver.F90</a></li>
+              <li><a href='../module/solver_m.html'>solver_m</a></li>
+          <li class="active">solver__diagnosis</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    
-<div id="sidebar">
+      <div id="sidebar">
+      <h3>Contents</h3>
   
-<h3>Contents</h3>
- 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/solver__diagnosis.html#src">solver__diagnosis</a>
+      </div>
+    </div>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-  <div class="list-group">
-    <a class="list-group-item" href="../proc/solver__diagnosis.html#src">solver__diagnosis</a>
   </div>
-</div>
-
-
-
-</div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>
-public subroutine solver__diagnosis(nloop, time, fluid)
-    
-    
-   
+    <h2>private  subroutine solver__diagnosis(nloop, time, fluid)  
 </h2>
     
-  
 
+    <p>流体の「健康状態」を診断する
+このルーチンは結構計算負荷が高いので、
+毎ステップではなく、SKIPステップごとに診断を実行する</p>
+<p>Already in error state.
+ジョブの健康状態がfine（つまり健康）以外の値に
+設定する可能性があるのはここ以外にもある（例えばmain.f90の
+メインループでシミュレーションのループカウンタが最大値が達するなど）
+そのような場合、どうせこの後、ジョブの停止処理に入るので、
+これ以上計算を進めなくてもよい。</p>
+<p>質量フラックスのx成分が異常に大きい。
+これ以上計算しても無駄（すぐに終了処理に入るべし）
+これ以上計算しても無駄（すぐに終了処理に入るべし）
+質量フラックスのz成分が異常に大きい。
+これ以上計算しても無駄（すぐに終了処理に入るべし）
+質量が異常に大きい
+これ以上計算しても無駄（すぐに終了処理に入るべし）
+圧力が異常に大きい
+これ以上計算しても無駄（すぐに終了処理に入るべし）
+圧力が負になってしまっている
+これ以上計算しても無駄（すぐに終了処理に入るべし）
+密度が負になってしまっている
+これ以上計算しても無駄（すぐに終了処理に入るべし）
+基本流れデータから副次的な速度場データを求める</p>
+<p>速度の最大値（ベクトルの長さ）を計算し標準出力に書き出す
+わずか1行で書いているが、実際にはここにかなりの計算が
+含まれている。vel.x**2という配列演算は実際には3重do loop
+であり、maxval関数はその引数の3次元配列をとっている。
+つまり全要素中の最大値をとっている。そして最後に
+sqrtをとって振幅（ベクトルの長さ）を計算している。</p>
+<p>ここでもこの1行の実行にはかなりの演算（速度ベクトル場
+のx,y,z3成分の2乗和に質量密度を掛けたもの体積積分）が
+されていることに注意。</p>
+<p>上と同様。こちらのほうは単なる密度場の体積積分なので
+演算量は少ないが、シミュレーション領域全体に渡る体積積分
+なので計算量は大きいことにかわりない。</p>
 
-    
-    <p>流体の「健康状態」を診断する</p>
-    
+    <h3>Type Bound</h3>
+    <p><a href='../type/solver_t.html'>solver_t</a></p>
 
     <h3>Arguments</h3>
-    
-      
-<table class="table table-striped varlist">
-<thead><tr><th>Type</th>
-<th>Intent</th><th>Optional</th>
-<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nloop~3"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nloop</strong></td>
+            <td>
+                <p>ループカウンタ</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time~2"></span>
+              real(kind=DR),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>time</strong></td>
+            <td>
+                <p>シミュレーション時刻</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fluid~12"></span>
+              type(<a href='../type/fluid_t.html'>fluid_t</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fluid</strong></td>
+            <td>
+                <p>流体データ</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
-
-
-<tbody>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-nloop~4"></span>integer(kind=DI),</td>
-  <td>intent(in)</td>
-  <td></td>
-  
-  <td></td><td>::</td>
-  <td><strong>nloop</strong></td><td><p>ループカウンタ</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-time~3"></span>real(kind=DR),</td>
-  <td>intent(in)</td>
-  <td></td>
-  
-  <td></td><td>::</td>
-  <td><strong>time</strong></td><td><p>シミュレーション時刻</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-fluid~4"></span>type(<a href='../type/field__fluid_t.html'>field__fluid_t</a>),</td>
-  <td>intent(in)</td>
-  <td></td>
-  
-  <td></td><td>::</td>
-  <td><strong>fluid</strong></td><td><p>流体データ</p></td>
-  
-</tr>
-
-</tbody>
-</table>
-
-    
-    
-    
     <br>
-    
-    
     <div class="panel panel-default">
       <div class="panel-heading">
   <h3 class="panel-title">Calls</h3>
@@ -290,920 +271,348 @@ public subroutine solver__diagnosis(nloop, time, fluid)
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
+<!-- Generated by graphviz version 8.0.5 (20230430.1635)
  -->
 <!-- Title: proc~~solver__diagnosis~~CallsGraph Pages: 1 -->
-<svg id="procsolver__diagnosisCallsGraph" width="641pt" height="218pt"
- viewBox="0.00 0.00 641.00 217.91" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~solver__diagnosis~~CallsGraph" class="graph" transform="scale(2.19 2.19) rotate(0) translate(4 473.5)">
+<svg id="procsolver__diagnosisCallsGraph" width="401pt" height="113pt"
+ viewBox="0.00 0.00 400.79 112.77" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~solver__diagnosis~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 108.77)">
 <title>proc~~solver__diagnosis~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-473.5 1400.58,-473.5 1400.58,4 -4,4"/>
+<polygon fill="white" stroke="none" points="-4,4 -4,-108.77 396.79,-108.77 396.79,4 -4,4"/>
 <!-- proc~solver__diagnosis -->
 <g id="proc~~solver__diagnosis~~CallsGraph_node1" class="node">
 <title>proc~solver__diagnosis</title>
-<polygon fill="none" stroke="black" points="96.08,-166.26 -0.03,-166.26 -0.03,-144.24 96.08,-144.24 96.08,-166.26"/>
-<text text-anchor="middle" x="48.03" y="-152.1" font-family="Helvetica,sans-Serif" font-size="10.50">solver__diagnosis</text>
+<polygon fill="none" stroke="black" points="193.02,-63.77 0,-63.77 0,-41 193.02,-41 193.02,-63.77"/>
+<text text-anchor="middle" x="96.51" y="-48.04" font-family="Helvetica,sans-Serif" font-size="10.50">solver_m::solver_t%solver__diagnosis</text>
 </g>
-<!-- interface~debug__print -->
+<!-- mpiut__message -->
 <g id="proc~~solver__diagnosis~~CallsGraph_node2" class="node">
-<title>interface~debug__print</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node2"><a xlink:href=".././interface/debug__print.html" xlink:title="debug__print">
-<polygon fill="#a7506f" stroke="#a7506f" points="403.22,-276.26 329.61,-276.26 329.61,-254.24 403.22,-254.24 403.22,-276.26"/>
-<text text-anchor="middle" x="366.41" y="-262.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">debug__print</text>
-</a>
+<title>mpiut__message</title>
+<polygon fill="#777777" stroke="#777777" points="357.54,-104.77 264.27,-104.77 264.27,-82 357.54,-82 357.54,-104.77"/>
+<text text-anchor="middle" x="310.91" y="-89.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpiut__message</text>
 </g>
-</g>
-<!-- proc~solver__diagnosis&#45;&gt;interface~debug__print -->
+<!-- proc~solver__diagnosis&#45;&gt;mpiut__message -->
 <g id="proc~~solver__diagnosis~~CallsGraph_edge1" class="edge">
-<title>proc~solver__diagnosis&#45;&gt;interface~debug__print</title>
-<path fill="none" stroke="#ff0000" d="M56.98,-166.44C70.28,-184.18 98.85,-218.36 132.05,-234.25 192.16,-263.01 270.35,-267.71 319.22,-267.33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="319.54,-270.83 329.49,-267.18 319.43,-263.83 319.54,-270.83"/>
-</g>
-<!-- interface~ut__message -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node3" class="node">
-<title>interface~ut__message</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node3"><a xlink:href=".././interface/ut__message.html" xlink:title="ut__message">
-<polygon fill="#a7506f" stroke="#a7506f" points="1030.34,-247.26 955.25,-247.26 955.25,-225.24 1030.34,-225.24 1030.34,-247.26"/>
-<text text-anchor="middle" x="992.79" y="-233.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut__message</text>
-</a>
-</g>
-</g>
-<!-- proc~solver__diagnosis&#45;&gt;interface~ut__message -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge2" class="edge">
-<title>proc~solver__diagnosis&#45;&gt;interface~ut__message</title>
-<path fill="none" stroke="#ff0000" d="M96.2,-155.25C158.02,-155.25 269.84,-155.25 365.41,-155.25 365.41,-155.25 365.41,-155.25 799.76,-155.25 864.86,-155.25 933.31,-195.26 968.24,-219.04"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="966.57,-222.14 976.78,-224.99 970.58,-216.4 966.57,-222.14"/>
+<title>proc~solver__diagnosis&#45;&gt;mpiut__message</title>
+<path fill="none" stroke="#255000" d="M158.94,-64.24C188.6,-69.97 223.96,-76.79 253,-82.4"/>
+<polygon fill="#255000" stroke="#255000" points="252.31,-86.03 262.8,-84.48 253.64,-79.15 252.31,-86.03"/>
 </g>
 <!-- proc~subfield_vel -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node4" class="node">
+<g id="proc~~solver__diagnosis~~CallsGraph_node3" class="node">
 <title>proc~subfield_vel</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node4"><a xlink:href=".././proc/subfield_vel.html" xlink:title="subfield_vel">
-<polygon fill="#d9534f" stroke="#d9534f" points="227.75,-225.26 159.84,-225.26 159.84,-203.24 227.75,-203.24 227.75,-225.26"/>
-<text text-anchor="middle" x="193.8" y="-211.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">subfield_vel</text>
+<g id="a_proc~~solver__diagnosis~~CallsGraph_node3"><a xlink:href=".././proc/subfield_vel.html" xlink:title="solver_m::solver_t%subfield_vel">
+<polygon fill="#d9534f" stroke="#d9534f" points="392.79,-63.77 229.02,-63.77 229.02,-41 392.79,-41 392.79,-63.77"/>
+<text text-anchor="middle" x="310.91" y="-48.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">solver_m::solver_t%subfield_vel</text>
 </a>
 </g>
 </g>
 <!-- proc~solver__diagnosis&#45;&gt;proc~subfield_vel -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge3" class="edge">
+<g id="proc~~solver__diagnosis~~CallsGraph_edge2" class="edge">
 <title>proc~solver__diagnosis&#45;&gt;proc~subfield_vel</title>
-<path fill="none" stroke="#ff0000" d="M76.07,-166.35C98.76,-175.66 131.38,-189.05 156.37,-199.3"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="155.3,-202.64 165.88,-203.2 157.95,-196.17 155.3,-202.64"/>
-</g>
-<!-- proc~operator_scalarintegral -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node5" class="node">
-<title>proc~operator_scalarintegral</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node5"><a xlink:href=".././proc/operator_scalarintegral.html" xlink:title="operator_scalarintegral">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="253.69,-127.26 133.9,-127.26 133.9,-105.24 253.69,-105.24 253.69,-127.26"/>
-<text text-anchor="middle" x="193.8" y="-113.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">operator_scalarintegral</text>
-</a>
-</g>
-</g>
-<!-- proc~solver__diagnosis&#45;&gt;proc~operator_scalarintegral -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge4" class="edge">
-<title>proc~solver__diagnosis&#45;&gt;proc~operator_scalarintegral</title>
-<path fill="none" stroke="#ff0000" d="M89.84,-144.18C106.08,-139.77 124.94,-134.66 142.04,-130.02"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="143.15,-133.35 151.88,-127.35 141.31,-126.59 143.15,-133.35"/>
-</g>
-<!-- proc~operator_energyintegral -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node6" class="node">
-<title>proc~operator_energyintegral</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node6"><a xlink:href=".././proc/operator_energyintegral.html" xlink:title="operator_energyintegral">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="255.79,-86.26 131.8,-86.26 131.8,-64.24 255.79,-64.24 255.79,-86.26"/>
-<text text-anchor="middle" x="193.8" y="-72.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">operator_energyintegral</text>
-</a>
-</g>
-</g>
-<!-- proc~solver__diagnosis&#45;&gt;proc~operator_energyintegral -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge5" class="edge">
-<title>proc~solver__diagnosis&#45;&gt;proc~operator_energyintegral</title>
-<path fill="none" stroke="#ff0000" d="M62.07,-144.18C77.81,-131.26 105.48,-109.93 132.05,-96.25 136.41,-94.01 141.06,-91.91 145.78,-89.99"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="147.39,-93.12 155.48,-86.27 144.89,-86.58 147.39,-93.12"/>
-</g>
-<!-- proc~print_str_dint -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node7" class="node">
-<title>proc~print_str_dint</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node7"><a xlink:href=".././proc/print_str_dint.html" xlink:title="print_str_dint">
-<polygon fill="#d9534f" stroke="#d9534f" points="568.52,-246.26 496.12,-246.26 496.12,-224.24 568.52,-224.24 568.52,-246.26"/>
-<text text-anchor="middle" x="532.32" y="-232.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">print_str_dint</text>
-</a>
-</g>
-</g>
-<!-- interface~debug__print&#45;&gt;proc~print_str_dint -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge7" class="edge">
-<title>interface~debug__print&#45;&gt;proc~print_str_dint</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M403.38,-258.67C427.67,-254.22 459.94,-248.32 485.98,-243.55"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="486.79,-246.96 495.99,-241.72 485.53,-240.07 486.79,-246.96"/>
-</g>
-<!-- proc~print_str_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node9" class="node">
-<title>proc~print_str_double</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node9"><a xlink:href=".././proc/print_str_double.html" xlink:title="print_str_double">
-<polygon fill="#d9534f" stroke="#d9534f" points="576.12,-205.26 488.52,-205.26 488.52,-183.24 576.12,-183.24 576.12,-205.26"/>
-<text text-anchor="middle" x="532.32" y="-191.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">print_str_double</text>
-</a>
-</g>
-</g>
-<!-- interface~debug__print&#45;&gt;proc~print_str_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge8" class="edge">
-<title>interface~debug__print&#45;&gt;proc~print_str_double</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M395.38,-254.19C409.3,-248.52 426.32,-241.32 441.28,-234.25 457.64,-226.52 460.82,-222.76 477.28,-215.25 481.91,-213.14 486.82,-211.04 491.72,-209.03"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="493.06,-212.27 501.05,-205.31 490.47,-205.77 493.06,-212.27"/>
-</g>
-<!-- proc~print_str -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node11" class="node">
-<title>proc~print_str</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node11"><a xlink:href=".././proc/print_str.html" xlink:title="print_str">
-<polygon fill="#d9534f" stroke="#d9534f" points="559.32,-410.26 505.32,-410.26 505.32,-388.24 559.32,-388.24 559.32,-410.26"/>
-<text text-anchor="middle" x="532.32" y="-396.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">print_str</text>
-</a>
-</g>
-</g>
-<!-- interface~debug__print&#45;&gt;proc~print_str -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge9" class="edge">
-<title>interface~debug__print&#45;&gt;proc~print_str</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M375.58,-276.42C392.34,-298.64 432.8,-348.78 477.28,-378.25 482.98,-382.02 489.45,-385.27 495.89,-388.01"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="494.61,-391.27 505.2,-391.65 497.16,-384.75 494.61,-391.27"/>
-</g>
-<!-- proc~print_str_dint_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node12" class="node">
-<title>proc~print_str_dint_double</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node12"><a xlink:href=".././proc/print_str_dint_double.html" xlink:title="print_str_dint_double">
-<polygon fill="#d9534f" stroke="#d9534f" points="587.39,-369.26 477.25,-369.26 477.25,-347.24 587.39,-347.24 587.39,-369.26"/>
-<text text-anchor="middle" x="532.32" y="-355.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">print_str_dint_double</text>
-</a>
-</g>
-</g>
-<!-- interface~debug__print&#45;&gt;proc~print_str_dint_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge10" class="edge">
-<title>interface~debug__print&#45;&gt;proc~print_str_dint_double</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M382.09,-276.31C402.61,-291.43 441.39,-318.78 477.28,-337.25 481.37,-339.35 485.72,-341.38 490.1,-343.28"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="489.1,-346.65 499.68,-347.23 491.78,-340.18 489.1,-346.65"/>
-</g>
-<!-- proc~print_str_sint -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node16" class="node">
-<title>proc~print_str_sint</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node16"><a xlink:href=".././proc/print_str_sint.html" xlink:title="print_str_sint">
-<polygon fill="#d9534f" stroke="#d9534f" points="568.43,-328.26 496.21,-328.26 496.21,-306.24 568.43,-306.24 568.43,-328.26"/>
-<text text-anchor="middle" x="532.32" y="-314.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">print_str_sint</text>
-</a>
-</g>
-</g>
-<!-- interface~debug__print&#45;&gt;proc~print_str_sint -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge6" class="edge">
-<title>interface~debug__print&#45;&gt;proc~print_str_sint</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M402.17,-276.28C426.84,-284.1 460.15,-294.67 486.77,-303.12"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="486.02,-306.55 496.61,-306.24 488.13,-299.88 486.02,-306.55"/>
-</g>
-<!-- proc~print_str_sint_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node18" class="node">
-<title>proc~print_str_sint_double</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node18"><a xlink:href=".././proc/print_str_sint_double.html" xlink:title="print_str_sint_double">
-<polygon fill="#d9534f" stroke="#d9534f" points="587.3,-287.26 477.34,-287.26 477.34,-265.24 587.3,-265.24 587.3,-287.26"/>
-<text text-anchor="middle" x="532.32" y="-273.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">print_str_sint_double</text>
-</a>
-</g>
-</g>
-<!-- interface~debug__print&#45;&gt;proc~print_str_sint_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge11" class="edge">
-<title>interface~debug__print&#45;&gt;proc~print_str_sint_double</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M403.38,-267.66C422.09,-268.92 445.53,-270.49 467.22,-271.95"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="467.15,-275.45 477.36,-272.63 467.62,-268.47 467.15,-275.45"/>
-</g>
-<!-- proc~message_str_float -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node8" class="node">
-<title>proc~message_str_float</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node8"><a xlink:href=".././proc/message_str_float.html" xlink:title="message_str_float">
-<polygon fill="#d9534f" stroke="#d9534f" points="1199.92,-469.26 1102.33,-469.26 1102.33,-447.24 1199.92,-447.24 1199.92,-469.26"/>
-<text text-anchor="middle" x="1151.12" y="-455.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">message_str_float</text>
-</a>
-</g>
-</g>
-<!-- interface~ut__message&#45;&gt;proc~message_str_float -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge14" class="edge">
-<title>interface~ut__message&#45;&gt;proc~message_str_float</title>
-<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M994.32,-247.35C996.53,-281.28 1007.97,-384.51 1066.32,-437.25 1073.74,-443.96 1082.99,-448.61 1092.61,-451.8"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="1091.73,-455.18 1102.3,-454.53 1093.63,-448.45 1091.73,-455.18"/>
-</g>
-<!-- proc~message_decorated_str_dint -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node10" class="node">
-<title>proc~message_decorated_str_dint</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node10"><a xlink:href=".././proc/message_decorated_str_dint.html" xlink:title="message_decorated_str_dint">
-<polygon fill="#d9534f" stroke="#d9534f" points="1225.04,-428.26 1077.21,-428.26 1077.21,-406.24 1225.04,-406.24 1225.04,-428.26"/>
-<text text-anchor="middle" x="1151.12" y="-414.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">message_decorated_str_dint</text>
-</a>
-</g>
-</g>
-<!-- interface~ut__message&#45;&gt;proc~message_decorated_str_dint -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge15" class="edge">
-<title>interface~ut__message&#45;&gt;proc~message_decorated_str_dint</title>
-<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M995.49,-247.57C1000.51,-276.92 1018.08,-356 1066.32,-396.25 1068.58,-398.14 1071,-399.87 1073.52,-401.44"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="1072.01,-404.6 1082.48,-406.22 1075.31,-398.43 1072.01,-404.6"/>
-</g>
-<!-- proc~message_str_dint -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node13" class="node">
-<title>proc~message_str_dint</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node13"><a xlink:href=".././proc/message_str_dint.html" xlink:title="message_str_dint">
-<polygon fill="#d9534f" stroke="#d9534f" points="1198.5,-387.26 1103.75,-387.26 1103.75,-365.24 1198.5,-365.24 1198.5,-387.26"/>
-<text text-anchor="middle" x="1151.12" y="-373.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">message_str_dint</text>
-</a>
-</g>
-</g>
-<!-- interface~ut__message&#45;&gt;proc~message_str_dint -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge20" class="edge">
-<title>interface~ut__message&#45;&gt;proc~message_str_dint</title>
-<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M997.33,-247.43C1005.45,-271.2 1027.74,-326.85 1066.32,-355.25 1074.38,-361.19 1083.94,-365.45 1093.66,-368.52"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="1092.82,-371.92 1103.39,-371.2 1094.68,-365.17 1092.82,-371.92"/>
-</g>
-<!-- proc~message_str_sint_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node15" class="node">
-<title>proc~message_str_sint_double</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node15"><a xlink:href=".././proc/message_str_sint_double.html" xlink:title="message_str_sint_double">
-<polygon fill="#d9534f" stroke="#d9534f" points="1216.78,-346.26 1085.47,-346.26 1085.47,-324.24 1216.78,-324.24 1216.78,-346.26"/>
-<text text-anchor="middle" x="1151.12" y="-332.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">message_str_sint_double</text>
-</a>
-</g>
-</g>
-<!-- interface~ut__message&#45;&gt;proc~message_str_sint_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge12" class="edge">
-<title>interface~ut__message&#45;&gt;proc~message_str_sint_double</title>
-<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M1001.84,-247.52C1014,-263.74 1038.59,-293.53 1066.32,-310.25 1073.08,-314.33 1080.56,-317.78 1088.18,-320.7"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="1087.27,-324.09 1097.86,-324.11 1089.59,-317.49 1087.27,-324.09"/>
-</g>
-<!-- proc~message_decorated_str -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node17" class="node">
-<title>proc~message_decorated_str</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node17"><a xlink:href=".././proc/message_decorated_str.html" xlink:title="message_decorated_str">
-<polygon fill="#d9534f" stroke="#d9534f" points="1396.41,-307.26 1272.11,-307.26 1272.11,-285.24 1396.41,-285.24 1396.41,-307.26"/>
-<text text-anchor="middle" x="1334.26" y="-293.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">message_decorated_str</text>
-</a>
-</g>
-</g>
-<!-- interface~ut__message&#45;&gt;proc~message_decorated_str -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge16" class="edge">
-<title>interface~ut__message&#45;&gt;proc~message_decorated_str</title>
-<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M1008.73,-247.34C1022.79,-257.11 1044.85,-270.78 1066.32,-277.25 1130.46,-296.59 1207.05,-300.17 1261.7,-299.61"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="1262.04,-303.1 1271.98,-299.45 1261.93,-296.1 1262.04,-303.1"/>
-</g>
-<!-- proc~message_str_dint_double_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node20" class="node">
-<title>proc~message_str_dint_double_double</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node20"><a xlink:href=".././proc/message_str_dint_double_double.html" xlink:title="message_str_dint_double_double">
-<polygon fill="#d9534f" stroke="#d9534f" points="1235.74,-268.26 1066.51,-268.26 1066.51,-246.24 1235.74,-246.24 1235.74,-268.26"/>
-<text text-anchor="middle" x="1151.12" y="-254.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">message_str_dint_double_double</text>
-</a>
-</g>
-</g>
-<!-- interface~ut__message&#45;&gt;proc~message_str_dint_double_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge21" class="edge">
-<title>interface~ut__message&#45;&gt;proc~message_str_dint_double_double</title>
-<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M1030.45,-241.17C1038.89,-242.31 1048.24,-243.56 1057.88,-244.86"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="1057.64,-248.36 1068.01,-246.22 1058.57,-241.42 1057.64,-248.36"/>
-</g>
-<!-- proc~message_decorated_str_sint -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node21" class="node">
-<title>proc~message_decorated_str_sint</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node21"><a xlink:href=".././proc/message_decorated_str_sint.html" xlink:title="message_decorated_str_sint">
-<polygon fill="#d9534f" stroke="#d9534f" points="1224.45,-227.26 1077.8,-227.26 1077.8,-205.24 1224.45,-205.24 1224.45,-227.26"/>
-<text text-anchor="middle" x="1151.12" y="-213.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">message_decorated_str_sint</text>
-</a>
-</g>
-</g>
-<!-- interface~ut__message&#45;&gt;proc~message_decorated_str_sint -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge23" class="edge">
-<title>interface~ut__message&#45;&gt;proc~message_decorated_str_sint</title>
-<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M1030.45,-231.56C1041.74,-230.12 1054.66,-228.46 1067.73,-226.79"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="1068.26,-230.25 1077.74,-225.51 1067.38,-223.31 1068.26,-230.25"/>
-</g>
-<!-- proc~message_str_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node22" class="node">
-<title>proc~message_str_double</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node22"><a xlink:href=".././proc/message_str_double.html" xlink:title="message_str_double">
-<polygon fill="#d9534f" stroke="#d9534f" points="1206.1,-186.26 1096.14,-186.26 1096.14,-164.24 1206.1,-164.24 1206.1,-186.26"/>
-<text text-anchor="middle" x="1151.12" y="-172.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">message_str_double</text>
-</a>
-</g>
-</g>
-<!-- interface~ut__message&#45;&gt;proc~message_str_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge13" class="edge">
-<title>interface~ut__message&#45;&gt;proc~message_str_double</title>
-<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M1010.76,-225.24C1025.08,-216.36 1046.38,-204.09 1066.32,-196.25 1073.03,-193.61 1080.19,-191.22 1087.38,-189.08"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="1088.49,-192.4 1097.16,-186.31 1086.59,-185.66 1088.49,-192.4"/>
-</g>
-<!-- proc~message_str_sint_double_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node23" class="node">
-<title>proc~message_str_sint_double_double</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node23"><a xlink:href=".././proc/message_str_sint_double_double.html" xlink:title="message_str_sint_double_double">
-<polygon fill="#d9534f" stroke="#d9534f" points="1235.65,-145.26 1066.6,-145.26 1066.6,-123.24 1235.65,-123.24 1235.65,-145.26"/>
-<text text-anchor="middle" x="1151.12" y="-131.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">message_str_sint_double_double</text>
-</a>
-</g>
-</g>
-<!-- interface~ut__message&#45;&gt;proc~message_str_sint_double_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge19" class="edge">
-<title>interface~ut__message&#45;&gt;proc~message_str_sint_double_double</title>
-<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M1000.54,-225.18C1011.86,-207.56 1036.42,-173.29 1066.32,-155.25 1070.18,-152.92 1074.29,-150.85 1078.53,-149"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="1079.95,-152.21 1088.01,-145.32 1077.42,-145.68 1079.95,-152.21"/>
-</g>
-<!-- proc~message_str_sint -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node24" class="node">
-<title>proc~message_str_sint</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node24"><a xlink:href=".././proc/message_str_sint.html" xlink:title="message_str_sint">
-<polygon fill="#d9534f" stroke="#d9534f" points="1198.41,-104.26 1103.84,-104.26 1103.84,-82.24 1198.41,-82.24 1198.41,-104.26"/>
-<text text-anchor="middle" x="1151.12" y="-90.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">message_str_sint</text>
-</a>
-</g>
-</g>
-<!-- interface~ut__message&#45;&gt;proc~message_str_sint -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge17" class="edge">
-<title>interface~ut__message&#45;&gt;proc~message_str_sint</title>
-<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M997.13,-225.15C1004.98,-201.01 1026.99,-143.53 1066.32,-114.25 1074.44,-108.2 1084.1,-103.89 1093.93,-100.8"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="1095.04,-104.13 1103.77,-98.12 1093.2,-97.38 1095.04,-104.13"/>
-</g>
-<!-- proc~message_str -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node25" class="node">
-<title>proc~message_str</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node25"><a xlink:href=".././proc/message_str.html" xlink:title="message_str">
-<polygon fill="#d9534f" stroke="#d9534f" points="1187.23,-63.26 1115.02,-63.26 1115.02,-41.24 1187.23,-41.24 1187.23,-63.26"/>
-<text text-anchor="middle" x="1151.12" y="-49.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">message_str</text>
-</a>
-</g>
-</g>
-<!-- interface~ut__message&#45;&gt;proc~message_str -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge18" class="edge">
-<title>interface~ut__message&#45;&gt;proc~message_str</title>
-<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M995.35,-225.15C1000.11,-195.61 1017.23,-114.5 1066.32,-73.25 1077.02,-64.25 1091.05,-59.02 1104.55,-56.01"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="1105.53,-59.39 1114.71,-54.11 1104.24,-52.51 1105.53,-59.39"/>
-</g>
-<!-- proc~message_str_dint_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node26" class="node">
-<title>proc~message_str_dint_double</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node26"><a xlink:href=".././proc/message_str_dint_double.html" xlink:title="message_str_dint_double">
-<polygon fill="#d9534f" stroke="#d9534f" points="1217.37,-22.26 1084.88,-22.26 1084.88,-0.24 1217.37,-0.24 1217.37,-22.26"/>
-<text text-anchor="middle" x="1151.12" y="-8.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">message_str_dint_double</text>
-</a>
-</g>
-</g>
-<!-- interface~ut__message&#45;&gt;proc~message_str_dint_double -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge22" class="edge">
-<title>interface~ut__message&#45;&gt;proc~message_str_dint_double</title>
-<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M994.26,-224.99C996.3,-190.57 1007.33,-85.83 1066.32,-32.25 1069.15,-29.68 1072.25,-27.41 1075.53,-25.41"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="1077.33,-28.42 1084.61,-20.72 1074.11,-22.2 1077.33,-28.42"/>
-</g>
-<!-- proc~subfield_vel&#45;&gt;interface~debug__print -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge24" class="edge">
-<title>proc~subfield_vel&#45;&gt;interface~debug__print</title>
-<path fill="none" stroke="#00ff66" d="M227.69,-224.08C253.85,-231.9 290.75,-242.93 319.77,-251.61"/>
-<polygon fill="#00ff66" stroke="#00ff66" points="319.09,-255.06 329.67,-254.57 321.09,-248.35 319.09,-255.06"/>
-</g>
-<!-- proc~operator_vector_divby_scalar -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node14" class="node">
-<title>proc~operator_vector_divby_scalar</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node14"><a xlink:href=".././proc/operator_vector_divby_scalar.html" xlink:title="operator_vector_divby_scalar">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="441.15,-225.26 291.67,-225.26 291.67,-203.24 441.15,-203.24 441.15,-225.26"/>
-<text text-anchor="middle" x="366.41" y="-211.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">operator_vector_divby_scalar</text>
-</a>
-</g>
-</g>
-<!-- proc~subfield_vel&#45;&gt;proc~operator_vector_divby_scalar -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge25" class="edge">
-<title>proc~subfield_vel&#45;&gt;proc~operator_vector_divby_scalar</title>
-<path fill="none" stroke="#00ff66" d="M227.69,-214.25C243.12,-214.25 262.29,-214.25 281.37,-214.25"/>
-<polygon fill="#00ff66" stroke="#00ff66" points="281.63,-217.75 291.63,-214.25 281.63,-210.75 281.63,-217.75"/>
-</g>
-<!-- proc~operator_dot_product -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node19" class="node">
-<title>proc~operator_dot_product</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node19"><a xlink:href=".././proc/operator_dot_product.html" xlink:title="operator_dot_product">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="422.82,-86.26 310.01,-86.26 310.01,-64.24 422.82,-64.24 422.82,-86.26"/>
-<text text-anchor="middle" x="366.41" y="-72.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">operator_dot_product</text>
-</a>
-</g>
-</g>
-<!-- proc~operator_energyintegral&#45;&gt;proc~operator_dot_product -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge26" class="edge">
-<title>proc~operator_energyintegral&#45;&gt;proc~operator_dot_product</title>
-<path fill="none" stroke="#cc00ff" d="M255.91,-75.25C270.15,-75.25 285.36,-75.25 299.78,-75.25"/>
-<polygon fill="#cc00ff" stroke="#cc00ff" points="300.12,-78.75 310.11,-75.25 300.11,-71.75 300.12,-78.75"/>
-</g>
-<!-- proc~params__get_logical -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node27" class="node">
-<title>proc~params__get_logical</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node27"><a xlink:href=".././proc/params__get_logical.html" xlink:title="params__get_logical">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="732.19,-287.26 623.4,-287.26 623.4,-265.24 732.19,-265.24 732.19,-287.26"/>
-<text text-anchor="middle" x="677.8" y="-273.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">params__get_logical</text>
-</a>
-</g>
-</g>
-<!-- proc~print_str_dint&#45;&gt;proc~params__get_logical -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge27" class="edge">
-<title>proc~print_str_dint&#45;&gt;proc~params__get_logical</title>
-<path fill="none" stroke="#ff0000" d="M568.78,-245.38C586.82,-250.54 609,-256.88 628.56,-262.47"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="627.64,-265.84 638.22,-265.22 629.56,-259.11 627.64,-265.84"/>
-</g>
-<!-- proc~print_str_double&#45;&gt;interface~ut__message -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge28" class="edge">
-<title>proc~print_str_double&#45;&gt;interface~ut__message</title>
-<path fill="none" stroke="#ff9900" d="M576.04,-198.16C662.11,-206.05 855.75,-223.79 945.05,-231.97"/>
-<polygon fill="#ff9900" stroke="#ff9900" points="944.88,-235.47 955.16,-232.89 945.52,-228.5 944.88,-235.47"/>
-</g>
-<!-- proc~print_str_double&#45;&gt;proc~params__get_logical -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge29" class="edge">
-<title>proc~print_str_double&#45;&gt;proc~params__get_logical</title>
-<path fill="none" stroke="#ff9900" d="M565.28,-205.29C572.67,-208.21 580.4,-211.59 587.35,-215.25 611.29,-227.85 636.58,-245.56 654.14,-258.66"/>
-<polygon fill="#ff9900" stroke="#ff9900" points="652.48,-261.79 662.57,-265.03 656.7,-256.21 652.48,-261.79"/>
-</g>
-<!-- proc~message_decorated_str_dint&#45;&gt;proc~message_decorated_str -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge30" class="edge">
-<title>proc~message_decorated_str_dint&#45;&gt;proc~message_decorated_str</title>
-<path fill="none" stroke="#ffe500" d="M1213.21,-406.21C1221.13,-403.56 1228.91,-400.29 1235.93,-396.25 1271.52,-375.77 1302.65,-338.57 1319.62,-315.77"/>
-<polygon fill="#ffe500" stroke="#ffe500" points="1322.57,-317.67 1325.61,-307.52 1316.9,-313.56 1322.57,-317.67"/>
-</g>
-<!-- proc~print_str&#45;&gt;interface~ut__message -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge31" class="edge">
-<title>proc~print_str&#45;&gt;interface~ut__message</title>
-<path fill="none" stroke="#cbff00" d="M559.6,-397.15C624.9,-390.92 797.94,-368.19 919.27,-295.25 938.81,-283.51 958.74,-266.89 972.75,-254.28"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="975.26,-256.73 980.26,-247.39 970.53,-251.57 975.26,-256.73"/>
-</g>
-<!-- proc~print_str&#45;&gt;proc~params__get_logical -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge32" class="edge">
-<title>proc~print_str&#45;&gt;proc~params__get_logical</title>
-<path fill="none" stroke="#cbff00" d="M559.32,-391.99C568.66,-388.67 578.94,-384.14 587.35,-378.25 619.91,-355.46 648.41,-318.39 664.06,-295.78"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="667.07,-297.57 669.77,-287.32 661.27,-293.65 667.07,-297.57"/>
-</g>
-<!-- proc~print_str_dint_double&#45;&gt;proc~params__get_logical -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge33" class="edge">
-<title>proc~print_str_dint_double&#45;&gt;proc~params__get_logical</title>
-<path fill="none" stroke="#7fff00" d="M565.28,-347.21C572.67,-344.29 580.4,-340.91 587.35,-337.25 611.29,-324.65 636.58,-306.94 654.14,-293.84"/>
-<polygon fill="#7fff00" stroke="#7fff00" points="656.7,-296.29 662.57,-287.47 652.48,-290.71 656.7,-296.29"/>
-</g>
-<!-- proc~print_str_sint&#45;&gt;proc~params__get_logical -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge34" class="edge">
-<title>proc~print_str_sint&#45;&gt;proc~params__get_logical</title>
-<path fill="none" stroke="#00ffb2" d="M568.42,-307.22C586.51,-302.05 608.87,-295.66 628.56,-290.03"/>
-<polygon fill="#00ffb2" stroke="#00ffb2" points="629.63,-293.37 638.28,-287.26 627.7,-286.64 629.63,-293.37"/>
-</g>
-<!-- proc~print_str_sint_double&#45;&gt;proc~params__get_logical -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge35" class="edge">
-<title>proc~print_str_sint_double&#45;&gt;proc~params__get_logical</title>
-<path fill="none" stroke="#00b2ff" d="M587.15,-276.25C595.61,-276.25 604.42,-276.25 613.08,-276.25"/>
-<polygon fill="#00b2ff" stroke="#00b2ff" points="613.14,-279.75 623.14,-276.25 613.14,-272.75 613.14,-279.75"/>
-</g>
-<!-- proc~message_decorated_str_sint&#45;&gt;proc~message_decorated_str -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge36" class="edge">
-<title>proc~message_decorated_str_sint&#45;&gt;proc~message_decorated_str</title>
-<path fill="none" stroke="#3200ff" d="M1206.55,-227.36C1216.5,-230.1 1226.66,-233.38 1235.93,-237.25 1262.7,-248.42 1290.76,-266.17 1309.84,-279.29"/>
-<polygon fill="#3200ff" stroke="#3200ff" points="1307.98,-282.26 1318.18,-285.13 1312,-276.53 1307.98,-282.26"/>
-</g>
-<!-- proc~params__get_logical&#45;&gt;interface~ut__message -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge37" class="edge">
-<title>proc~params__get_logical&#45;&gt;interface~ut__message</title>
-<path fill="none" stroke="#ff0000" d="M732.25,-269.42C792.08,-261.77 888.08,-249.5 945.04,-242.23"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="945.73,-245.67 955.2,-240.93 944.84,-238.72 945.73,-245.67"/>
-</g>
-<!-- proc~ut__assert -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node28" class="node">
-<title>proc~ut__assert</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node28"><a xlink:href=".././proc/ut__assert.html" xlink:title="ut__assert">
-<polygon fill="#d9534f" stroke="#d9534f" points="829.29,-324.26 768.23,-324.26 768.23,-302.24 829.29,-302.24 829.29,-324.26"/>
-<text text-anchor="middle" x="798.76" y="-310.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut__assert</text>
-</a>
-</g>
-</g>
-<!-- proc~params__get_logical&#45;&gt;proc~ut__assert -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge38" class="edge">
-<title>proc~params__get_logical&#45;&gt;proc~ut__assert</title>
-<path fill="none" stroke="#ff0000" d="M714.49,-287.35C728.26,-291.63 744.06,-296.55 758.18,-300.94"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="757.51,-304.4 768.1,-304.03 759.59,-297.71 757.51,-304.4"/>
-</g>
-<!-- proc~ut__fatal -->
-<g id="proc~~solver__diagnosis~~CallsGraph_node29" class="node">
-<title>proc~ut__fatal</title>
-<g id="a_proc~~solver__diagnosis~~CallsGraph_node29"><a xlink:href=".././proc/ut__fatal.html" xlink:title="ut__fatal">
-<polygon fill="#d9534f" stroke="#d9534f" points="919.27,-286.26 865.27,-286.26 865.27,-264.24 919.27,-264.24 919.27,-286.26"/>
-<text text-anchor="middle" x="892.27" y="-272.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut__fatal</text>
-</a>
-</g>
-</g>
-<!-- proc~params__get_logical&#45;&gt;proc~ut__fatal -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge39" class="edge">
-<title>proc~params__get_logical&#45;&gt;proc~ut__fatal</title>
-<path fill="none" stroke="#ff0000" d="M732.41,-276C770.69,-275.82 821.15,-275.58 854.83,-275.42"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="855.15,-278.92 865.13,-275.37 855.12,-271.92 855.15,-278.92"/>
-</g>
-<!-- proc~ut__assert&#45;&gt;proc~ut__fatal -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge40" class="edge">
-<title>proc~ut__assert&#45;&gt;proc~ut__fatal</title>
-<path fill="none" stroke="#ff0000" d="M826.72,-302.05C835.82,-298.28 846.11,-294 855.76,-290"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="857.24,-293.17 865.13,-286.1 854.56,-286.71 857.24,-293.17"/>
-</g>
-<!-- proc~ut__fatal&#45;&gt;interface~ut__message -->
-<g id="proc~~solver__diagnosis~~CallsGraph_edge41" class="edge">
-<title>proc~ut__fatal&#45;&gt;interface~ut__message</title>
-<path fill="none" stroke="#00ffff" d="M919.42,-264.9C930.11,-260.67 942.67,-255.7 954.31,-251.09"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="955.79,-254.27 963.8,-247.33 953.22,-247.76 955.79,-254.27"/>
+<path fill="none" stroke="#255000" d="M193.45,-52.39C201.54,-52.39 209.71,-52.39 217.77,-52.39"/>
+<polygon fill="#255000" stroke="#255000" points="217.67,-55.89 227.67,-52.39 217.67,-48.89 217.67,-55.89"/>
+</g>
+<!-- ut__message -->
+<g id="proc~~solver__diagnosis~~CallsGraph_node4" class="node">
+<title>ut__message</title>
+<polygon fill="#777777" stroke="#777777" points="348.92,-22.77 272.9,-22.77 272.9,0 348.92,0 348.92,-22.77"/>
+<text text-anchor="middle" x="310.91" y="-7.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut__message</text>
+</g>
+<!-- proc~solver__diagnosis&#45;&gt;ut__message -->
+<g id="proc~~solver__diagnosis~~CallsGraph_edge3" class="edge">
+<title>proc~solver__diagnosis&#45;&gt;ut__message</title>
+<path fill="none" stroke="#255000" d="M158.94,-40.53C191.68,-34.21 231.36,-26.55 261.82,-20.67"/>
+<polygon fill="#255000" stroke="#255000" points="262.44,-23.92 271.6,-18.59 261.11,-17.05 262.44,-23.92"/>
 </g>
 </g>
 </svg>
-</div><script>var panprocsolver__diagnosisCallsGraph = svgPanZoom('#procsolver__diagnosisCallsGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
-    <p>Nodes of different colours represent the following: </p>
-    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+</div>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
+<!-- Generated by graphviz version 8.0.5 (20230430.1635)
  -->
 <!-- Title: Graph Key Pages: 1 -->
-<svg width="550pt" height="31pt"
- viewBox="0.00 0.00 550.25 30.50" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 26.5)">
+<svg width="554pt" height="31pt"
+ viewBox="0.00 0.00 553.77 30.77" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 26.77)">
 <title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-26.5 546.25,-26.5 546.25,4 -4,4"/>
+<polygon fill="white" stroke="none" points="-4,4 -4,-26.77 549.77,-26.77 549.77,4 -4,4"/>
 <!-- Subroutine -->
 <g id="node1" class="node">
 <title>Subroutine</title>
-<polygon fill="#d9534f" stroke="#d9534f" points="62.68,-22.26 0.11,-22.26 0.11,-0.24 62.68,-0.24 62.68,-22.26"/>
-<text text-anchor="middle" x="31.39" y="-8.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="63.27,-22.77 0,-22.77 0,0 63.27,0 63.27,-22.77"/>
+<text text-anchor="middle" x="31.64" y="-7.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
 </g>
 <!-- Function -->
 <g id="node2" class="node">
 <title>Function</title>
-<polygon fill="#d94e8f" stroke="#d94e8f" points="134.39,-22.26 80.39,-22.26 80.39,-0.24 134.39,-0.24 134.39,-22.26"/>
-<text text-anchor="middle" x="107.39" y="-8.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="135.63,-22.77 81.64,-22.77 81.64,0 135.63,0 135.63,-22.77"/>
+<text text-anchor="middle" x="108.64" y="-7.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
 </g>
 <!-- Interface -->
 <g id="node3" class="node">
 <title>Interface</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="206.39,-22.26 152.39,-22.26 152.39,-0.24 206.39,-0.24 206.39,-22.26"/>
-<text text-anchor="middle" x="179.39" y="-8.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+<polygon fill="#a7506f" stroke="#a7506f" points="207.63,-22.77 153.63,-22.77 153.63,0 207.63,0 207.63,-22.77"/>
+<text text-anchor="middle" x="180.63" y="-7.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
 </g>
 <!-- Unknown Procedure Type -->
 <g id="node4" class="node">
 <title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="356.53,-22.26 224.26,-22.26 224.26,-0.24 356.53,-0.24 356.53,-22.26"/>
-<text text-anchor="middle" x="290.39" y="-8.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+<polygon fill="#777777" stroke="#777777" points="359.89,-22.77 225.38,-22.77 225.38,0 359.89,0 359.89,-22.77"/>
+<text text-anchor="middle" x="292.63" y="-7.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
 </g>
 <!-- Program -->
 <g id="node5" class="node">
 <title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="428.39,-22.26 374.39,-22.26 374.39,-0.24 428.39,-0.24 428.39,-22.26"/>
-<text text-anchor="middle" x="401.39" y="-8.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="431.63,-22.77 377.63,-22.77 377.63,0 431.63,0 431.63,-22.77"/>
+<text text-anchor="middle" x="404.63" y="-7.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
 </g>
 <!-- This Page&#39;s Entity -->
 <g id="node6" class="node">
 <title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="542.1,-22.26 446.69,-22.26 446.69,-0.24 542.1,-0.24 542.1,-22.26"/>
-<text text-anchor="middle" x="494.39" y="-8.1" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+<polygon fill="none" stroke="black" points="545.77,-22.77 449.5,-22.77 449.5,0 545.77,0 545.77,-22.77"/>
+<text text-anchor="middle" x="497.63" y="-7.04" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
 </g>
 </g>
 </svg>
 
-    
-    <p>Solid arrows point from a procedure to one which it calls. Dashed 
-    arrows point from an interface to procedures which implement that interface.
-    This could include the module procedures in a generic interface or the
-    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
-    </p>
-    </div></div></div></div>
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-     
-     
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Called by</h3>
-      </div>
-      <div class="panel-body">
-  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: proc~~solver__diagnosis~~CalledByGraph Pages: 1 -->
-<svg id="procsolver__diagnosisCalledByGraph" width="194pt" height="31pt"
- viewBox="0.00 0.00 194.05 30.50" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~solver__diagnosis~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 26.5)">
-<title>proc~~solver__diagnosis~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-26.5 190.05,-26.5 190.05,4 -4,4"/>
-<!-- proc~solver__diagnosis -->
-<g id="proc~~solver__diagnosis~~CalledByGraph_node1" class="node">
-<title>proc~solver__diagnosis</title>
-<polygon fill="none" stroke="black" points="186.08,-22.26 89.97,-22.26 89.97,-0.24 186.08,-0.24 186.08,-22.26"/>
-<text text-anchor="middle" x="138.03" y="-8.1" font-family="Helvetica,sans-Serif" font-size="10.50">solver__diagnosis</text>
-</g>
-<!-- program~main_m -->
-<g id="proc~~solver__diagnosis~~CalledByGraph_node2" class="node">
-<title>program~main_m</title>
-<g id="a_proc~~solver__diagnosis~~CalledByGraph_node2"><a xlink:href=".././program/main_m.html" xlink:title="main_m">
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-22.26 0,-22.26 0,-0.24 54,-0.24 54,-22.26"/>
-<text text-anchor="middle" x="27" y="-8.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main_m</text>
-</a>
-</g>
-</g>
-<!-- program~main_m&#45;&gt;proc~solver__diagnosis -->
-<g id="proc~~solver__diagnosis~~CalledByGraph_edge1" class="edge">
-<title>program~main_m&#45;&gt;proc~solver__diagnosis</title>
-<path fill="none" stroke="#ff0000" d="M54.11,-11.25C61.9,-11.25 70.75,-11.25 79.7,-11.25"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="79.8,-14.75 89.8,-11.25 79.8,-7.75 79.8,-14.75"/>
-</g>
-</g>
-</svg>
-</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
-    <p>Nodes of different colours represent the following: </p>
-    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
- "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Generated by graphviz version 2.43.0 (0)
- -->
-<!-- Title: Graph Key Pages: 1 -->
-<svg width="550pt" height="31pt"
- viewBox="0.00 0.00 550.25 30.50" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 26.5)">
-<title>Graph Key</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-26.5 546.25,-26.5 546.25,4 -4,4"/>
-<!-- Subroutine -->
-<g id="node1" class="node">
-<title>Subroutine</title>
-<polygon fill="#d9534f" stroke="#d9534f" points="62.68,-22.26 0.11,-22.26 0.11,-0.24 62.68,-0.24 62.68,-22.26"/>
-<text text-anchor="middle" x="31.39" y="-8.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
-</g>
-<!-- Function -->
-<g id="node2" class="node">
-<title>Function</title>
-<polygon fill="#d94e8f" stroke="#d94e8f" points="134.39,-22.26 80.39,-22.26 80.39,-0.24 134.39,-0.24 134.39,-22.26"/>
-<text text-anchor="middle" x="107.39" y="-8.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
-</g>
-<!-- Interface -->
-<g id="node3" class="node">
-<title>Interface</title>
-<polygon fill="#a7506f" stroke="#a7506f" points="206.39,-22.26 152.39,-22.26 152.39,-0.24 206.39,-0.24 206.39,-22.26"/>
-<text text-anchor="middle" x="179.39" y="-8.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
-</g>
-<!-- Unknown Procedure Type -->
-<g id="node4" class="node">
-<title>Unknown Procedure Type</title>
-<polygon fill="#777777" stroke="#777777" points="356.53,-22.26 224.26,-22.26 224.26,-0.24 356.53,-0.24 356.53,-22.26"/>
-<text text-anchor="middle" x="290.39" y="-8.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
-</g>
-<!-- Program -->
-<g id="node5" class="node">
-<title>Program</title>
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="428.39,-22.26 374.39,-22.26 374.39,-0.24 428.39,-0.24 428.39,-22.26"/>
-<text text-anchor="middle" x="401.39" y="-8.1" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
-</g>
-<!-- This Page&#39;s Entity -->
-<g id="node6" class="node">
-<title>This Page&#39;s Entity</title>
-<polygon fill="none" stroke="black" points="542.1,-22.26 446.69,-22.26 446.69,-0.24 542.1,-0.24 542.1,-22.26"/>
-<text text-anchor="middle" x="494.39" y="-8.1" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
-</g>
-</g>
-</svg>
-
-    
-    <p>Solid arrows point from a procedure to one which it calls. Dashed 
-    arrows point from an interface to procedures which implement that interface.
-    This could include the module procedures in a generic interface or the
-    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
-    </p>
-    </div></div></div></div>
-      </div>
-    </div>
-     
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      
-<h3>Contents</h3>
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-  <div class="list-group">
-    <a class="list-group-item" href="../proc/solver__diagnosis.html#src">solver__diagnosis</a>
-  </div>
-</div>
-
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/solver__diagnosis.html#src">solver__diagnosis</a>
+      </div>
+    </div>
 
 
     </section>
     <br class="visible-xs visible-sm hidden-md">
 
-    
 
-    
-    
-    
     
     
 
     
     
-    
-    
-    
 
 
-    
-    
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span>  <span class="k">subroutine </span><span class="n">solver__diagnosis</span><span class="p">(</span><span class="n">nloop</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">fluid</span><span class="p">)</span>
-    <span class="c">!! 流体の「健康状態」を診断する</span>
-    <span class="kt">integer</span><span class="p">(</span><span class="n">DI</span><span class="p">),</span>          <span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span> <span class="kd">::</span> <span class="n">nloop</span>  <span class="c">!! ループカウンタ</span>
-    <span class="kt">real</span><span class="p">(</span><span class="n">DR</span><span class="p">),</span>             <span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span> <span class="kd">::</span> <span class="nb">time</span>   <span class="c">!! シミュレーション時刻</span>
-    <span class="k">type</span><span class="p">(</span><span class="n">field__fluid_t</span><span class="p">),</span> <span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span> <span class="kd">::</span> <span class="n">fluid</span>  <span class="c">!! 流体データ</span>
+    <div class="highlight"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">solver__diagnosis</span><span class="p">(</span><span class="w"> </span><span class="n">nloop</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">,</span><span class="w"> </span><span class="n">fluid</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="c">!! 流体の「健康状態」を診断する</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nloop</span><span class="w">  </span><span class="c">!! ループカウンタ</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">DR</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span><span class="w">   </span><span class="c">!! シミュレーション時刻</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">fluid_t</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fluid</span><span class="w">  </span><span class="c">!! 流体データ</span>
 
-    <span class="kt">integer</span><span class="p">(</span><span class="n">SI</span><span class="p">),</span> <span class="k">parameter</span> <span class="kd">::</span> <span class="n">SKIP</span> <span class="o">=</span> <span class="mi">100</span>
-      <span class="c">! このルーチンは結構計算負荷が高いので、</span>
-      <span class="c">! 毎ステップではなく、SKIPステップごとに診断を実行する</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SKIP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">      </span><span class="c">!! このルーチンは結構計算負荷が高いので、</span>
+<span class="w">      </span><span class="c">!! 毎ステップではなく、SKIPステップごとに診断を実行する</span>
 
-    <span class="kt">real</span><span class="p">(</span><span class="n">DR</span><span class="p">),</span> <span class="k">parameter</span> <span class="kd">::</span> <span class="n">ABNORMALLY_LARGE</span> <span class="o">=</span> <span class="mf">1.e20_DR</span>
-      <span class="c">! これよりも物理量が大きくなったら異常が生じたと判断する</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">DR</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ANOMALOUSLY_LARGE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.e20_DR</span>
+<span class="w">      </span><span class="c">!! これよりも物理量が大きくなったら異常が生じたと判断する</span>
 
-    <span class="k">type</span><span class="p">(</span><span class="n">field__vector3d_t</span><span class="p">)</span> <span class="kd">::</span> <span class="n">vel</span>
-      <span class="c">! 流れの速度場</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">field__vector_t</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vel</span>
+<span class="w">      </span><span class="c">!! 流れの速度場</span>
 
-    <span class="k">if</span> <span class="p">(</span> <span class="nb">mod</span><span class="p">(</span><span class="n">nloop</span><span class="p">,</span><span class="n">SKIP</span><span class="p">)</span> <span class="o">/=</span> <span class="mi">0</span> <span class="p">)</span> <span class="k">return</span>
-      <span class="c">! このルーチンは結構計算負荷が高いので、</span>
-      <span class="c">! 毎ステップではなく、SKIPステップごとに診断を実行する</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">nloop</span><span class="p">,</span><span class="n">SKIP</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="w">      </span><span class="c">!! このルーチンは結構計算負荷が高いので、</span>
+<span class="w">      </span><span class="c">!! 毎ステップではなく、SKIPステップごとに診断を実行する</span>
 
-    <span class="k">if</span> <span class="p">(</span> <span class="n">job__karte</span><span class="p">%</span><span class="n">state</span> <span class="o">/=</span> <span class="s2">&quot;fine&quot;</span> <span class="p">)</span> <span class="k">return</span> <span class="c">! Already in error state.</span>
-      <span class="c">! ジョブの健康状態がfine（つまり健康）以外の値に</span>
-      <span class="c">! 設定する可能性があるのはここ以外にもある（例えばmain.f90の</span>
-      <span class="c">! メインループでシミュレーションのループカウンタが最大値が達するなど）</span>
-      <span class="c">! そのような場合、どうせこの後、ジョブの停止処理に入るので、</span>
-      <span class="c">! これ以上計算を進めなくてもよい。</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">Job</span><span class="p">%</span><span class="n">karte</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s2">&quot;fine&quot;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="c">!! Already in error state.</span>
+<span class="w">      </span><span class="c">!! ジョブの健康状態がfine（つまり健康）以外の値に</span>
+<span class="w">      </span><span class="c">!! 設定する可能性があるのはここ以外にもある（例えばmain.f90の</span>
+<span class="w">      </span><span class="c">!! メインループでシミュレーションのループカウンタが最大値が達するなど）</span>
+<span class="w">      </span><span class="c">!! そのような場合、どうせこの後、ジョブの停止処理に入るので、</span>
+<span class="w">      </span><span class="c">!! これ以上計算を進めなくてもよい。</span>
 
-    <span class="k">if</span> <span class="p">(</span> <span class="nb">maxval</span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">flux</span><span class="p">%</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">ABNORMALLY_LARGE</span> <span class="p">)</span> <span class="k">then</span>
-      <span class="c">! 質量フラックスのx成分の最大値が異常に大きい</span>
-      <span class="c">! これはバグである。absを入れ忘れている。</span>
-      <span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="s2">&quot;&lt;solver__diagnosis&gt; Massflux_x overflow.&quot;</span><span class="p">)</span>
-      <span class="k">call </span><span class="n">job__karte</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;over_flow&quot;</span><span class="p">)</span>
-      <span class="k">return</span>
-        <span class="c">! これ以上計算しても無駄（すぐに終了処理に入るべし）</span>
-    <span class="k">end if</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">maxval</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">flux</span><span class="p">%</span><span class="n">x</span><span class="p">))</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">ANOMALOUSLY_LARGE</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="c">!! 質量フラックスのx成分が異常に大きい。</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;solver_m(528): Massflux_x overflow.&quot;</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="n">Job</span><span class="p">%</span><span class="n">karte</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;overflow&quot;</span><span class="w"> </span>
+<span class="w">      </span><span class="k">return</span>
+<span class="w">        </span><span class="c">!! これ以上計算しても無駄（すぐに終了処理に入るべし）</span>
+<span class="w">    </span><span class="k">end if</span>
 
-<span class="k">    if</span> <span class="p">(</span> <span class="nb">maxval</span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">flux</span><span class="p">%</span><span class="n">y</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">ABNORMALLY_LARGE</span> <span class="p">)</span> <span class="k">then</span>
-      <span class="c">! 質量フラックスのy成分の最大値が異常に大きい</span>
-      <span class="c">! これもバグである。absを入れ忘れている。</span>
-      <span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="s2">&quot;&lt;solver__diagnosis&gt; Massflux_y overflow.&quot;</span><span class="p">)</span>
-      <span class="k">call </span><span class="n">job__karte</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;over_flow&quot;</span><span class="p">)</span>
-      <span class="k">return</span>
-        <span class="c">! これ以上計算しても無駄（すぐに終了処理に入るべし）</span>
-    <span class="k">end if</span>
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">maxval</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">flux</span><span class="p">%</span><span class="n">y</span><span class="p">))</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">ANOMALOUSLY_LARGE</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">      call </span><span class="n">ut__message</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;solver_m(535): Massflux_y overflow.&quot;</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="n">Job</span><span class="p">%</span><span class="n">karte</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;overflow&quot;</span>
+<span class="w">      </span><span class="k">return</span>
+<span class="w">        </span><span class="c">!! これ以上計算しても無駄（すぐに終了処理に入るべし）</span>
+<span class="w">    </span><span class="k">end if</span>
 
-<span class="k">    if</span> <span class="p">(</span> <span class="nb">maxval</span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">flux</span><span class="p">%</span><span class="n">z</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">ABNORMALLY_LARGE</span> <span class="p">)</span> <span class="k">then</span>
-      <span class="c">! 質量フラックスのz成分の最大値が異常に大きい</span>
-      <span class="c">! これもバグである。absを入れ忘れている。</span>
-      <span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="s2">&quot;&lt;solver__diagnosis&gt; Massflux_z overflow.&quot;</span><span class="p">)</span>
-      <span class="k">call </span><span class="n">job__karte</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;over_flow&quot;</span><span class="p">)</span>
-      <span class="k">return</span>
-        <span class="c">! これ以上計算しても無駄（すぐに終了処理に入るべし）</span>
-    <span class="k">end if</span>
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">maxval</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">flux</span><span class="p">%</span><span class="n">z</span><span class="p">))</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">ANOMALOUSLY_LARGE</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="c">!! 質量フラックスのz成分が異常に大きい。</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;solver_m(543): Massflux_z overflow.&quot;</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="n">Job</span><span class="p">%</span><span class="n">karte</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;overflow&quot;</span>
+<span class="w">      </span><span class="k">return</span>
+<span class="w">        </span><span class="c">!! これ以上計算しても無駄（すぐに終了処理に入るべし）</span>
+<span class="w">    </span><span class="k">end if</span>
 
-<span class="k">    if</span> <span class="p">(</span> <span class="nb">maxval</span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">density</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">ABNORMALLY_LARGE</span> <span class="p">)</span> <span class="k">then</span>
-      <span class="c">! 質量が異常に大きい</span>
-      <span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="s2">&quot;&lt;solver__diagnosis&gt; Density overflow.&quot;</span><span class="p">)</span>
-      <span class="k">call </span><span class="n">job__karte</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;over_flow&quot;</span><span class="p">)</span>
-      <span class="k">return</span>
-        <span class="c">! これ以上計算しても無駄（すぐに終了処理に入るべし）</span>
-    <span class="k">end if</span>
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">maxval</span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">density</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">ANOMALOUSLY_LARGE</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="c">!! 質量が異常に大きい</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;solver_m(551): Density overflow.&quot;</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="n">Job</span><span class="p">%</span><span class="n">karte</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;overflow&quot;</span>
+<span class="w">      </span><span class="k">return</span>
+<span class="w">        </span><span class="c">!! これ以上計算しても無駄（すぐに終了処理に入るべし）</span>
+<span class="w">    </span><span class="k">end if</span>
 
-<span class="k">    if</span> <span class="p">(</span> <span class="nb">maxval</span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">pressure</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">ABNORMALLY_LARGE</span> <span class="p">)</span> <span class="k">then</span>
-      <span class="c">! 圧力が異常に大きい</span>
-      <span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="s2">&quot;&lt;solver__diagnosis&gt; Pressure overflow.&quot;</span><span class="p">)</span>
-      <span class="k">call </span><span class="n">job__karte</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;over_flow&quot;</span><span class="p">)</span>
-      <span class="k">return</span>
-        <span class="c">! これ以上計算しても無駄（すぐに終了処理に入るべし）</span>
-    <span class="k">end if</span>
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">maxval</span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">pressure</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">ANOMALOUSLY_LARGE</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="c">!! 圧力が異常に大きい</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;solver_m(559): Pressure overflow.&quot;</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="n">Job</span><span class="p">%</span><span class="n">karte</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;overflow&quot;</span>
+<span class="w">      </span><span class="k">return</span>
+<span class="w">        </span><span class="c">!! これ以上計算しても無駄（すぐに終了処理に入るべし）</span>
+<span class="w">    </span><span class="k">end if</span>
 
-<span class="k">    if</span> <span class="p">(</span> <span class="nb">minval</span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">pressure</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.0_DR</span> <span class="p">)</span> <span class="k">then</span>
-      <span class="c">! 圧力が負になってしまっている</span>
-      <span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="s2">&quot;&lt;solver__diagnosis&gt; Negative pressure.&quot;</span><span class="p">)</span>
-      <span class="k">call </span><span class="n">job__karte</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;negative_anormaly&quot;</span><span class="p">)</span>
-      <span class="k">return</span>
-        <span class="c">! これ以上計算しても無駄（すぐに終了処理に入るべし）</span>
-    <span class="k">end if</span>
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">minval</span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">pressure</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.0_DR</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="c">!! 圧力が負になってしまっている</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="s2">&quot; solver_m(567): Negative pressure.&quot;</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="n">Job</span><span class="p">%</span><span class="n">karte</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;negative anormaly&quot;</span>
+<span class="w">      </span><span class="k">return</span>
+<span class="w">        </span><span class="c">!! これ以上計算しても無駄（すぐに終了処理に入るべし）</span>
+<span class="w">    </span><span class="k">end if</span>
 
-<span class="k">    if</span> <span class="p">(</span> <span class="nb">minval</span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">density</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.0_DR</span> <span class="p">)</span> <span class="k">then</span>
-      <span class="c">! 密度が負になってしまっている</span>
-      <span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="s2">&quot;&lt;solver__diagnosis&gt; Negative density.&quot;</span><span class="p">)</span>
-      <span class="k">call </span><span class="n">job__karte</span><span class="p">%</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;negative_anormaly&quot;</span><span class="p">)</span>
-      <span class="k">return</span>
-        <span class="c">! これ以上計算しても無駄（すぐに終了処理に入るべし）</span>
-    <span class="k">end if</span>
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">minval</span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">density</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.0_DR</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="c">!! 密度が負になってしまっている</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="s2">&quot; solver_m(575): Negative density.&quot;</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="n">Job</span><span class="p">%</span><span class="n">karte</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;negative anormaly&quot;</span>
+<span class="w">      </span><span class="k">return</span>
+<span class="w">        </span><span class="c">!! これ以上計算しても無駄（すぐに終了処理に入るべし）</span>
+<span class="w">    </span><span class="k">end if</span>
 
-<span class="k">    call </span><span class="n">subfield_vel</span><span class="p">(</span><span class="n">fluid</span><span class="p">,</span><span class="n">vel</span><span class="p">)</span>
-      <span class="c">! 基本流れデータから副次的な速度場データを求める</span>
+<span class="k">    call </span><span class="n">subfield_vel</span><span class="p">(</span><span class="w"> </span><span class="n">fluid</span><span class="p">,</span><span class="w"> </span><span class="n">vel</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="c">!! 基本流れデータから副次的な速度場データを求める</span>
 
-    <span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="s1">&#39;#max vel:&#39;</span><span class="p">,</span>      <span class="n">nloop</span><span class="p">,</span> <span class="nb">time</span><span class="p">,</span>  <span class="p">&amp;</span>
-                     <span class="nb">sqrt</span><span class="p">(</span><span class="nb">maxval</span><span class="p">(</span><span class="n">vel</span><span class="p">%</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">vel</span><span class="p">%</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">vel</span><span class="p">%</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
-      <span class="c">! 速度の最大値（ベクトルの長さ）を計算し標準出力に書き出す</span>
-      <span class="c">! わずか1行で書いているが、実際にはここにかなりの計算が</span>
-      <span class="c">! 含まれている。vel%x**2という配列演算は実際には3重do loop</span>
-      <span class="c">! であり、maxval関数はその引数の3次元配列をとっている。</span>
-      <span class="c">! つまり全要素中の最大値をとっている。そして最後に</span>
-      <span class="c">! sqrtをとって振幅（ベクトルの長さ）を計算している。</span>
+<span class="w">    </span><span class="k">call </span><span class="n">mpiut__message</span><span class="p">(</span><span class="w"> </span><span class="n">Parallel</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                         </span><span class="s1">&#39;#max vel:&#39;</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                         </span><span class="n">nloop</span><span class="p">,</span><span class="w">          </span><span class="p">&amp;</span>
+<span class="w">                         </span><span class="nb">time</span><span class="p">,</span><span class="w">           </span><span class="p">&amp;</span>
+<span class="w">                         </span><span class="nb">sqrt</span><span class="p">(</span><span class="nb">maxval</span><span class="p">(</span><span class="n">vel</span><span class="p">%</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">vel</span><span class="p">%</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">vel</span><span class="p">%</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="c">!! 速度の最大値（ベクトルの長さ）を計算し標準出力に書き出す</span>
+<span class="w">      </span><span class="c">!! わずか1行で書いているが、実際にはここにかなりの計算が</span>
+<span class="w">      </span><span class="c">!! 含まれている。vel.x**2という配列演算は実際には3重do loop</span>
+<span class="w">      </span><span class="c">!! であり、maxval関数はその引数の3次元配列をとっている。</span>
+<span class="w">      </span><span class="c">!! つまり全要素中の最大値をとっている。そして最後に</span>
+<span class="w">      </span><span class="c">!! sqrtをとって振幅（ベクトルの長さ）を計算している。</span>
 
-    <span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="s1">&#39;#flow energy: &#39;</span><span class="p">,</span> <span class="n">nloop</span><span class="p">,</span> <span class="nb">time</span><span class="p">,</span>  <span class="p">&amp;</span>
-<span class="c">![                                    .energyintegral.fluid)</span>
-                                       <span class="n">operator_energyintegral</span><span class="p">(</span><span class="n">fluid</span><span class="p">))</span>
-      <span class="c">! ここでもFortranコンパイラが許せば.energyintegral.という</span>
-      <span class="c">! 簡潔な演算子表現を使ったほうがよい。ここでもこの1行の</span>
-      <span class="c">! 実行にはかなりの演算（速度ベクトル場のx,y,z3成分の2乗和に</span>
-      <span class="c">! 資料密度を掛けたもの体積積分）が必要であることに注意。</span>
+<span class="w">    </span><span class="k">call </span><span class="n">mpiut__message</span><span class="p">(</span><span class="w"> </span><span class="n">Parallel</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                         </span><span class="s1">&#39;#flow energy: &#39;</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">                         </span><span class="n">nloop</span><span class="p">,</span><span class="w">              </span><span class="p">&amp;</span>
+<span class="w">                         </span><span class="nb">time</span><span class="p">,</span><span class="w">               </span><span class="p">&amp;</span>
+<span class="w">                         </span><span class="p">.</span><span class="n">energyintegral</span><span class="p">.</span><span class="w"> </span><span class="n">fluid</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="c">!! ここでもこの1行の実行にはかなりの演算（速度ベクトル場</span>
+<span class="w">      </span><span class="c">!! のx,y,z3成分の2乗和に質量密度を掛けたもの体積積分）が</span>
+<span class="w">      </span><span class="c">!! されていることに注意。</span>
 
-    <span class="k">call </span><span class="n">ut__message</span><span class="p">(</span><span class="s1">&#39;#total mass: &#39;</span><span class="p">,</span>  <span class="n">nloop</span><span class="p">,</span> <span class="nb">time</span><span class="p">,</span>  <span class="p">&amp;</span>
-<span class="c">![                                    .scalarintegral.(fluid%density))</span>
-                               <span class="n">operator_scalarintegral</span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">density</span><span class="p">))</span>
-      <span class="c">! 上と同様。こちらのほうは単なる密度場の体積積分なので</span>
-      <span class="c">! 演算量は少ないが、シミュレーション領域全体に渡る体積積分</span>
-      <span class="c">! なので計算量は大きいことに間違いない。</span>
-
-    <span class="k">call </span><span class="n">debug__print</span><span class="p">(</span><span class="s1">&#39;called solver__diagnosis.&#39;</span><span class="p">)</span>
-      <span class="c">! デバッグモードがonの時には毎回メッセージを標準出力に</span>
-      <span class="c">! 書き出す。コードが完成し、product runの段階に入ったら</span>
-      <span class="c">! デバッグモードをoffにすれば、書き出しは抑制される。</span>
-      <span class="c">! この行をコメントアウトする必要はない。</span>
-  <span class="k">end subroutine </span><span class="n">solver__diagnosis</span>
+<span class="w">    </span><span class="k">call </span><span class="n">mpiut__message</span><span class="p">(</span><span class="w"> </span><span class="n">Parallel</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                         </span><span class="s1">&#39;#total mass: &#39;</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                         </span><span class="n">nloop</span><span class="p">,</span><span class="w">            </span><span class="p">&amp;</span>
+<span class="w">                         </span><span class="nb">time</span><span class="p">,</span><span class="w">             </span><span class="p">&amp;</span>
+<span class="w">                         </span><span class="p">.</span><span class="n">scalarintegral</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">fluid</span><span class="p">%</span><span class="n">density</span><span class="p">)</span><span class="w">  </span><span class="p">)</span>
+<span class="w">      </span><span class="c">!! 上と同様。こちらのほうは単なる密度場の体積積分なので</span>
+<span class="w">      </span><span class="c">!! 演算量は少ないが、シミュレーション領域全体に渡る体積積分</span>
+<span class="w">      </span><span class="c">!! なので計算量は大きいことにかわりない。</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">solver__diagnosis</span>
 </pre></div>
 
     </section>
     <br>
     
-    
     </div>
   </div>
 
-
-    <hr>    
+      <hr>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-      <div class="row">
-        <div class="col-xs-6 col-md-4"><p>&copy; 2020 
-                                          </p></div>
-        <div class="col-xs-6 col-md-4 col-md-push-4">
-          <p class="text-right">
-            Documentation generated by 
-            <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2020-01-23 09:25  
-          </p>
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>Smoke Ring was developed by <br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-05-10 16:19              </p>
+          </div>
         </div>
-        <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> Smoke Ring was developed by </p></div>
-      </div>
-      <br>
-      </div> <!-- /container -->    
+        <br>
+      </div> <!-- /container -->
     </footer>
 
     <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-<!--
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
--->
-    <script src="../js/bootstrap.min.js"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
 
-    <!-- MathJax JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
-        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
-        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
-      });
-    </script>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    
-    <script src="../tipuesearch/tipuesearch_content.js"></script>
-    <script src="../tipuesearch/tipuesearch_set.js"></script>
-    <script src="../tipuesearch/tipuesearch.js"></script>
-    
-    
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
   </body>
 </html>

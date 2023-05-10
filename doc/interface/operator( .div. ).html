@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="渦輪の形成と伝播の3次元シミュレーション + 可視化">
+    <meta name="author" content="" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>operator( .div. ) &ndash; Smoke Ring</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">Smoke Ring </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../program/main_m.html">Program</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../program/main_m.html">Program</a>
+              </li>
+          </ul>
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>operator( .div. )
+      <small>Interface</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title="<p> 0.2% of total for procedures.</p>Including implementation: 20 statements,  1.5% of total for procedures.">3 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/field.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/field.f90.html'>field.F90</a></li>
+              <li><a href='../module/field_m.html'>field_m</a></li>
+          <li class="active">operator( .div. )</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#modprocs-0">Module Procedures</a>
+        </h3>
+      </div>
+      <div id="modprocs-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../interface/operator%28%20.div.%20%29.html#moduleprocedure-operator_div~2">operator_div</a>
+        </div>
+      </div>
+    </div>
+
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <h2>public interface operator( .div. )</h2>
+      <p>ベクトル解析のdivergence演算子</p>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Calls</h3>
+          </div>
+          <div class="panel-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 8.0.5 (20230430.1635)
+ -->
+<!-- Title: interface~~operator( .div. )~~CallsGraph Pages: 1 -->
+<svg id="interfaceoperatordivCallsGraph" width="641pt" height="132pt"
+ viewBox="0.00 0.00 641.00 132.19" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~operator( .div. )~~CallsGraph" class="graph" transform="scale(0.760741 0.760741) rotate(0) translate(4 169.77)">
+<title>interface~~operator( .div. )~~CallsGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-169.77 838.6,-169.77 838.6,4 -4,4"/>
+<!-- interface~operator( .div. ) -->
+<g id="interface~~operator( .div. )~~CallsGraph_node1" class="node">
+<title>interface~operator( .div. )</title>
+<polygon fill="none" stroke="black" points="124.02,-83.77 0,-83.77 0,-61 124.02,-61 124.02,-83.77"/>
+<text text-anchor="middle" x="62.01" y="-68.03" font-family="Helvetica,sans-Serif" font-size="10.50">field_m::operator( .div. )</text>
+</g>
+<!-- proc~operator_div -->
+<g id="interface~~operator( .div. )~~CallsGraph_node2" class="node">
+<title>proc~operator_div</title>
+<g id="a_interface~~operator( .div. )~~CallsGraph_node2"><a xlink:href=".././proc/operator_div.html" xlink:title="field_m::operator_div">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="272.04,-83.77 160.02,-83.77 160.02,-61 272.04,-61 272.04,-83.77"/>
+<text text-anchor="middle" x="216.03" y="-68.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">field_m::operator_div</text>
+</a>
+</g>
+</g>
+<!-- interface~operator( .div. )&#45;&gt;proc~operator_div -->
+<g id="interface~~operator( .div. )~~CallsGraph_edge1" class="edge">
+<title>interface~operator( .div. )&#45;&gt;proc~operator_div</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M124.4,-72.38C132.45,-72.38 140.72,-72.38 148.84,-72.38"/>
+<polygon fill="#255000" stroke="#255000" points="148.78,-75.89 158.78,-72.38 148.78,-68.89 148.78,-75.89"/>
+</g>
+<!-- interface~field__boundary_condition -->
+<g id="interface~~operator( .div. )~~CallsGraph_node3" class="node">
+<title>interface~field__boundary_condition</title>
+<g id="a_interface~~operator( .div. )~~CallsGraph_node3"><a xlink:href=".././interface/field__boundary_condition.html" xlink:title="field_m::field__boundary_condition">
+<polygon fill="#a7506f" stroke="#a7506f" points="485.31,-145.77 308.04,-145.77 308.04,-123 485.31,-123 485.31,-145.77"/>
+<text text-anchor="middle" x="396.67" y="-130.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">field_m::field__boundary_condition</text>
+</a>
+</g>
+</g>
+<!-- proc~operator_div&#45;&gt;interface~field__boundary_condition -->
+<g id="interface~~operator( .div. )~~CallsGraph_edge2" class="edge">
+<title>proc~operator_div&#45;&gt;interface~field__boundary_condition</title>
+<path fill="none" stroke="#255000" d="M240.11,-84.24C258.22,-93.19 284.26,-105.26 308.04,-113.38 314.8,-115.7 321.94,-117.85 329.11,-119.83"/>
+<polygon fill="#255000" stroke="#255000" points="328.03,-123.43 338.59,-122.61 329.82,-116.66 328.03,-123.43"/>
+</g>
+<!-- x -->
+<g id="interface~~operator( .div. )~~CallsGraph_node4" class="node">
+<title>x</title>
+<polygon fill="#777777" stroke="#777777" points="423.67,-104.77 369.67,-104.77 369.67,-82 423.67,-82 423.67,-104.77"/>
+<text text-anchor="middle" x="396.67" y="-89.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">x</text>
+</g>
+<!-- proc~operator_div&#45;&gt;x -->
+<g id="interface~~operator( .div. )~~CallsGraph_edge3" class="edge">
+<title>proc~operator_div&#45;&gt;x</title>
+<path fill="none" stroke="#255000" d="M272.09,-78.86C300.18,-82.16 333.6,-86.09 358.61,-89.03"/>
+<polygon fill="#255000" stroke="#255000" points="358.11,-92.61 368.45,-90.3 358.93,-85.66 358.11,-92.61"/>
+</g>
+<!-- y -->
+<g id="interface~~operator( .div. )~~CallsGraph_node5" class="node">
+<title>y</title>
+<polygon fill="#777777" stroke="#777777" points="423.67,-63.77 369.67,-63.77 369.67,-41 423.67,-41 423.67,-63.77"/>
+<text text-anchor="middle" x="396.67" y="-48.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">y</text>
+</g>
+<!-- proc~operator_div&#45;&gt;y -->
+<g id="interface~~operator( .div. )~~CallsGraph_edge4" class="edge">
+<title>proc~operator_div&#45;&gt;y</title>
+<path fill="none" stroke="#255000" d="M272.09,-66.22C300.18,-63.08 333.6,-59.33 358.61,-56.54"/>
+<polygon fill="#255000" stroke="#255000" points="358.9,-59.91 368.45,-55.32 358.12,-52.96 358.9,-59.91"/>
+</g>
+<!-- z -->
+<g id="interface~~operator( .div. )~~CallsGraph_node6" class="node">
+<title>z</title>
+<polygon fill="#777777" stroke="#777777" points="423.67,-22.77 369.67,-22.77 369.67,0 423.67,0 423.67,-22.77"/>
+<text text-anchor="middle" x="396.67" y="-7.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">z</text>
+</g>
+<!-- proc~operator_div&#45;&gt;z -->
+<g id="interface~~operator( .div. )~~CallsGraph_edge5" class="edge">
+<title>proc~operator_div&#45;&gt;z</title>
+<path fill="none" stroke="#255000" d="M240.52,-60.67C258.63,-51.98 284.49,-40.31 308.04,-32.38 324.42,-26.87 342.99,-22.2 358.81,-18.68"/>
+<polygon fill="#255000" stroke="#255000" points="359.22,-21.96 368.25,-16.43 357.74,-15.11 359.22,-21.96"/>
+</g>
+<!-- proc~boundary_condition_scalar -->
+<g id="interface~~operator( .div. )~~CallsGraph_node7" class="node">
+<title>proc~boundary_condition_scalar</title>
+<g id="a_interface~~operator( .div. )~~CallsGraph_node7"><a xlink:href=".././proc/boundary_condition_scalar.html" xlink:title="field_m::boundary_condition_scalar">
+<polygon fill="#d9534f" stroke="#d9534f" points="701.95,-165.77 521.68,-165.77 521.68,-143 701.95,-143 701.95,-165.77"/>
+<text text-anchor="middle" x="611.82" y="-150.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">field_m::boundary_condition_scalar</text>
+</a>
+</g>
+</g>
+<!-- interface~field__boundary_condition&#45;&gt;proc~boundary_condition_scalar -->
+<g id="interface~~operator( .div. )~~CallsGraph_edge6" class="edge">
+<title>interface~field__boundary_condition&#45;&gt;proc~boundary_condition_scalar</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M485.6,-142.64C493.81,-143.41 502.18,-144.19 510.49,-144.97"/>
+<polygon fill="#255000" stroke="#255000" points="510.09,-148.54 520.38,-145.99 510.75,-141.57 510.09,-148.54"/>
+</g>
+<!-- proc~boundary_condition_vector -->
+<g id="interface~~operator( .div. )~~CallsGraph_node8" class="node">
+<title>proc~boundary_condition_vector</title>
+<g id="a_interface~~operator( .div. )~~CallsGraph_node8"><a xlink:href=".././proc/boundary_condition_vector.html" xlink:title="field_m::boundary_condition_vector">
+<polygon fill="#d9534f" stroke="#d9534f" points="702.33,-124.77 521.31,-124.77 521.31,-102 702.33,-102 702.33,-124.77"/>
+<text text-anchor="middle" x="611.82" y="-109.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">field_m::boundary_condition_vector</text>
+</a>
+</g>
+</g>
+<!-- interface~field__boundary_condition&#45;&gt;proc~boundary_condition_vector -->
+<g id="interface~~operator( .div. )~~CallsGraph_edge7" class="edge">
+<title>interface~field__boundary_condition&#45;&gt;proc~boundary_condition_vector</title>
+<path fill="none" stroke="#255000" stroke-dasharray="5,2" d="M485.6,-125.72C493.73,-124.92 502.02,-124.1 510.25,-123.29"/>
+<polygon fill="#255000" stroke="#255000" points="510.42,-126.7 520.03,-122.23 509.74,-119.73 510.42,-126.7"/>
+</g>
+<!-- mpiut__barrier -->
+<g id="interface~~operator( .div. )~~CallsGraph_node9" class="node">
+<title>mpiut__barrier</title>
+<polygon fill="#777777" stroke="#777777" points="827.1,-165.77 745.83,-165.77 745.83,-143 827.1,-143 827.1,-165.77"/>
+<text text-anchor="middle" x="786.46" y="-150.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpiut__barrier</text>
+</g>
+<!-- proc~boundary_condition_scalar&#45;&gt;mpiut__barrier -->
+<g id="interface~~operator( .div. )~~CallsGraph_edge8" class="edge">
+<title>proc~boundary_condition_scalar&#45;&gt;mpiut__barrier</title>
+<path fill="none" stroke="#255000" d="M702.43,-154.38C713.52,-154.38 724.55,-154.38 734.76,-154.38"/>
+<polygon fill="#255000" stroke="#255000" points="734.49,-157.89 744.49,-154.38 734.49,-150.89 734.49,-157.89"/>
+</g>
+<!-- mpiut__exchange -->
+<g id="interface~~operator( .div. )~~CallsGraph_node10" class="node">
+<title>mpiut__exchange</title>
+<polygon fill="#777777" stroke="#777777" points="834.6,-124.77 738.33,-124.77 738.33,-102 834.6,-102 834.6,-124.77"/>
+<text text-anchor="middle" x="786.46" y="-109.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpiut__exchange</text>
+</g>
+<!-- proc~boundary_condition_scalar&#45;&gt;mpiut__exchange -->
+<g id="interface~~operator( .div. )~~CallsGraph_edge9" class="edge">
+<title>proc~boundary_condition_scalar&#45;&gt;mpiut__exchange</title>
+<path fill="none" stroke="#255000" d="M663.48,-142.55C676.17,-139.57 689.75,-136.37 702.33,-133.38 710.45,-131.45 719.02,-129.41 727.45,-127.39"/>
+<polygon fill="#255000" stroke="#255000" points="728.09,-130.59 737,-124.85 726.45,-123.79 728.09,-130.59"/>
+</g>
+<!-- proc~boundary_condition_vector&#45;&gt;mpiut__barrier -->
+<g id="interface~~operator( .div. )~~CallsGraph_edge10" class="edge">
+<title>proc~boundary_condition_vector&#45;&gt;mpiut__barrier</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M663.48,-125.22C676.17,-128.2 689.75,-131.4 702.33,-134.38 712.95,-136.91 724.32,-139.63 735.14,-142.23"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="734.18,-145.84 744.73,-144.78 735.82,-139.03 734.18,-145.84"/>
+</g>
+<!-- proc~boundary_condition_vector&#45;&gt;mpiut__exchange -->
+<g id="interface~~operator( .div. )~~CallsGraph_edge11" class="edge">
+<title>proc~boundary_condition_vector&#45;&gt;mpiut__exchange</title>
+<path fill="none" stroke="#025525" stroke-opacity="0.019608" d="M702.68,-113.38C711.04,-113.38 719.34,-113.38 727.3,-113.38"/>
+<polygon fill="#025525" fill-opacity="0.019608" stroke="#025525" stroke-opacity="0.019608" points="727.27,-116.89 737.27,-113.38 727.27,-109.89 727.27,-116.89"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var paninterfaceoperatordivCallsGraph = svgPanZoom('#interfaceoperatordivCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>        <div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div>
+          <div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                </div>
+              <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 8.0.5 (20230430.1635)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="554pt" height="31pt"
+ viewBox="0.00 0.00 553.77 30.77" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 26.77)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-26.77 549.77,-26.77 549.77,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="63.27,-22.77 0,-22.77 0,0 63.27,0 63.27,-22.77"/>
+<text text-anchor="middle" x="31.64" y="-7.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="135.63,-22.77 81.64,-22.77 81.64,0 135.63,0 135.63,-22.77"/>
+<text text-anchor="middle" x="108.64" y="-7.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="207.63,-22.77 153.63,-22.77 153.63,0 207.63,0 207.63,-22.77"/>
+<text text-anchor="middle" x="180.63" y="-7.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="359.89,-22.77 225.38,-22.77 225.38,0 359.89,0 359.89,-22.77"/>
+<text text-anchor="middle" x="292.63" y="-7.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="431.63,-22.77 377.63,-22.77 377.63,0 431.63,0 431.63,-22.77"/>
+<text text-anchor="middle" x="404.63" y="-7.04" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="545.77,-22.77 449.5,-22.77 449.5,0 545.77,0 545.77,-22.77"/>
+<text text-anchor="middle" x="497.63" y="-7.04" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section class="visible-xs visible-sm hidden-md">
+          <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#modprocs-1">Module Procedures</a>
+        </h3>
+      </div>
+      <div id="modprocs-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../interface/operator%28%20.div.%20%29.html#moduleprocedure-operator_div~2">operator_div</a>
+        </div>
+      </div>
+    </div>
+
+
+
+      </section>
+      <br class="visible-xs visible-sm hidden-md">
+
+
+
+        <h2>Module Procedures</h2>
+            <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-operator_div"></span><h3>private  function <a href='../proc/operator_div.html'>operator_div</a>(a)  
+</h3></div>
+    <div class="panel-body">
+          
+  <p>ベクトル場のdivergence</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='../type/field__vector_t.html'>field__vector_t</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+<p>これのdivをとる</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>real(kind=DR), dimension(0:NXPP1,0:NYPP1,0:NZPP1)</small>
+    </h4>
+    <p>結果</p>
+
+    </div>
+  </div>
+
+</div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>Smoke Ring was developed by <br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-05-10 16:19              </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

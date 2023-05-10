@@ -8,7 +8,7 @@
 #PBS -l walltime=00:02:00
 #PBS -N job_h
 #PBS -o stdoe
-#PBS -j oe
+#PBS -j smoke-ring
 
 source /etc/profile.d/modules.sh
 module load compiler mpi

@@ -1,0 +1,335 @@
+!!>
+!  parallel.f
+!    * MPI process parallelization
+!
+!  History
+!    2023.05.01: Copied from tetra_dynamo project.
+!!<
+
+module parallel_m
+  use constants_m
+  use mpi
+  use mpiut_m
+  use ut_m
+  implicit none
+  private
+
+  type, private :: rank_t
+    integer :: me                    ! Rank number of myself.
+    type(mpiut__rank_next_t) :: next ! Neighbor ranks.
+  end type rank_t
+
+  type, private :: pos_t
+    type(mpiut__rank_position_t) :: index
+    character(len=12) :: string  ! e.g., "p012_035_064"
+  end type pos_t
+
+  type, private :: parallel_t
+    integer :: nprocs
+    integer :: comm
+    type(rank_t) :: rank
+    type(pos_t)  :: pos
+    type(mpiut__rank_next_t) :: periodic_pair
+    logical :: i_have_xmax
+    logical :: i_have_xmin
+    logical :: i_have_ymax
+    logical :: i_have_ymin
+    logical :: i_have_zmax
+    logical :: i_have_zmin
+  contains
+    procedure, nopass :: initialize => parallel__initialize
+    procedure, nopass :: finalize => parallel__finalize
+    procedure, nopass :: io_clerk => parallel__io_clerk
+    procedure, nopass :: rank_to_pos_index  &
+                          => parallel__rank_to_pos_index
+  end type parallel_t
+
+  type(parallel_t), public :: Parallel
+
+contains
+
+  function calc_rank_next( me ) result(next)
+    type(mpiut__rank_position_t), intent(in) :: me
+    type(mpiut__rank_next_t) :: next
+
+    integer :: i, j, k
+
+    i = me%i
+    j = me%j
+    k = me%k
+
+    next%ip1 = pos_ijk_to_rank( i+1, j,   k   )
+    next%im1 = pos_ijk_to_rank( i-1, j,   k   )
+    next%jp1 = pos_ijk_to_rank( i,   j+1, k   )
+    next%jm1 = pos_ijk_to_rank( i,   j-1, k   )
+    next%kp1 = pos_ijk_to_rank( i,   j,   k+1 )
+    next%km1 = pos_ijk_to_rank( i,   j,   k-1 )
+  end function calc_rank_next
+
+
+  function pos_ijk_to_rank( i, j, k )
+    integer, intent(in) :: i, j, k
+    integer :: pos_ijk_to_rank
+    !!>
+!       Purpose: Returns rank number for the divided region at i,j,k.
+!        Author: Akira Kageyama
+!          Date: 2013.06.13 (revised)
+    !!<
+
+    if ( i<0 .or. i>=NPROC_X  &
+             .or.  &
+         j<0 .or. j>=NPROC_Y  &
+             .or.  &
+         k<0 .or. k>=NPROC_Z ) then
+      pos_ijk_to_rank = MPI_PROC_NULL
+    else
+      pos_ijk_to_rank = i + j*NPROC_X + k*NPROC_X*NPROC_Y
+    end if
+
+  end function pos_ijk_to_rank
+
+ 
+  subroutine parallel__initialize
+!!>
+!    The following is the process allocation map. We do
+!    not use the automatic allocation by MPI_Carte_create.
+!
+!               /     /     /     /     /|
+!              /  12 / 13  / 14  / 15  / |
+!             /-----/-----/-----/-----/  |           k
+!            /     /     /     /     /|  /          /
+!           /     /     /     /     / | /|         /
+!          +-----+-----+-----+-----+  |/ |        +------ i
+!    N     |     |     |     |     |  /  |        |
+!    P     |  0  |  1  |  2  |  3  | /|  /        |
+!    R     |     |     |     |     |/ | /|        |
+!    O = 3 +-----+-----+-----+-----+  |/ |        |
+!    C     |     |     |     |     |  /  |         j
+!          |  4  |  5  |  6  |  7  | /|  /
+!    Y     |     |     |     |     |/ | /
+!          +-----+-----+-----+-----+  |/
+!          |     |     |     |     |  /
+!          |  8  |  9  | 10  | 11  | /
+!          |     |     |     |     |/pos.index.k = rank / (mx*my)
+!          +-----+-----+-----+-----+ pos.index.j = mod(rank,mx*my)/mx
+!                                    pos.index.i = mod(rank,mx)
+!                  NPROC_X = 4
+!!<
+
+    integer :: me, nprocs, comm
+
+    call mpiut__init  ! No OpenMP
+    ! call mpiut__init( MPI_THREAD_MULTIPLE )
+
+    comm   = MPI_COMM_WORLD
+    me     = mpiut__comm_rank( comm )
+    nprocs = mpiut__comm_size( comm )
+
+    call mpiut__assert( nprocs == NPROC_X*NPROC_Y*NPROC_Z,  &
+                        'parallel_m/parallel__initialize: nprocs inconsistent.' )
+
+    Parallel%comm    = comm
+    Parallel%nprocs  = nprocs
+    Parallel%rank%me = me
+
+    Parallel%pos%index = Parallel%rank_to_pos_index( me )
+
+    Parallel%rank%next = calc_rank_next( Parallel%pos%index )
+
+                ! Sample: "p012_035_064"
+    Parallel%pos%string = "p"                           & ! 1 letter
+                    // ut__i2c3( Parallel%pos%index%i ) & ! 3 letters
+                    // '_'                              & ! 1 letter
+                    // ut__i2c3( Parallel%pos%index%j ) & ! 3 letters
+                    // '_'                              & ! 1 letter
+                    // ut__i2c3( Parallel%pos%index%k )   ! 3 letters
+
+    associate ( periodic_pair => Parallel%periodic_pair,  &
+                pos_index => Parallel%pos%index,          &
+                have_xmax => Parallel%i_have_xmax,        & 
+                have_xmin => Parallel%i_have_xmin,        & 
+                have_ymax => Parallel%i_have_ymax,        & 
+                have_ymin => Parallel%i_have_ymin,        & 
+                have_zmax => Parallel%i_have_zmax,        & 
+                have_zmin => Parallel%i_have_zmin )
+
+      periodic_pair%ip1 = MPI_PROC_NULL  ! Default values.
+      periodic_pair%im1 = MPI_PROC_NULL  ! These will be
+      periodic_pair%jp1 = MPI_PROC_NULL  ! overwritten.
+      periodic_pair%jm1 = MPI_PROC_NULL
+      periodic_pair%kp1 = MPI_PROC_NULL
+      periodic_pair%km1 = MPI_PROC_NULL
+
+      have_xmax = .false.  ! Default values.
+      have_xmin = .false.  ! These will be
+      have_ymax = .false.  ! overwritten.
+      have_ymin = .false.
+      have_zmax = .false.
+      have_zmin = .false.
+
+      if ( pos_index%i == NPROC_X-1 ) have_xmax = .true.
+      if ( pos_index%i == 0         ) have_xmin = .true.
+      if ( pos_index%j == NPROC_Y-1 ) have_ymax = .true.
+      if ( pos_index%j == 0         ) have_ymin = .true.
+      if ( pos_index%k == NPROC_Z-1 ) have_zmax = .true.
+      if ( pos_index%k == 0         ) have_zmin = .true.
+
+      if ( have_xmax ) periodic_pair%ip1 = me - NPROC_X + 1
+      if ( have_xmin ) periodic_pair%im1 = me + NPROC_X - 1
+      if ( have_ymax ) periodic_pair%jp1 = me - NPROC_X*(NPROC_Y-1)
+      if ( have_ymin ) periodic_pair%jm1 = me + NPROC_X*(NPROC_Y-1)
+      if ( have_zmax ) periodic_pair%kp1 = me - NPROC_X*NPROC_Y*(NPROC_Z-1)
+      if ( have_zmin ) periodic_pair%km1 = me + NPROC_X*NPROC_Y*(NPROC_Z-1)
+    end associate
+
+    call iPrint
+    
+    call mpiut__barrier( comm )
+
+  contains
+
+    subroutine iPrint
+      call mpiut__message_leader( comm,              &
+                                'parallel_m: comm',  &
+                                    Parallel%comm)
+      call mpiut__message_leader( comm,                &
+                                'parallel_m: nprocs',  &
+                                    Parallel%nprocs)
+      call mpiut__message_leader( comm,                 &
+                                'parallel_m: rank.me',  &
+                                    Parallel%rank%me)    
+      call mpiut__message_leader( comm,                     &
+                                'parallel_m: pos.index.i',  &
+                                    Parallel%pos%index%i)
+      call mpiut__message_leader( comm,                     &
+                                'parallel_m: pos.index.j',  &
+                                    Parallel%pos%index%j)
+      call mpiut__message_leader( comm,                     &
+                                'parallel_m: pos.index.k',  &
+                                    Parallel%pos%index%k)
+      call mpiut__message_leader( comm,                    &
+                                'parallel_m: pos.string',  &
+                                    Parallel%pos%string)
+      call mpiut__message_leader( comm,                       &
+                                'parallel_m: rank.next.ip1',  &
+                                    Parallel%rank%next%ip1)
+      call mpiut__message_leader( comm,                       &
+                                'parallel_m: rank.next.im1',  &
+                                    Parallel%rank%next%im1)
+      call mpiut__message_leader( comm,                       &
+                                'parallel_m: rank.next.jp1',  &
+                                    Parallel%rank%next%jp1)
+      call mpiut__message_leader( comm,                       &
+                                'parallel_m: rank.next.jm1',  &
+                                    Parallel%rank%next%jm1)
+      call mpiut__message_leader( comm,  &
+                                'parallel_m: rank.next.kp1',  &
+                                Parallel%rank%next%kp1)
+      call mpiut__message_leader( comm,                       &
+                                'parallel_m: rank.next.km1',  &
+                                    Parallel%rank%next%km1)
+      call mpiut__message_leader( comm,                   &
+                                'parallel_m: have_xmax',  &
+                                  Parallel%i_have_xmax)
+      call mpiut__message_leader( comm,                   &
+                                'parallel_m: have_xmin',  &
+                                  Parallel%i_have_xmin)
+      call mpiut__message_leader( comm,                   &
+                                'parallel_m: have_ymax',  &
+                                  Parallel%i_have_ymax)
+      call mpiut__message_leader( comm,                   &
+                                'parallel_m: have_ymin',  &
+                                  Parallel%i_have_ymin)
+      call mpiut__message_leader( comm,                   &
+                                'parallel_m: have_zmax',  &
+                                  Parallel%i_have_zmax)
+      call mpiut__message_leader( comm,                   &
+                                'parallel_m: have_zmin',  &
+                                  Parallel%i_have_zmin)
+      call mpiut__message_leader( comm,                          &
+                                'parallel_m: periodic_pair.ip1', &
+                                    Parallel%periodic_pair%ip1)
+      call mpiut__message_leader( comm,                          &
+                                'parallel_m: periodic_pair.im1', &
+                                    Parallel%periodic_pair%im1)
+      call mpiut__message_leader( comm,                          &
+                                'parallel_m: periodic_pair.jp1', &
+                                    Parallel%periodic_pair%jp1)
+      call mpiut__message_leader( comm,                          &
+                                'parallel_m: periodic_pair.jm1', &
+                                    Parallel%periodic_pair%jm1)
+      call mpiut__message_leader( comm,                          &
+                                'parallel_m: periodic_pair.kp1', &
+                                    Parallel%periodic_pair%kp1)
+      call mpiut__message_leader( comm,                          &
+                                'parallel_m: periodic_pair.km1', &
+                                    Parallel%periodic_pair%km1)
+    end subroutine iPrint
+
+  end subroutine parallel__initialize
+ 
+
+  subroutine parallel__finalize
+    call mpiut__finalize
+  end subroutine parallel__finalize
+
+
+  function parallel__io_clerk( task ) result(i_am)
+    character(len=*), intent(in), optional :: task
+    logical :: i_am
+    !!>
+!        Returns the rank number who is in charge of data io.
+!        We assign different processes for different data, to
+!        avoid the IO conflicts. You will not need this function
+!        in future when the parallel IO of MPI2 is implemented
+!        in this code. This is just for a temporary use till then.
+    !!<
+    integer :: target_rank
+    integer :: nprocs
+
+    nprocs = Parallel%nprocs
+
+    if ( .not. present(task) ) then
+       target_rank = 0
+    else
+       select case (task)
+       case ('2d_slice_xy')
+          target_rank = mod(0,nprocs)
+       case ('2d_slice_yz')
+          target_rank = mod(1,nprocs)
+       case ('2d_slice_zx')
+          target_rank = mod(2,nprocs)
+       case ('2d_slice_xy2')
+          target_rank = mod(3,nprocs)
+       case ('2d_slice_xy3')
+          target_rank = mod(4,nprocs)
+       case ('heavy data')
+          target_rank = Parallel%nprocs-1
+       case default
+          target_rank = 0
+       end select
+    end if
+
+    i_am = (target_rank==Parallel%rank%me)
+
+  end function parallel__io_clerk
+
+
+  function parallel__rank_to_pos_index( rank ) result(index)
+    integer, intent(in) :: rank
+    type(mpiut__rank_position_t) :: index
+    !!>
+!        Returns the process position (i,j,k) for the rank.
+    !!<
+    call mpiut__assert( rank >= 0,  &
+                        'parallel_m/parallel__rank_to_pos_index: negative rank.')
+    call mpiut__assert( rank < NPROC_X*NPROC_Y*NPROC_Z,  &
+                        'parallel_m/parallel__rank_to_pos_index: rank out of range.')
+
+    index%k = rank / (NPROC_X*NPROC_Y)
+    index%j = mod(rank,NPROC_X*NPROC_Y) / NPROC_X
+    index%i = mod(rank,NPROC_X)
+
+  end function parallel__rank_to_pos_index
+
+end module parallel_m

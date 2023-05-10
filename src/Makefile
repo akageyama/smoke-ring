@@ -105,12 +105,12 @@ endif
 %.o: %.F90
 	$(FC) $(FFLAGS) -o $@ -c $< $(FLIBS)
 
-runme: smoke_ring params.namelist
-	mpiexec -n $(mpi_nprocs) ./smoke_ring params.namelist
-
 smoke_ring: $(objlist)
 	mkdir -p ../data/vis2d
 	$(FC) $(FFLAGS) -o smoke_ring $(objlist) $(FLIBS)
+
+runme: smoke_ring params.namelist
+	mpiexec -n $(mpi_nprocs) ./smoke_ring params.namelist
 
 -include depend_list.mk
 

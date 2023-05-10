@@ -1,90 +1,68 @@
-!*******************************************************************
-!> author: Akira Kageyama
-!  license: MIT
-!  date: 2020.01.22
-!
-!  シミュレーションジョブの制御
-!
-!@note 
-!   配列演算を多用している。つまり一行で書かれている部分も
-!   実際は3重do loopで書かれような大量の演算をしているところが
-!   多い。このコードをOpenMP化する時には、そのような部分を
-!   3重do loopに展開して書き直す必要がある。
-!
+!!>
+!   author: Akira Kageyama
+!   date: 2023.05.05
+! 
+!   シミュレーションジョブの制御
+! 
+!   @note 
+!      配列演算を多用している。つまり一行で書かれている部分も
+!      実際は3重do loopで書かれような大量の演算をしているところが
+!      多い。このコードをOpenMP化する時には、そのような部分を
+!      3重do loopに展開して書き直す必要がある。
+!!<
 module job_m
-  use constants_m  ! 定数定義
-  use ut_m         ! ユーティリティ
-  implicit none    ! 暗黙の型宣言無効化。必須
-  private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
-  public :: & ![variable]
-            job__karte
-  public :: & ![routines]
-            job__finalize
+  use constants_m  !! 定数定義
+  use ut_m         !! ユーティリティ
+  use parallel_m   !! MPI並列化
+  implicit none    !! 暗黙の型宣言無効化。必須
+  private !! このモジュール内の変数・ルーチン等はデフォルトで非公開
 
-  type, public :: job__karte_t
-    ! ジョブの「健康状態」を記したカルテ用構造体
-    character(len=20) :: state = "fine"  ! 初期は「健康」
+  type :: job_t
+    character(len=20) :: karte = "fine"  ! カルテ。初期は「健康」
   contains
-    procedure :: set => job__karte_set   ! カルテの設定関数
-  end type job__karte_t
+    procedure, nopass :: initialize => job__initialize
+    procedure, nopass :: finalize => job__finalize
+  end type job_t
 
-  type(job__karte_t) :: job__karte ! カルテ
+  type(job_t), public :: Job
 
 
 contains
 
 
-  subroutine job__finalize(nloop)
-    !! ジョブ終了時の後始末。実際には健康状態カルテに応じた
-    !! メッセージを標準出力に書くだけ
-    !!
-    !! MPI化した場合、MPI_Finalizeをおくのはここがいいだろう。
-    !!
-    !! ut__messageの第一引数と第二引数はどちらも文字（列）
-    !! 変数であるが、第一引数はシングルクォーテーションマーク、
-    !! 第二引数はダブルクオーテーションマークで囲っている。これは
-    !! コンパイラにとっては無意味。Fortranでは2つのクォーテーション
-    !! マークは区別しない。
-    integer(DI), intent(in) :: nloop !! ループカウンタ
+  subroutine job__initialize
 
-    select case (trim(job__karte%state))
-      case ("fine", "loop_max")
-        call ut__message('#',"Successfully finished.") ! #で第2引数を囲む。
-      case ("time_out")
-        call ut__message('-',"Time out at nloop = ", nloop)
-      case ("over_flow")
-        call ut__message('%',"Overflow at nloop = ", nloop)
-      case ("negative_anormaly")
-        call ut__message('%',"Underflow at nloop = ",nloop)
+    call Parallel%initialize
+      !! MPI並列化初期化処理。Parallel変数はparallel.efで定義
+      !! されている。冒頭のPが大文字なのはこれがグローバル変数
+      !! であることを示唆している。（コンパイラは大文字と小文字を
+      !! 区別しないが。）
+    
+  end subroutine job__initialize
+
+
+  subroutine job__finalize( nloop )
+    integer, intent(in) :: nloop !! ループカウンタ
+    !! ジョブ終了時の後始末。
+    !! (1) 健康状態カルテに応じたメッセージを標準出力に書く
+    !! (2) MPI並列化の終了処理
+
+    select case (trim(job%karte))
+      case ("fine","loop_max") !! このどちらかであれば、
+        call ut__deco_message( "#","Successfully finished." ) 
+                               !! # で第2引数の文字列を囲む。
+      case ("time out")
+        call ut__deco_message( "-","Time out at nloop = ", nloop )
+      case ("overflow")
+        call ut__deco_message( "%","Overflow at nloop = ", nloop )
+      case ("negative anormaly")
+        call ut__deco_message( "%","Underflow at nloop = ",nloop )
       case default
-        call ut__message('?',"Stopped at nloop = ",  nloop)
+        call ut__deco_message( "?","Stopped at nloop = ",  nloop )
     end select
+
+    call Parallel%finalize
+      !! MPI並列化終了処理
   end subroutine job__finalize
-
-
-  subroutine job__karte_set(self, state_)
-    !! ジョブカルテの設定終了時の後始末。実際には健康状態カルテに応じた
-    !!
-    !! 構造体のメンバー関数としてcallするときその
-    !! 構造体変数そのものがselfとして自動的に引数にはいる。
-    !! ここでの変数名はselfという名前でなくても構わない。
-    class(job__karte_t), intent(out) :: self   !! ジョブカルテ
-    character(len=*),    intent(in)  :: state_ !! 設定する状態
-
-    select case (trim(state_))
-      case ("fine")              ! 問題なく計算が進行している
-        self%state = "fine"        
-      case ("time_out")          ! ジョブの時間切れ
-        self%state = "time_out" 
-      case ("loop_max")          ! 設定されたループカウンタの最大値に到達した
-        self%state = "loop_max" 
-      case ("over_flow")         ! 計算途中にオーバーフローが発生した
-        self%state = "over_flow" 
-      case ("negative_anormaly") ! 密度など正でなければいけない量が負になった
-        self%state = "negative_anormaly" 
-      case default               ! そんなstateは想定していない
-        call ut__fatal("<job__karte_set> case error.")
-    end select
-  end subroutine job__karte_set
 
 end module job_m
