@@ -7,7 +7,7 @@ extract_used_obj()
              | grep '^ *use \+[a-zA-Z][_0-9a-zA-Z]\+_m\s*$' \
              | tr ',' ' ' \
              | awk '{print $2}' \
-             | sed -e '/vv_[a-zA-z][0-9a-zA-Z]*/d' \
+             | sed '/vv_[a-zA-Z][0-9a-zA-Z]*/d' \
              | sed 's/\(.*\)_m/\1/' \
              | sed 's/$/.o/' \
              | tr '\012' ' '

@@ -223,7 +223,7 @@ contains
 
     char(len=1) <const> :: CHAR_USCORE = "_"
     char(len=1) <const> :: CHAR_SLASH  = "/"
-    char(len=*) <const> :: DIR = "../data/vis2d"
+    char(len=*) <const> :: DIR = '../data/vis2d'
 
     filename = DIR // CHAR_SLASH // &
                trim(tag1) // CHAR_USCORE // &
