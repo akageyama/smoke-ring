@@ -32,46 +32,20 @@ VIS2DLIB_DIR  = ../../slice-svg/lib
 
 FLIBS := -I$(VIS2DLIB_DIR) -L$(VIS2DLIB_DIR) -l$(VIS2DLIB_NAME)
 
-this_host = default
 this_host := $(shell hostname | cut -c1-3)
 
-ifeq ($(this_host),default)  # Default
-        EFPP = ../bin/efpp.py
-        FC = gfortran
-        FFLAGS := 
-        # FFLAGS += -fopenmp
-        FFLAGS += -fcheck=all
-        FFLAGS += -Wall
-        FFLAGS += -fbounds-check
-        FFLAGS += -fcheck-array-temporaries
-        FFLAGS += -O0
-        FFLAGS += -Wuninitialized
-        FFLAGS += -ffpe-trap=invalid,zero,overflow
-        FFLAGS += -g
-        FFLAGS += -fbacktrace
-endif
 ifeq ($(this_host),alf)  # Alfven
         EFPP = ../bin/efpp.py2
         FC = mpinfort
         FFLAGS = 
-endif
-ifeq ($(this_host),pif)  # Pi-computer
+else ifeq ($(this_host),pif)  # Pi-computer
         EFPP = ../bin/efpp.py
 	# FC = mpif90
 	FC = mpiifort
         FFLAGS = -xAVX
         FFLAGS = -O0
         FFLAGS += -check all -traceback -debug
-endif
-ifeq ($(this_host),mac)  # Mac
-        EFPP = ../bin/efpp.py
-        FC = gfortran
-        FFLAGS = -O0 -Wuninitialized -ffpe-trap=invalid,zero,overflow -fbacktrace 
-        FFLAGS += -fbounds-check
-        FFLAGS += -fcheck=array-temps,bounds,do,mem,pointer,recursion
-        FFLAGS += -Wall
-endif
-ifeq ($(this_host),ofp)  # Oakforest PACS
+else ifeq ($(this_host),ofp)  # Oakforest PACS
         EFPP = ../bin/efpp.py
         FC = mpiifort
         FFLAGS := -O3
@@ -85,8 +59,7 @@ ifeq ($(this_host),ofp)  # Oakforest PACS
         #FFLAGS += -check all
         #FFLAGS += -warn all
         #FFLAGS += -traceback
-endif
-ifeq ($(this_host),fes)  # NIFS
+else ifeq ($(this_host),fes)  # NIFS
         EFPP = ../bin/efpp.py2
         FC = mpifrtpx
         FFLAGS := -Kopenmp
@@ -95,8 +68,7 @@ ifeq ($(this_host),fes)  # NIFS
         # FFLAGS += -g
         # FFLAGS += -Nquickdbg=argchk
         # FFLAGS += -Nquickdbg=subchk
-endif
-ifeq ($(HOME),$(ES3_HOME)) # JAMSTEC
+else ifeq ($(HOME),$(ES3_HOME)) # JAMSTEC
         EFPP = ../../../bin/efpp.py2
         #EFPP = ../bin/efpp.py2
         FC = sxmpif03 # at cg-mhd, must sxmpif03, not sxmpif90
@@ -108,10 +80,26 @@ ifeq ($(HOME),$(ES3_HOME)) # JAMSTEC
          #FFLAGS += -R2
          #FFLAGS += -Wf"-pvctl fullmsg"
          #FFLAGS += -eR
+else 
+        EFPP = ../bin/efpp.py
+        FC = gfortran
+        FC = mpif90
+        FFLAGS := 
+        # FFLAGS += -fopenmp
+        FFLAGS += -fcheck=all
+        FFLAGS += -Wall
+        FFLAGS += -fbounds-check
+        FFLAGS += -fcheck-array-temporaries
+        FFLAGS += -O0
+        FFLAGS += -Wuninitialized
+        FFLAGS += -ffpe-trap=invalid,zero,overflow
+        FFLAGS += -g
+        FFLAGS += -fbacktrace
 endif
 
 
 %.F90: %.ef
+	echo $(EFPP)
 	$(EFPP) $< > $@
 
 %.o: %.F90
