@@ -606,7 +606,7 @@ contains
                          '#total mass: ',  &
                          nloop,            &
                          time,             &
-                         .scalarintegral.(fluid.density) )
+                         .scalarintegral. (fluid.density)  )
       !! 上と同様。こちらのほうは単なる密度場の体積積分なので
       !! 演算量は少ないが、シミュレーション領域全体に渡る体積積分
       !! なので計算量は大きいことにかわりない。
