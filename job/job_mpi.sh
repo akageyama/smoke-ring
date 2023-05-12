@@ -4,13 +4,18 @@
 #      ./qsub job_mpi.sh
 #
 #PBS -q large
-#PBS -l select=4:ncpus=32:mpiprocs=32
-#PBS -l walltime=00:02:00
+#PBS -l select=2:ncpus=32:mpiprocs=32
+
+  ! 格子サイズのメモ
+  ! NX_GLOBAL = 302  ! Vis=2e-3, Kap=2e-3: 1000 steps 発散
+  ! NY_GLOBAL = 102  !
+  ! NZ_GLOBAL = 102  !
+#PBS -l walltime=05:00:00
 #PBS -N job_h
 #PBS -o stdoe
-#PBS -j smoke-ring
+#PBS -j oe
 
 source /etc/profile.d/modules.sh
 module load compiler mpi
 cd ${PBS_O_WORKDIR}
-mpiexec ../src/smoke_ring ../src/params.namelist
+mpiexec -n 48 ../src/smoke_ring ../src/params.namelist
