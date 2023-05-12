@@ -49,6 +49,8 @@ program main_m
     !! されている。冒頭のPが大文字なのはこれがグローバル変数
     !! であることを示唆している。（コンパイラは大文字と小文字を
     !! 区別しないが。）
+  call iPrint                                   !{main  }{iprint}
+    !! 定数とパラメータを書き出す
   call Grid.initialize                          !{main  }{grid i}
     !! gridモジュールの初期化。
     !! パーセント記号はメンバアクセス演算子。
@@ -96,7 +98,7 @@ program main_m
     nloop += 1  !! ループカウンタのインクリメント
     call Solver.diagnosis( nloop, time, fluid ) !{main  }{solv d}
       !! 診断。異常があればjob.carteにセットする。
-    call vis2d.draw( time, nloop, fluid )
+    call vis2d.draw( time, nloop, fluid )       !{main  }{vis2  }
       !! シミュレーション領域の断面図をSVGで出力する。
     if ( nloop >= Params.get_integer( 'Total_nloop' ) ) then
       Job.karte = "loop_max"
@@ -108,4 +110,30 @@ program main_m
                                                 !{{print}}
   call Job.finalize( nloop )                    
     !! ジョブの後始末。MPI終了処理を含む。
+
+contains
+
+  subroutine iPrint
+    integer :: comm
+    comm = Parallel.comm
+    call mpiut__message_leader( comm, "NPROC_X", NPROC_X )
+    call mpiut__message_leader( comm, "NPROC_Y", NPROC_Y )
+    call mpiut__message_leader( comm, "NPROC_Z", NPROC_Z )
+    call mpiut__message_leader( comm, "NXPP", NXPP )
+    call mpiut__message_leader( comm, "NYPP", NYPP )
+    call mpiut__message_leader( comm, "NZPP", NZPP )
+    call mpiut__message_leader( comm, "NX_GLOBAL", NX_GLOBAL )
+    call mpiut__message_leader( comm, "NY_GLOBAL", NY_GLOBAL )
+    call mpiut__message_leader( comm, "NZ_GLOBAL", NZ_GLOBAL )
+    call mpiut__message_leader( comm, "XMIN", XMIN )
+    call mpiut__message_leader( comm, "YMIN", YMIN )
+    call mpiut__message_leader( comm, "ZMIN", ZMIN )
+    call mpiut__message_leader( comm, "Total_nloop",  &
+                                      Params.get_integer( 'Total_nloop' ) )
+    call mpiut__message_leader( comm, "Viscosity",  &
+                                      Params.get_double( 'Viscosity' ) )
+    call mpiut__message_leader( comm, "Kappa",  &
+                                      Params.get_double( 'Kappa' ) )
+  end subroutine iPrint
+
 end program main_m
