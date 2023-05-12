@@ -35,18 +35,23 @@ module constants_m
   real(DR) <const> :: PI = atan(1.0_DR)*4
   real(DR) <const> :: TWOPI = PI*2
 
-  !<< MPI process constants >>!
-  integer <const> :: NPROC_X = 2 ! x方向MPIプロセス数 mkjob.sh でこの行をgrepする
-  integer <const> :: NPROC_Y = 1 ! y方向MPIプロセス数 mkjob.sh でこの行をgrepする 
-  integer <const> :: NPROC_Z = 2 ! z方向MPIプロセス数 mkjob.sh でこの行をgrepする
-
   !<< Code utility constants >>!
   integer <const> :: NIL = -huge(1)
 
+  !<< MPI process constants >>!
+  integer <const> :: NPROC_X = 6 ! x方向MPIプロセス数 mkjob.sh でこの行をgrepする
+  integer <const> :: NPROC_Y = 4 ! y方向MPIプロセス数 mkjob.sh でこの行をgrepする 
+  integer <const> :: NPROC_Z = 2 ! z方向MPIプロセス数 mkjob.sh でこの行をgrepする
+
   !<< Grid size constants >>!
-  integer <const> :: NXPP = 30   ! PP = Per Process 
-  integer <const> :: NYPP = 20
-  integer <const> :: NZPP = 10
+  integer <const> :: NXPP = 70   ! PP = Per Process 
+  integer <const> :: NYPP = 35
+
+  ! 格子サイズのメモ
+  ! NX_GLOBAL = 302  ! Vis=2e-3, Kap=2e-3: 1000 steps 発散
+  ! NY_GLOBAL = 102  !
+  ! NZ_GLOBAL = 102  !
+  integer <const> :: NZPP = 70
   integer <const> :: NXPP1 = NXPP + 1  ! PP1 = PP plus one
   integer <const> :: NYPP1 = NYPP + 1
   integer <const> :: NZPP1 = NZPP + 1
@@ -55,17 +60,29 @@ module constants_m
   integer <const> :: NZ_GLOBAL = NZPP * NPROC_Z + 2
 
   ! 格子サイズのメモ
-  ! NX_GLOBAL =  60    ! 格子点数 x方向 粗い解像度
-  ! NY_GLOBAL =  20    ! 格子点数 y方向 粗い解像度
-  ! NZ_GLOBAL =  20    ! 格子点数 z方向 粗い解像度
-  ! ---
-  ! NX_GLOBAL =  92    ! 格子点数 x方向
-  ! NY_GLOBAL =  32    ! 格子点数 y方向
-  ! NZ_GLOBAL =  32    ! 格子点数 z方向
-  ! ---
-  ! NX_GLOBAL = 152    ! 格子点数 x方向 少し高めの解像度
-  ! NY_GLOBAL =  52    ! 格子点数 y方向 少し高めの解像度
-  ! NZ_GLOBAL =  52    ! 格子点数 z方向 少し高めの解像度
+  ! NX_GLOBAL = 182  ! Vis=8e-3, Kap=8e-3: 2000 steps OK
+  ! NY_GLOBAL =  62  ! Vis=5e-3, Kap=5e-3: 1200 steps 発散
+  ! NZ_GLOBAL =  62  ! Vis=5e-3, Kap=1e-2: 1200 steps 発散
+
+  ! 格子サイズのメモ
+  ! NX_GLOBAL = 242  ! Vis=5e-3, Kap=5e-3: 2000 steps OK 11min
+  ! NY_GLOBAL =  82  ! Vis=2e-3, Kap=2e-3:  800 steps 発散
+  ! NZ_GLOBAL =  82  !
+
+  ! 格子サイズのメモ
+  ! NX_GLOBAL = 302  ! Vis=2e-3, Kap=2e-3: 1000 steps 発散
+  ! NY_GLOBAL = 102  !
+  ! NZ_GLOBAL = 102  !
+
+  ! 格子サイズのメモ
+  ! NX_GLOBAL = 422  ! Vis=2e-3, Kap=2e-3: 1400 steps 発散
+  ! NY_GLOBAL = 142  !
+  ! NZ_GLOBAL = 142  !
+
+  ! 格子サイズのメモ
+  ! NX_GLOBAL = 422  ! Vis=2e-3, Kap=2e-3: 2000 steps OK 33min
+  ! NY_GLOBAL = 142  !  THE_FORCE を 3e3 から 1.e3  に変更
+  ! NZ_GLOBAL = 142  !
 
   ! << Box Size >>
   real(DR) <const> :: XMIN = -1.5_DR ! 計算領域範囲 +x  単位はメートル

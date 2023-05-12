@@ -1,3 +1,2 @@
-&simulation      Total_nloop = 1000 /
-&visualization   Slicedata_nskip  = 100, Slicedata_tag = '_data_slice' /
-&fluid_property  Viscosity = 3.0e-2, Kappa = 3.0e-2 /
+&simulation      Total_nloop = 10000 /
+&fluid_property  Viscosity = 1.0e-3, Kappa = 1.0e-3 /
