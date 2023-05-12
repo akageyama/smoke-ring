@@ -43,14 +43,9 @@ module params_m
                                 ! 足りなくなったら大きくする。
 
   integer :: Total_nloop        ! 一度のジョブで計算するループ回数
-  integer :: Slicedata_nskip    ! 何ステップ毎に断面データを書き出すか
-  char(len=STRING_LENGTH_MAX) :: Slicedata_tag  
-                                ! 断面データファイル名用
   real(DR) :: Viscosity, Kappa  ! 粘性率と熱拡散率
 
   namelist /simulation/     Total_nloop
-  namelist /visualization/  Slicedata_nskip,   &
-                            Slicedata_tag
   namelist /fluid_property/ Viscosity,  &
                             Kappa
 
@@ -59,8 +54,8 @@ module params_m
     procedure, nopass :: read => params__read
     procedure, nopass :: get_double => params__get_double
     procedure, nopass :: get_integer => params__get_integer
-    procedure, nopass :: get_logical => params__get_logical
-    procedure, nopass :: get_string => params__get_string
+!   procedure, nopass :: get_logical => params__get_logical
+!   procedure, nopass :: get_string => params__get_string
   end type params_t
 
   type(params_t), public :: Params
@@ -104,8 +99,6 @@ contains
                      '__MODULE__(__LINE__): Read params file first.' )
 
     select case (variable)
-      case                  ('Slicedata_nskip')  ! 何ステップごとに
-        params__get_integer = Slicedata_nskip    ! 断面をディスクに書き出すか
       case                  ('Total_nloop')      ! シミュレーションジョブ
         params__get_integer = Total_nloop        ! の実行最大ループ数
       case default                               ! 想定外
@@ -114,7 +107,7 @@ contains
     end select
   end function params__get_integer
 
-
+!!>
   function params__get_logical( variable )
     char(len=*) <in> :: variable  !! 問い合わせ変数の名前
     logical :: params__get_logical            !! その値
@@ -132,7 +125,7 @@ contains
         call ut__fatal( '__MODULE__(__LINE__): case error.' )
     end select
   end function params__get_logical
-
+!!<
 
   subroutine params__read
     !! namelistファイルをディスクから読み込む。
@@ -150,24 +143,22 @@ contains
 
     !*******<params_file のサンプル>*********
     ! &simulation      Total_nloop = 2000 /
-    ! &visualization   Slicedata_nskip  = 100, Slicedata_tag = '_data_slice' /
     ! &fluid_property  Viscosity = 3.0e-2, Kappa = 3.e-2 /
     !*******</params_file のサンプル>*********
 
     open(newunit=file_unit,file=trim(params_file))
       read(file_unit,nml=simulation)
-      read(file_unit,nml=visualization)
       read(file_unit,nml=fluid_property)
     close(file_unit)
 
     write(output_unit,nml=simulation)
-    write(output_unit,nml=visualization)
     write(output_unit,nml=fluid_property)
 
     Read_done = .true.
   end subroutine params__read
 
 
+!!>
   function params__get_string( variable )
     char(len=*) <in> :: variable  !! 問い合わせ変数の名前
     char(len=STRING_LENGTH_MAX) :: params__get_string  !! その値
@@ -180,12 +171,11 @@ contains
                      '__MODULE__(__LINE__): Read params file first.' )
 
     select case (variable)
-      case                 ('Slicedata_tag')   ! 断面ファイル名に使う
-        params__get_string = Slicedata_tag
       case default
         call ut__message( '? arg = ', variable ) ! 想定外
         call ut__fatal( '__MODULE__(__LINE__): case error.' )
     end select
   end function params__get_string
+!!<
 
 end module params_m
