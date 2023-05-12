@@ -152,7 +152,7 @@ contains
     real(DR) :: force_cylinder_diameter, force_cylinder_radius_sq
 
     ! real(DR) <const> :: THE_FORCE = 3.e3_DR
-    real(DR) <const> :: THE_FORCE = 1.e3_DR
+    real(DR) <const> :: THE_FORCE = 1.e2_DR
                                      !! 瞬間的な力の最大値。
                                      !! 試行錯誤で調整せよ。
     !!>

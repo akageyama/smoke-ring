@@ -18,4 +18,4 @@
 source /etc/profile.d/modules.sh
 module load compiler mpi
 cd ${PBS_O_WORKDIR}
-mpiexec -n 48 ../src/smoke_ring ../src/params.namelist
+mpiexec -n 64 ../src/smoke_ring ../src/params.namelist

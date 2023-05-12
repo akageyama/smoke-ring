@@ -39,19 +39,14 @@ module constants_m
   integer <const> :: NIL = -huge(1)
 
   !<< MPI process constants >>!
-  integer <const> :: NPROC_X = 6 ! x方向MPIプロセス数 mkjob.sh でこの行をgrepする
+  integer <const> :: NPROC_X = 4 ! x方向MPIプロセス数 mkjob.sh でこの行をgrepする
   integer <const> :: NPROC_Y = 4 ! y方向MPIプロセス数 mkjob.sh でこの行をgrepする 
-  integer <const> :: NPROC_Z = 2 ! z方向MPIプロセス数 mkjob.sh でこの行をgrepする
+  integer <const> :: NPROC_Z = 4 ! z方向MPIプロセス数 mkjob.sh でこの行をgrepする
 
   !<< Grid size constants >>!
-  integer <const> :: NXPP = 70   ! PP = Per Process 
-  integer <const> :: NYPP = 35
-
-  ! 格子サイズのメモ
-  ! NX_GLOBAL = 302  ! Vis=2e-3, Kap=2e-3: 1000 steps 発散
-  ! NY_GLOBAL = 102  !
-  ! NZ_GLOBAL = 102  !
-  integer <const> :: NZPP = 70
+  integer <const> :: NXPP = 100   ! PP = Per Process 
+  integer <const> :: NYPP =  50
+  integer <const> :: NZPP =  50
   integer <const> :: NXPP1 = NXPP + 1  ! PP1 = PP plus one
   integer <const> :: NYPP1 = NYPP + 1
   integer <const> :: NZPP1 = NZPP + 1
@@ -80,15 +75,20 @@ module constants_m
   ! NZ_GLOBAL = 142  !
 
   ! 格子サイズのメモ
-  ! NX_GLOBAL = 422  ! Vis=2e-3, Kap=2e-3: 2000 steps OK 33min
+  ! NX_GLOBAL = 422  ! Vis=2e-3, Kap=2e-3: 
   ! NY_GLOBAL = 142  !  THE_FORCE を 3e3 から 1.e3  に変更
-  ! NZ_GLOBAL = 142  !
+  ! NZ_GLOBAL = 142  !  5600 で発散
+
+  ! 格子サイズのメモ
+  ! NX_GLOBAL = 402  ! Vis=1e-3, Kap=1e-3
+  ! NY_GLOBAL = 202  !  THE_FORCE を 1e3 から 1e2  に変更
+  ! NZ_GLOBAL = 202  ! 
 
   ! << Box Size >>
-  real(DR) <const> :: XMIN = -1.5_DR ! 計算領域範囲 +x  単位はメートル
-  real(DR) <const> :: XMAX = +1.5_DR ! 計算領域範囲 -x
-  real(DR) <const> :: YMIN = -0.5_DR ! 計算領域範囲 +y
-  real(DR) <const> :: YMAX = +0.5_DR ! 計算領域範囲 -y
-  real(DR) <const> :: ZMIN = -0.5_DR ! 計算領域範囲 +z
-  real(DR) <const> :: ZMAX = +0.5_DR ! 計算領域範囲 -z
+  real(DR) <const> :: XMIN = -10.0_DR ! 計算領域範囲 +x  単位はメートル
+  real(DR) <const> :: XMAX = +10.0_DR ! 計算領域範囲 -x
+  real(DR) <const> :: YMIN =  -5.0_DR ! 計算領域範囲 +y
+  real(DR) <const> :: YMAX =  +5.0_DR ! 計算領域範囲 -y
+  real(DR) <const> :: ZMIN =  -5.0_DR ! 計算領域範囲 +z
+  real(DR) <const> :: ZMAX =  +5.0_DR ! 計算領域範囲 -z
 end module constants_m
