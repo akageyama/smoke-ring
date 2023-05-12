@@ -151,7 +151,8 @@ contains
     real(DR) :: force_center_y, force_center_z
     real(DR) :: force_cylinder_diameter, force_cylinder_radius_sq
 
-    real(DR) <const> :: THE_FORCE = 3.e3_DR
+    ! real(DR) <const> :: THE_FORCE = 3.e3_DR
+    real(DR) <const> :: THE_FORCE = 1.e3_DR
                                      !! 瞬間的な力の最大値。
                                      !! 試行錯誤で調整せよ。
     !!>
@@ -502,6 +503,8 @@ contains
     real(DR) <in> :: time   !! シミュレーション時刻
     type(fluid_t) <in> :: fluid  !! 流体データ
 
+    real(DR) :: total_mass, total_energy
+
     integer <const> :: SKIP = 100
       !! このルーチンは結構計算負荷が高いので、
       !! 毎ステップではなく、SKIPステップごとに診断を実行する
@@ -593,20 +596,22 @@ contains
       !! つまり全要素中の最大値をとっている。そして最後に
       !! sqrtをとって振幅（ベクトルの長さ）を計算している。
 
+    total_energy = .energyintegral. fluid 
     call mpiut__message( Parallel.comm,      &
                          '#flow energy: ',   &
                          nloop,              &
                          time,               &
-                         .energyintegral. fluid )
+                         total_energy )
       !! ここでもこの1行の実行にはかなりの演算（速度ベクトル場
       !! のx,y,z3成分の2乗和に質量密度を掛けたもの体積積分）が
       !! されていることに注意。
 
+    total_mass = .scalarintegral. fluid.density
     call mpiut__message( Parallel.comm,    &
                          '#total mass: ',  &
                          nloop,            &
                          time,             &
-                         .scalarintegral. (fluid.density)  )
+                         total_mass )
       !! 上と同様。こちらのほうは単なる密度場の体積積分なので
       !! 演算量は少ないが、シミュレーション領域全体に渡る体積積分
       !! なので計算量は大きいことにかわりない。
