@@ -150,7 +150,7 @@ contains
         print '(3x,a6,a3,f10.3,a4,3x,a1,f7.3,a3)',           &
                        ttb(i).sub_keyname(j)," : ",          &
                        real(sbttl)/real(tick)," sec",        &
-                    "(",real(sbttl)/real(ttl)*100," .)"
+                    "(",real(sbttl)/real(ttl)*100," %)"
       end do
       print '(2x,40a1)', ('-',k=1,40)        ! Horizontal line
       ts = real(ttl)/real(tick)              ! Make it second
