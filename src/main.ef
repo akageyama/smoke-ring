@@ -130,10 +130,10 @@ contains
     call mpiut__message_leader( comm, "ZMIN", ZMIN )
     call mpiut__message_leader( comm, "Total_nloop",  &
                                       Params.get_integer( 'Total_nloop' ) )
-    call mpiut__message_leader( comm, "Viscosity",  &
-                                      Params.get_double( 'Viscosity' ) )
-    call mpiut__message_leader( comm, "Kappa",  &
-                                      Params.get_double( 'Kappa' ) )
+    call mpiut__message_leader( comm, "Viscous_diffusivity",  &
+                                      Params.get_double( 'Viscous_diffusivity' ) )
+    call mpiut__message_leader( comm, "Thermal_diffusivity",  &
+                                      Params.get_double( 'Thermal_diffusivity' ) )
   end subroutine iPrint
 
 end program main_m

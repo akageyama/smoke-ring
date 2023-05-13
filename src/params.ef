@@ -42,12 +42,13 @@ module params_m
   integer <const> :: STRING_LENGTH_MAX = 200  ! 文字列長
                                 ! 足りなくなったら大きくする。
 
-  integer :: Total_nloop        ! 一度のジョブで計算するループ回数
-  real(DR) :: Viscosity, Kappa  ! 粘性率と熱拡散率
+  integer :: Total_nloop           ! 一度のジョブで計算するループ回数
+  real(DR) :: Viscous_diffusivitiy ! 粘性拡散率
+  real(DR) :: Thermal_diffusivity  ! 熱拡散率
 
   namelist /simulation/     Total_nloop
-  namelist /fluid_property/ Viscosity,  &
-                            Kappa
+  namelist /fluid_property/ Viscous_diffusivity,  &
+                            Thermal_diffusivity
 
   type :: params_t
   contains
@@ -76,11 +77,11 @@ contains
                      '__MODULE__(__LINE):  Read params file first.' )
 
     select case (variable)
-      case                 ('Kappa')     ! 熱拡散率
-        params__get_double = Kappa
-      case                 ('Viscosity') ! 粘性率
-        params__get_double = Viscosity
-      case default                       ! そんなnamelist変数は想定外
+      case                 ('Thermal_diffusivity')    ! 熱拡散率
+        params__get_double = Thermal_diffusivity
+      case                 ('Viscous_diffusivity')    ! 粘性拡散率
+        params__get_double = Viscous_diffusivity
+      case default                                    ! 想定外
         call ut__message( '? arg = ', variable )
         call ut__fatal( '__MODULE__(__LINE__): case error.' )
     end select
@@ -143,7 +144,7 @@ contains
 
     !*******<params_file のサンプル>*********
     ! &simulation      Total_nloop = 2000 /
-    ! &fluid_property  Viscosity = 3.0e-2, Kappa = 3.e-2 /
+    ! &fluid_property  Viscous_diffusivity = 1.0e-3, Thermal_divvusivity = 1.e-3 /
     !*******</params_file のサンプル>*********
 
     open(newunit=file_unit,file=trim(params_file))
