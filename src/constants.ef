@@ -37,6 +37,7 @@ module constants_m
 
   !<< Code utility constants >>!
   integer <const> :: NIL = -huge(1)
+  integer <const> :: STR_LEN_MAX = 200
 
   !<< MPI process constants >>!
   integer <const> :: NPROC_X = 8 ! x方向MPIプロセス数 mkjob.sh でこの行をgrepする

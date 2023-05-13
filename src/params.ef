@@ -39,13 +39,14 @@ module params_m
 
   logical, save :: Read_done = .false.  ! 読み込みが済んだか否か
 
-  integer <const> :: STRING_LENGTH_MAX = 200  ! 文字列長
-                                ! 足りなくなったら大きくする。
 
-  integer :: Total_nloop           ! 一度のジョブで計算するループ回数
-  real(DR) :: Viscous_diffusivity  ! 粘性拡散率
-  real(DR) :: Thermal_diffusivity  ! 熱拡散率
+  char(len=STR_LEN_MAX) :: Job_name   ! このジョブの名前
+  integer :: Job_seq                  ! ジョブの連番 0なら最初1以降は接続ジョブ
+  integer :: Total_nloop              ! 一度のジョブで計算するループ回数
+  real(DR) :: Viscous_diffusivity     ! 粘性拡散率
+  real(DR) :: Thermal_diffusivity     ! 熱拡散率
 
+  namelist /data00/ Job_name, Job_seq
   namelist /data01/ Total_nloop
   namelist /data02/ Viscous_diffusivity
   namelist /data03/ Thermal_diffusivity
@@ -56,7 +57,7 @@ module params_m
     procedure, nopass :: get_double => params__get_double
     procedure, nopass :: get_integer => params__get_integer
 !   procedure, nopass :: get_logical => params__get_logical
-!   procedure, nopass :: get_string => params__get_string
+    procedure, nopass :: get_string => params__get_string
   end type params_t
 
   type(params_t), public :: Params
@@ -102,6 +103,8 @@ contains
     select case (variable)
       case                  ('Total_nloop')      ! シミュレーションジョブ
         params__get_integer = Total_nloop        ! の実行最大ループ数
+      case                  ('Job_seq')          ! Sequential number
+        params__get_integer = Job_seq            ! of this job series.
       case default                               ! 想定外
         call ut__message( '? arg = ', variable ) 
         call ut__fatal( '__MODULE__(__LINE__): case error.' )
@@ -135,7 +138,7 @@ contains
     !! namelistデータファイルの内容を変更する場合は
     !! 以下のread文も適宜変更する。
     !!
-    char(len=STRING_LENGTH_MAX) :: params_file
+    char(len=STR_LEN_MAX) :: params_file
     integer :: file_unit
 
     call ut__assert( command_argument_count()==1, &
@@ -143,29 +146,31 @@ contains
     call get_command_argument(1,params_file)
 
     !*******<params_file のサンプル>*********
+    ! &data00  Job_name = 'may13a', Job_seq = 0 /
     ! &data01  Total_nloop = 20000 /
     ! &data02  Viscous_diffusivity = 5.0e-3 /
     ! &data03  Thermal_diffusivity = 5.0e-3 /
     !*******</params_file のサンプル>*********
 
     open(newunit=file_unit,file=trim(params_file))
+      read(file_unit,nml=data00)
       read(file_unit,nml=data01)
       read(file_unit,nml=data02)
       read(file_unit,nml=data03)
     close(file_unit)
 
-    write(output_unit,nml=data01)
-    write(output_unit,nml=data02)
-    write(output_unit,nml=data03)
+    ! write(output_unit,nml=data00)
+    ! write(output_unit,nml=data01)
+    ! write(output_unit,nml=data02)
+    ! write(output_unit,nml=data03)
 
     Read_done = .true.
   end subroutine params__read
 
 
-!!>
   function params__get_string( variable )
     char(len=*) <in> :: variable  !! 問い合わせ変数の名前
-    char(len=STRING_LENGTH_MAX) :: params__get_string  !! その値
+    char(len=STR_LEN_MAX) :: params__get_string  !! その値
     !! このモジュールの外からの問い合わせに応じてnamelistデータを返す。
     !! この関数は問い合わせ変数が文字列の場合。
     !! この関数の前にnamelist__readが呼ばれている必要がある。
@@ -175,11 +180,13 @@ contains
                      '__MODULE__(__LINE__): Read params file first.' )
 
     select case (variable)
+      case                 ('Job_name')
+        params__get_string = Job_name            !! このジョブの名前
+        
       case default
-        call ut__message( '? arg = ', variable ) ! 想定外
+        call ut__message( '? arg = ', variable ) !! 想定外
         call ut__fatal( '__MODULE__(__LINE__): case error.' )
     end select
   end function params__get_string
-!!<
 
 end module params_m

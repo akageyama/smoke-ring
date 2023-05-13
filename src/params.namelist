@@ -1,3 +1,4 @@
-&data01  Total_nloop = 10000 /
+&data00  Job_name = 'may13a' /
+&data01  Total_nloop = 100 /
 &data02  Viscous_diffusivity = 1.0e-2 /
 &data03  Thermal_diffusivity = 1.0e-2 /

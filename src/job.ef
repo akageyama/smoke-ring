@@ -14,6 +14,8 @@ module job_m
   use constants_m  !! 定数定義
   use ut_m         !! ユーティリティ
   use parallel_m   !! MPI並列化
+  use params_m     !! パラメータ
+  use fluid_m      !! 流れ場データ
   implicit none    !! 暗黙の型宣言無効化。必須
   private !! このモジュール内の変数・ルーチン等はデフォルトで非公開
 
@@ -22,6 +24,8 @@ module job_m
   contains
     procedure, nopass :: initialize => job__initialize
     procedure, nopass :: finalize => job__finalize
+    procedure, nopass :: write_restart_data => job__write_restart_data
+    procedure, nopass :: read_restart_data => job__read_restart_data
   end type job_t
 
   type(job_t), public :: Job
@@ -30,14 +34,172 @@ module job_m
 contains
 
 
-  subroutine job__initialize
+  subroutine job__write_restart_data( nloop, time, fluid )
+    integer <in> :: nloop
+    real(DR) <in> :: time
+    type(fluid_t) <in> :: fluid
+
+    char(len=3) :: str_proc_pos_x  !! e.g., '001' 
+    char(len=3) :: str_proc_pos_y  !! e.g., '002' 
+    char(len=3) :: str_proc_pos_z  !! e.g., '003' 
+
+    char(len=STR_LEN_MAX) :: jobname        !! e.g., 'may13a'
+    char(len=STR_LEN_MAX) :: dirname        !! e.g., '../data/restart'
+    char(len=STR_LEN_MAX) :: filename_info  !! e.g., 'may13a_info.txt'
+    char(len=STR_LEN_MAX) :: filename_fluid !! e.g., 'may13a_001_002_003.data'
+
+    integer :: file_unit
+
+    dirname = '../data/restart/'
+    jobname = Params.get_string( 'Job_name')
+    filename_info  = trim(dirname) // '/' // trim(jobname) // '_info.txt'
+    filename_fluid = trim(dirname) // '/' // trim(jobname) // '_' //  &
+                     Parallel.pos.string // '.data'
+  
+    if ( Parallel.rank.me == 0 ) then
+      call iStore_info
+    end if
+    call mpiut__barrier( Parallel.comm )
+      
+    open(newunit=file_unit,file=trim(filename_fluid),form='unformatted')
+      write(file_unit) fluid.pressure
+      write(file_unit) fluid.density
+      write(file_unit) fluid.flux.x
+      write(file_unit) fluid.flux.y
+      write(file_unit) fluid.flux.z
+    close(file_unit)
+
+    call mpiut__barrier( Parallel.comm )
+
+  contains
+
+    subroutine iStore_info
+      open(newunit=file_unit,file=trim(filename_info),form='unformatted')
+        write(file_unit) nloop, time
+        write(file_unit) NPROC_X, NPROC_Y, NPROC_Z
+        write(file_unit) NXPP, NYPP, NZPP
+!!>
+      open(newunit=file_unit,file=trim(filename_info),form='formatted')
+        write(file_unit,'(a)') trim(jobname)
+        write(file_unit,'(i)') nloop
+        write(file_unit,'(i)') Parallel.nprocs
+        write(file_unit,'(i)') NPROC_X
+        write(file_unit,'(i)') NPROC_Y
+        write(file_unit,'(i)') NPROC_Z
+        write(file_unit,'(i)') NXPP
+        write(file_unit,'(i)') NYPP
+        write(file_unit,'(i)') NZPP
+!!<
+      close(file_unit)
+    end subroutine iStore_info
+
+  end subroutine job__write_restart_data
+
+
+  subroutine job__read_restart_data( nloop, time,  fluid )
+    integer <out> :: nloop
+    real(DR) <out> :: time
+    type(fluid_t) <out> :: fluid
+
+    char(len=3) :: str_proc_pos_x  !! e.g., '001' 
+    char(len=3) :: str_proc_pos_y  !! e.g., '002' 
+    char(len=3) :: str_proc_pos_z  !! e.g., '003' 
+
+    char(len=STR_LEN_MAX) :: jobname        !! e.g., 'may13a'
+    char(len=STR_LEN_MAX) :: dirname        !! e.g., '../data/restart'
+    char(len=STR_LEN_MAX) :: filename_info  !! e.g., 'may13a_info.txt'
+    char(len=STR_LEN_MAX) :: filename_fluid !! e.g., 'may13a_001_002_003.data'
+
+    integer :: file_unit
+
+    dirname = '../data/restart/'
+    jobname = Params.get_string( 'Job_name')
+    filename_info  = trim(dirname) // '/' // trim(jobname) // '_info.txt'
+    filename_fluid = trim(dirname) // '/' // trim(jobname) // '_' //  &
+                     Parallel.pos.string // '.data'
+  
+    if ( Parallel.rank.me == 0 ) then
+      call iRestore_and_check_info( nloop, time )
+    end if
+    call mpiut__barrier( Parallel.comm )
+      
+    open(newunit=file_unit,file=trim(filename_fluid),form='unformatted')
+      read(file_unit) fluid.pressure
+      read(file_unit) fluid.density
+      read(file_unit) fluid.flux.x
+      read(file_unit) fluid.flux.y
+      read(file_unit) fluid.flux.z
+    close(file_unit)
+    call mpiut__barrier( Parallel.comm )
+
+  contains
+
+    subroutine iRestore_and_check_info( nloop, time )
+      integer <out> :: nloop
+      real(DR) <out> :: time
+
+      char(len=STR_LEN_MAX) :: jobname_
+      integer :: nloop_
+      real(DR) :: time_
+      integer :: nprocs_, nproc_x_, nproc_y_, nproc_z_
+      integer :: nxpp_, nypp_, nzpp_
+      
+      open(newunit=file_unit,file=trim(filename_info),form='unformatted')
+        read(file_unit) nloop_, time_
+        read(file_unit) nproc_x_, nproc_y_, nproc_z_
+        read(file_unit) nxpp_, nypp_, nzpp_
+!!>
+      open(newunit=file_unit,file=trim(filename_info),form='formatted')
+        read(file_unit,'(a)') jobname_
+        read(file_unit,'(i)') nloop_
+        read(file_unit,'(i)') nproc_x_
+        read(file_unit,'(i)') nproc_y_
+        read(file_unit,'(i)') nproc_z_
+        read(file_unit,'(i)') nxpp_
+        read(file_unit,'(i)') nypp_
+        read(file_unit,'(i)') nzpp_
+!!<
+      close(file_unit)
+
+      call ut__assert( Params.get_string( 'Job_name' ) == trim(jobname_),  &
+                     '__MODULE__(__LINE__): jobname inconsistent.' )
+      call ut__assert( Parallel.nprocs == nprocs_,  &
+                     '__MODULE__(__LINE__): nprocs inconsistent.' )
+      call ut__assert( NPROC_X == nproc_x_,  &
+                     '__MODULE__(__LINE__): nproc_x inconsistent.' )
+      call ut__assert( NPROC_Y == nproc_y_,  &
+                     '__MODULE__(__LINE__): nproc_y inconsistent.' )
+      call ut__assert( NPROC_Z == nproc_z_,  &
+                     '__MODULE__(__LINE__): nproc_z inconsistent.' )
+      call ut__assert( NXPP == nxpp_,  &
+                     '__MODULE__(__LINE__): nxpp inconsistent.' )
+      call ut__assert( NYPP == nypp_,  &
+                     '__MODULE__(__LINE__): nypp inconsistent.' )
+      call ut__assert( NZPP == nzpp_,  &
+                     '__MODULE__(__LINE__): nzpp inconsistent.' )
+
+      nloop = nloop_
+    end subroutine iRestore_and_check_info
+
+  end subroutine job__read_restart_data
+
+
+  subroutine job__initialize( nloop, time )
+    integer <io> :: nloop
+    real(DR) <io> :: time
 
     call Parallel.initialize
       !! MPI並列化初期化処理。Parallel変数はparallel.efで定義
       !! されている。冒頭のPが大文字なのはこれがグローバル変数
       !! であることを示唆している。（コンパイラは大文字と小文字を
       !! 区別しないが。）
-    
+   
+    if ( Params.get_integer( 'Job_seq' ) == 0 ) then
+      nloop = 0
+      time = 0.0_DR
+    else 
+      call job__read_restart_data( nloop, time, fluid )
+    end if
   end subroutine job__initialize
 
 
@@ -47,19 +209,21 @@ contains
     !! (1) 健康状態カルテに応じたメッセージを標準出力に書く
     !! (2) MPI並列化の終了処理
 
-    select case (trim(job.karte))
-      case ("fine","loop_max") !! このどちらかであれば、
-        call ut__deco_message( "#","Successfully finished." ) 
-                               !! # で第2引数の文字列を囲む。
-      case ("time out")
-        call ut__deco_message( "-","Time out at nloop = ", nloop )
-      case ("overflow")
-        call ut__deco_message( "%","Overflow at nloop = ", nloop )
-      case ("negative anormaly")
-        call ut__deco_message( "%","Underflow at nloop = ",nloop )
-      case default
-        call ut__deco_message( "?","Stopped at nloop = ",  nloop )
-    end select
+    if ( Parallel.rank.me == 0 ) then
+      select case (trim(job.karte))
+        case ("fine","loop_max") !! このどちらかであれば、
+          call ut__deco_message( "#","Successfully finished." ) 
+                                 !! # で第2引数の文字列を囲む。
+        case ("time out")
+          call ut__deco_message( "-","Time out at nloop = ", nloop )
+        case ("overflow")
+          call ut__deco_message( "%","Overflow at nloop = ", nloop )
+        case ("negative anormaly")
+          call ut__deco_message( "%","Underflow at nloop = ",nloop )
+        case default
+          call ut__deco_message( "?","Stopped at nloop = ",  nloop )
+      end select
+    end if
 
     call Parallel.finalize
       !! MPI並列化終了処理

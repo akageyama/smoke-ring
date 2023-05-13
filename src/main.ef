@@ -39,12 +39,15 @@ program main_m
   type(vis2d_t) :: vis2d
 
                                                 !{main  }{{STT}}
+  time = 0.0_DR  !! 時刻の初期化。単位は秒。
+  nloop = 0      !! ループカウンタの初期化。
+
   call Params.read                              !{main  }{params}
     !! パラメーターの読み込み。paramsの後に続くアンダースコア
     !! 二つは、これがparamsモジュールの中にあるサブルーチンの
     !! 呼び出しであることを意味している。paramsモジュールの
     !! 名前はparams_mである。params_mはparams.f90にある。
-  call Job.initialize                           !{main  }{job  i}
+  call Job.initialize( nloop )                  !{main  }{job  i}
     !! シミュレーションジョブの初期化
     !! されている。冒頭のPが大文字なのはこれがグローバル変数
     !! であることを示唆している。（コンパイラは大文字と小文字を
@@ -60,9 +63,6 @@ program main_m
     !! solverジュール（solver_m）の初期化。
   call vis2d.initialize                         !{main  }{vis  i}
     !! 可視化モジュール（vis2d_m）の初期化。
-
-  time = 0.0_DR  !! 時刻の初期化。単位は秒。
-  nloop = 0      !! ループカウンタの初期化。
 
   call vis2d.draw( time, nloop, fluid )
     !! このモジュールはシミュレーション領域の断面図をSVGで出力する。
@@ -107,9 +107,9 @@ program main_m
     end if
   end do
 
-  if ( Job.karte == "fine" .or Job.karte == "loop_max" ) then
-    call fluid
-
+  if ( Job.karte == "fine" .or. Job.karte == "loop_max" ) then
+    call Job.write_restart_data( nloop, time, fluid )
+  end if
                                                 !{main  }{{END}}
                                                 !{{print}}
   call Job.finalize( nloop )                    
@@ -120,6 +120,12 @@ contains
   subroutine iPrint
     integer :: comm
     comm = Parallel.comm
+    call mpiut__message_leader( comm, "Job_name",     &
+                                      Params.get_string( 'Job_name') )
+    call mpiut__message_leader( comm, "Job_seq",     &
+                                      Params.get_integer( 'Job_seq') )
+    call mpiut__message_leader( comm, "Total_nloop",  &
+                                      Params.get_integer( 'Total_nloop' ) )
     call mpiut__message_leader( comm, "NPROC_X", NPROC_X )
     call mpiut__message_leader( comm, "NPROC_Y", NPROC_Y )
     call mpiut__message_leader( comm, "NPROC_Z", NPROC_Z )
@@ -130,13 +136,11 @@ contains
     call mpiut__message_leader( comm, "NY_GLOBAL", NY_GLOBAL )
     call mpiut__message_leader( comm, "NZ_GLOBAL", NZ_GLOBAL )
     call mpiut__message_leader( comm, "XMIN", XMIN )
-    call mpiut__message_leader( comm, "YMIN", YMIN )
-    call mpiut__message_leader( comm, "ZMIN", ZMIN )
     call mpiut__message_leader( comm, "XMAX", XMAX )
+    call mpiut__message_leader( comm, "YMIN", YMIN )
     call mpiut__message_leader( comm, "YMAX", YMAX )
+    call mpiut__message_leader( comm, "ZMIN", ZMIN )
     call mpiut__message_leader( comm, "ZMAX", ZMAX )
-    call mpiut__message_leader( comm, "Total_nloop",  &
-                                      Params.get_integer( 'Total_nloop' ) )
     call mpiut__message_leader( comm, "Viscous_diffusivity",  &
                                       Params.get_double( 'Viscous_diffusivity' ) )
     call mpiut__message_leader( comm, "Thermal_diffusivity",  &

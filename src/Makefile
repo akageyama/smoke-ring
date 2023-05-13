@@ -107,6 +107,7 @@ endif
 
 smoke_ring: $(objlist)
 	mkdir -p ../data/vis2d
+	mkdir -p ../data/restart
 	$(FC) $(FFLAGS) -o smoke_ring $(objlist) $(FLIBS)
 
 runme: smoke_ring params.namelist
