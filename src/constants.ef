@@ -39,13 +39,13 @@ module constants_m
   integer <const> :: NIL = -huge(1)
 
   !<< MPI process constants >>!
-  integer <const> :: NPROC_X = 4 ! x方向MPIプロセス数 mkjob.sh でこの行をgrepする
-  integer <const> :: NPROC_Y = 4 ! y方向MPIプロセス数 mkjob.sh でこの行をgrepする 
+  integer <const> :: NPROC_X = 8 ! x方向MPIプロセス数 mkjob.sh でこの行をgrepする
+  integer <const> :: NPROC_Y = 8 ! y方向MPIプロセス数 mkjob.sh でこの行をgrepする 
   integer <const> :: NPROC_Z = 4 ! z方向MPIプロセス数 mkjob.sh でこの行をgrepする
 
   !<< Grid size constants >>!
-  integer <const> :: NXPP = 100   ! PP = Per Process 
-  integer <const> :: NYPP =  50
+  integer <const> :: NXPP =  50   ! PP = Per Process 
+  integer <const> :: NYPP =  25
   integer <const> :: NZPP =  50
   integer <const> :: NXPP1 = NXPP + 1  ! PP1 = PP plus one
   integer <const> :: NYPP1 = NYPP + 1
