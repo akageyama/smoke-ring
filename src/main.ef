@@ -128,6 +128,9 @@ contains
     call mpiut__message_leader( comm, "XMIN", XMIN )
     call mpiut__message_leader( comm, "YMIN", YMIN )
     call mpiut__message_leader( comm, "ZMIN", ZMIN )
+    call mpiut__message_leader( comm, "XMAX", XMAX )
+    call mpiut__message_leader( comm, "YMAX", YMAX )
+    call mpiut__message_leader( comm, "ZMAX", ZMAX )
     call mpiut__message_leader( comm, "Total_nloop",  &
                                       Params.get_integer( 'Total_nloop' ) )
     call mpiut__message_leader( comm, "Viscous_diffusivity",  &
