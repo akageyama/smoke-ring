@@ -73,16 +73,22 @@ module solver_m
 
   type(solver_t), public :: Solver
 
+
   real(DR) <const> :: GAMMA = 1.4_DR                 !! 空気の比熱比
   real(DR) <const> :: GASS_CONST_FOR_AIR = 2.87e2_DR !! 空気の気体定数
     !!  空気の状態方程式
     !!     Pressure = 287 * Mass_density * Temperature
+  real(DR), save :: Viscous_diffusivity   !! 空気の粘性（速度拡散率）
+  real(DR), save :: Thermal_diffusivity   !! 空気の温度拡散係数
+  real(DR), save :: Gamma1_kappa_factor        
+    !!            = (GAMMA-1) * kappa / rho
+    !!  圧力の時間発展方程式で使う係数。
+    !!     \partial p / \partial t = ... + (GAMMA-1)*kappa*\nabla^2 T
+    !!                             = rho*Gamma1_kappa_factor*\nabla^2 T
+
+  type(field__vector_t), save :: Drive_force   !! 渦輪を駆動する力
 
   logical,  save :: Initialize_done = .false.  !! モジュール初期化確認フラグ
-  real(DR), save :: Viscosity                  !! 粘性率
-  real(DR), save :: Gamma1_kappa               !! (GAMMA-1)*kappa
-                                               !! kappaは熱拡散率
-  type(field__vector_t), save :: Drive_force   !! 渦輪を駆動する力
 
 
 contains
@@ -117,6 +123,12 @@ contains
     real(DR) <const> :: ONE  = 1.0_DR  !! コードの読みやすさのため定義
     real(DR) <const> :: ZERO = 0.0_DR  !! コードの読みやすさのため定義
 
+    logical :: just_once = .true.
+
+    ==<just_once>==
+      call iPrint
+    ==</just_once>==
+
     call ut__assert( T_START < T0 .and. T0 < T1 .and. T1 < T_END,  &
                     "__MODULE__(__LINE__): Time inconsistent.")
       !! この関係は以下の前提なのでアサートで確認しておく
@@ -137,6 +149,18 @@ contains
     call ut__assert( drive_force_factor >=0.0_DR .and.  &
                      drive_force_factor <=1.0_DR,       &
                      "__MODULE__(__LINE__): strange value." )
+
+  contains
+
+    subroutine iPrint
+      integer :: comm
+      comm = Parallel.comm
+      call mpiut__message_leader( comm, "drive_force_factor: T_START",  &
+                                         T_START )
+      call mpiut__message_leader( comm, "drive_force_factor: T_END",  &
+                                         T_END )
+    end subroutine iPrint
+
   end function drive_force_factor
 
 
@@ -167,7 +191,7 @@ contains
     !!<
     force_region_x_min = XMIN + (XMAX-XMIN)/5
       !! 力をかける局所円筒領域のx方向の最小値
-    force_region_x_max = force_region_x_min + (XMAX-XMIN)/10
+    force_region_x_max = force_region_x_min + (XMAX-XMIN)/20
       !! 力をかける局所円筒領域のx方向の最大値
     force_center_y = (YMAX + YMIN) / 2
       !! 力をかける局所円筒領域の中心のy座標を中間にとる
@@ -208,6 +232,18 @@ contains
     call field__boundary_condition( Drive_force )
       !! 1. プロセス間通信を行い、分割領域の境界値を設定する
       !! 2. シミュレーション領域全体の境界条件を設定する。
+
+    call iPrint
+
+  contains
+
+    subroutine iPrint
+      integer :: comm
+      comm = Parallel.comm
+      call mpiut__message_leader( comm, "THE_FORCE",  &
+                                         THE_FORCE )
+    end subroutine iPrint
+
   end subroutine set_drive_force_field
 
 
@@ -249,7 +285,7 @@ contains
   end subroutine subfield_vel_tm_divv
 
 
-  function the_equation( t, dt, vx, vy, vz, tm, divv, fx, fy, fz, ps )
+  function the_equation( t, dt, vx, vy, vz, tm, divv, fx, fy, fz, ps, rho )
     !! ナビエ・ストークス方程式の右辺（時間変化量）dtを掛けたものを計算
     !!
     !! @note
@@ -261,6 +297,7 @@ contains
     type(field__scalar_t) <in> :: tm, divv   !! 温度と速度の発散
     type(field__scalar_t) <in> :: fx, fy, fz !! 質量フラックス
     type(field__scalar_t) <in> :: ps         !! 圧力
+    type(field__scalar_t) <in> :: rho        !! 質量密度
     type(fluid_t) :: the_equation     !! 時間刻みdtでの流体データの微小変化量
 
     integer  :: i, j, k
@@ -271,6 +308,8 @@ contains
     real(DR) :: lapvx, lapvy, lapvz, laptm !! 速度と温度のラプラシアン
     real(DR) :: divf                       !! 質量フラックスの発散
     real(DR) :: factor                     !! 渦輪駆動力の係数（時間依存）
+    real(DR) :: viscosity                  !! 粘性係数
+    real(DR) :: gamma1_kappa               !! 熱拡散による圧力上昇係数
 
     call ut__assert( Initialize_done,   &
                      "__MODULE__(__LINE__): Forgot init?" )
@@ -350,27 +389,32 @@ contains
 
           !! 以下がナビエ・ストークス方程式
 
+          !! はじめに係数を準備しておく
+          viscosity = rho(i,j,k) * Viscous_diffusivity
+          gamma1_kappa = rho(i,j,k) * Gamma1_kappa_factor
+
           !!  密度の時間発展
           the_equation.density(i,j,k) = -divf*dt
 
           !!  質量フラックスの時間発展（3成分）
+
           the_equation.flux.x(i,j,k) =  &
                ( - divfvx  &
                  - gradpx  &
                  + Drive_force.x(i,j,k)*factor  &
-                 + Viscosity * ( lapvx + ONE_THIRD*gdivvx )  &
+                 + viscosity * ( lapvx + ONE_THIRD*gdivvx )  &
                ) * dt
           the_equation.flux.y(i,j,k) =  &
                ( - divfvy  &
                  - gradpy  &
                  + Drive_force.y(i,j,k)*factor  &
-                 + Viscosity * ( lapvy + ONE_THIRD*gdivvy )  &
+                 + viscosity * ( lapvy + ONE_THIRD*gdivvy )  &
                ) * dt
           the_equation.flux.z(i,j,k) =  &
                ( - divfvz  &
                  - gradpz  &
                  + Drive_force.z(i,j,k)*factor  &
-                 + Viscosity * ( lapvz + ONE_THIRD*gdivvz )  &
+                 + viscosity * ( lapvz + ONE_THIRD*gdivvz )  &
                ) * dt
 
           !!  圧力の時間発展
@@ -379,7 +423,7 @@ contains
                   + vy(i,j,k)*gradpy  &
                   + vz(i,j,k)*gradpz  &
                   )  &
-                + Gamma1_kappa * laptm  &
+                + gamma1_kappa * laptm  &
                 - GAMMA * ps(i,j,k) * divv(i,j,k)  &
               ) * dt
         end do
@@ -395,11 +439,11 @@ contains
   end function the_equation
 
 
-!!>
-  Private  これより上が非公開の関数・ルーチン
- - - - - - - - - - - - - - - - - - - - - - - - - 
-  Public   これより下が公開する関数・ルーチン
-!!<
+!
+! Private  これより上が非公開の関数・ルーチン
+!----------------------------------------------- 
+! Public   これより下が公開する関数・ルーチン
+!
 
 
   subroutine solver__advance( t, dt, fluid )
@@ -446,7 +490,7 @@ contains
     dfluid01 = the_equation( t, dt,  &
                              vel.x, vel.y, vel.z, tm, divv,  &
                              fluid.flux.x, fluid.flux.y, fluid.flux.z,  &
-                             fluid.pressure )
+                             fluid.pressure, fluid.density )
 
     t += dt/2
       !! 渦輪を駆動する力は時刻（t）の関数として設定しているので、
@@ -454,25 +498,23 @@ contains
 
     !!---ルンゲ・クッタの第2段---
     gluid = fluid + dfluid01*0.5_DR
-      !! Fortranコンパイラが自己定義演算子をきちんと処理できる
-      !! 場合は上の簡潔な記述の方が（読みやすいので）好ましい。
+      !! 演算子定義を活用しているので記述は簡潔だが計算量は多い。
 
     call subfield_vel_tm_divv( gluid, vel, tm, divv )
     dfluid02 = the_equation( t, dt,  &
                              vel.x, vel.y, vel.z, tm, divv,  &
                              gluid.flux.x, gluid.flux.y, gluid.flux.z,  &
-                             gluid.pressure )
+                             gluid.pressure, gluid.density )
 
     !!---ルンゲ・クッタの第3段---
     gluid = fluid + dfluid02*0.5_DR
-      !! Fortranコンパイラが自己定義演算子をきちんと処理できる
-      !! 場合は上の簡潔な記述の方が（読みやすいので）好ましい。
+      !! 演算子定義を活用しているので記述は簡潔だが計算量は多い。
 
     call subfield_vel_tm_divv( gluid, vel, tm, divv )
     dfluid03 = the_equation( t, dt,  &
                              vel.x, vel.y, vel.z, tm, divv,  &
                              gluid.flux.x, gluid.flux.y, gluid.flux.z,  &
-                             gluid.pressure )
+                             gluid.pressure, gluid.density )
 
     t += dt/2
       !! 繰り返すが、渦輪を駆動する力は時刻（t）の関数として設定しているので、
@@ -480,20 +522,18 @@ contains
 
     !!---ルンゲ・クッタの第4段---
     gluid = fluid + dfluid03
-      !! Fortranコンパイラが自己定義演算子をきちんと処理できる
-      !! 場合は上の簡潔な記述の方が（読みやすいので）好ましい。
+      !! 演算子定義を活用しているので記述は簡潔だが計算量は多い。
 
     call subfield_vel_tm_divv( gluid, vel, tm, divv )
     dfluid04 = the_equation( t, dt,  &
                              vel.x, vel.y, vel.z, tm, divv,  &
                              gluid.flux.x, gluid.flux.y, gluid.flux.z,  &
-                             gluid.pressure )
+                             gluid.pressure, gluid.density )
 
     !!--- 最終結果 ---
 
     fluid += ONE_SIXTH*( dfluid01 + 2*dfluid02 + 2*dfluid03 + dfluid04 )
-      !! Fortranコンパイラが自己定義演算子をきちんと処理できる
-      !! 場合は一番上の簡潔な記述の方が（読みやすいので）好ましい。
+      !! 演算子定義を活用しているので記述は簡潔だが計算量は多い。
   end subroutine solver__advance
 
 
@@ -622,20 +662,49 @@ contains
     !! モジュールの初期化
     type(fluid_t) <out> :: fluid  !! 流体データ
 
-    real(DR) :: kappa  !! 空気の熱拡散率
-
     !! 物理パラメータの設定
-    Viscosity = params.get_double( 'Viscosity' ) !! 空気の粘性率
-    kappa     = params.get_double( 'Kappa' )     !! 空気の熱拡散率
-      !! Viscosityと違ってkappaの頭文字が大文字になっていない、つまり
-      !! このモジュールのグローバルスコープを持つ変数としていない
-      !! のはナビエ・ストークス方程式には下で定義するGamma1_kappa
-      !! という量のみを通じてkappaが出てくるからである。
+    Viscous_diffusivity = params.get_double( 'Viscous_diffusivity' ) 
+      !! 空気速度の拡散率
 
-    Gamma1_kappa = (Gamma-1)*kappa
-      !! gammaは比熱比、つまり定積比熱と定圧比熱の比である。
-      !! 統計力学で習うように、この値は流体（気体）を構成する
-      !! 分子の構造（自由度）で決まる。
+    Thermal_diffusivity = params.get_double( 'Thermal_diffusivity' ) 
+      !! 空気温度の拡散率
+      !!>
+         ここは混乱しやすい
+
+         熱エネルギーフラックスを
+           (1)    q_h = -kappa \nabla T
+         単位質量あたりのエントロピーを
+           (2)    s = c_p log T - (k_B/m_p) log p
+         とする。熱力学より
+           (3)    rho T (ds/dt) = kappa \nabla^2 T
+         である。質量保存則と状態方程式
+           (4)    p = rho (k_B/m_p) T
+         より圧力の時間発展方程式 
+           (5)    dp/dt = -gamma p \nabla \cdot v + (gamma-1) kappa \nabla^2 T
+         と温度の時間発展方程式
+           (6)    c_v rho (dT/dt) = -p \nabla \cdot v + kappa \nabla^2 T
+         を得る。ここで
+           (7)    c_v = 1 / (gamma-1) * (k_B/m_p)
+         は単位質量あたりの定積比熱である。（m_pは粒子質量。）
+
+         ここで、式(5)と(6)の拡散項に注目すると、
+           (8)    \partial p / \partial t = ... + kappa * (gamma-1) \nabla^2 T
+           (9)    \partial T / \partial t = ... + kappa / (c_v rho) \nabla^2 T
+         である。式(9)の係数を熱拡散係数（温度の拡散係数）
+           (10)   k = kappa / (c_v rho)
+         と呼ぶことにすると、k と kappa の関係は
+           (11)   kappa = rho * c_v * k
+         である。(7)より
+           (12)   kappa * (gamma-1) = rho * (k_B/m_p) * k
+         いまこのコードでは
+           (13)   k_B/m_p = GASS_CONST_FOR_AIR
+         と定義しているので、
+           (14)  Gamma1_kappa = (gamma-1)*kappa 
+                              = rho * GASS_CONST_FOR_AIR * k
+         である。
+      !!<
+    Gamma1_kappa_factor = GASS_CONST_FOR_AIR * Thermal_diffusivity
+      !! 先頭が大文字のモジュールグローバル変数
 
     !! 流体の初期条件の設定
     fluid.pressure = 1.013e5_DR  !! 1013 hPa (一気圧)
@@ -647,6 +716,31 @@ contains
 
     Initialize_done = .true.
       !! モジュール初期化終了フラグ
+
+    call iPrint
+
+  contains
+
+    subroutine iPrint
+      integer :: comm
+      comm = Parallel.comm
+      call mpiut__message_leader( comm, "GAMMA",                &
+                                         GAMMA )
+      call mpiut__message_leader( comm, "GASS_CONST_FOR_AIR",   &
+                                         GASS_CONST_FOR_AIR )
+      call mpiut__message_leader( comm, "Gamma1_kappa_factor",  &
+                                         Gamma1_kappa_factor )
+      call mpiut__message_leader( comm, "Initial pressure",     &
+                                         fluid.pressure(1,1,1) )
+      call mpiut__message_leader( comm, "Initial density",      &
+                                         fluid.density(1,1,1) )
+      call mpiut__message_leader( comm, "Initial fx",           &
+                                         fluid.flux.x(1,1,1) )
+      call mpiut__message_leader( comm, "Initial fy",           &
+                                         fluid.flux.y(1,1,1) )
+      call mpiut__message_leader( comm, "Initial fz",           &
+                                         fluid.flux.z(1,1,1) )
+    end subroutine iPrint
   end subroutine solver__initialize
 
 
@@ -721,8 +815,8 @@ contains
       !! CFL条件で決まる時間刻み幅をそれぞれこの順番に求めている。
       dt_vel     = 0.8_DR*grid.delta_min/vmax
       dt_sound   = 0.8_DR*grid.delta_min/sound_v
-      dt_viscous = 0.2_DR*(grid.delta_min**2)/Viscosity
-      dt_kappa   = 0.2_DR*(grid.delta_min**2)/Gamma1_kappa
+      dt_viscous = 0.2_DR*(grid.delta_min**2)/Viscous_diffusivity
+      dt_kappa   = 0.2_DR*(grid.delta_min**2)/Thermal_diffusivity
         !! CFL factor はここでは0.8と0.2にしているが、
         !! これは精密な議論に基づいて決めたものではなく、
         !! 半経験的に決めた値である。
@@ -731,7 +825,7 @@ contains
         !! しすぎているかもしれない。つまりもう少し大きくしても
         !! 問題ないかもしれない。
 
-      dt_local = min(dt_vel, dt_sound, dt_viscous, dt_kappa)
+      dt_local = min( dt_vel, dt_sound, dt_viscous, dt_kappa )
         !! 最終的な時間刻み幅は上記の4種類のdtの最小値できまる。
 
       call mpiut__minval( Parallel.comm, dt_local, dt_global )
