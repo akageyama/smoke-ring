@@ -41,7 +41,6 @@ module fluid_m
     !! 表現するか、の違いである。
   contains
     procedure :: set_boundary_condition => fluid__set_boundary_condition
-    procedure :: save_to_storage => fluid__save_to_storage
   end type fluid_t
 
   !--- << Operators >> ---!
@@ -66,37 +65,6 @@ module fluid_m
 
 
 contains
-
-
-  subroutine fluid__save_to_storage( fluid )
-    class(fluid_t) <in> :: fluid
-
-    char(len=3) :: str_proc_pos_x  !! e.g., '001' 
-    char(len=3) :: str_proc_pos_y  !! e.g., '002' 
-    char(len=3) :: str_proc_pos_z  !! e.g., '003' 
-    integer <const> :: STR_LEN_MAX = 200
-
-    char(len=STR_LEN_MAX) :: jobname        !! e.g., 'may13a'
-    char(len=STR_LEN_MAX) :: filename_info  !! e.g., 'may13a_info.txt'
-    char(len=STR_LEN_MAX) :: filename_fluid !! e.g., 'may13a_001_002_003.data'
-
-    integer :: file_unit
-
-    jobname = 'test'
-    filename_info = trim(jobname) // '_info.txt'
-    filename_fluid = trim(jobname) // '_' //  &
-                     Parallel.pos.string // '.data'
-  
-    call iStore_info
-
-  contains
-
-    subroutine iStore_info
-      open(newunit=file_unit,file=trim(filename_info))
-    end subroutine iStore_info
-      
-
-  end subroutine fluid__save_to_storage
 
 
   function operator_energyintegral( a ) result(ans)
