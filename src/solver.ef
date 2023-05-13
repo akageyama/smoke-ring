@@ -113,7 +113,8 @@ contains
                t_start         t_end
     !!<
     real(DR) <const> :: T_START =  0.0_DR  !! 力をかけ始める時刻
-    real(DR) <const> :: T_END   =  0.01_DR !! 力をかけ終わる時刻
+    ! real(DR) <const> :: T_END   =  0.01_DR !! 力をかけ終わる時刻
+    real(DR) <const> :: T_END   =  0.1_DR !! 力をかけ終わる時刻
                                            !! 試行錯誤で調整せよ
     real(DR) <const> :: T0 = T_START + (T_END-T_START)/4
     real(DR) <const> :: T1 = T_END   - (T_END-T_START)/4
@@ -173,9 +174,12 @@ contains
     real(DR) :: xx, yy, zz
     real(DR) :: force_region_x_min, force_region_x_max
     real(DR) :: force_center_y, force_center_z
-    real(DR) :: force_cylinder_diameter, force_cylinder_radius_sq
+    real(DR) :: force_cylinder_diameter
+    real(DR) :: force_cylinder_radius_outer
+    real(DR) :: force_cylinder_radius_inner
+    real(DR) :: force_cylinder_radius_buffer
+    real(DR) :: rr, radial_factor
 
-    ! real(DR) <const> :: THE_FORCE = 3.e3_DR
     real(DR) <const> :: THE_FORCE = 1.e2_DR
                                      !! 瞬間的な力の最大値。
                                      !! 試行錯誤で調整せよ。
@@ -191,7 +195,7 @@ contains
     !!<
     force_region_x_min = XMIN + (XMAX-XMIN)/5
       !! 力をかける局所円筒領域のx方向の最小値
-    force_region_x_max = force_region_x_min + (XMAX-XMIN)/20
+    force_region_x_max = force_region_x_min + (XMAX-XMIN)/5
       !! 力をかける局所円筒領域のx方向の最大値
     force_center_y = (YMAX + YMIN) / 2
       !! 力をかける局所円筒領域の中心のy座標を中間にとる
@@ -199,8 +203,18 @@ contains
       !! 力をかける局所円筒領域の中心のz座標を中間にとる
     force_cylinder_diameter  = min(YMAX-YMIN, ZMAX-ZMIN) / 4
       !! 力をかける局所円筒領域の直径
-    force_cylinder_radius_sq = (force_cylinder_diameter/2)**2
-      !! 力をかける局所円筒領域の半径の2乗
+    force_cylinder_radius_outer = force_cylinder_diameter / 2
+      !! 力をかける局所円筒領域の半径
+    force_cylinder_radius_buffer = force_cylinder_radius_outer * 0.2_DR
+    force_cylinder_radius_inner  = force_cylinder_radius_outer  &
+                                 - force_cylinder_radius_buffer
+      !!      ___radius_outer               ___radius_inner
+      !!     /   ___radius_inner           /   ___radius_outer
+      !!    /   /                         /   /
+      !!   +---+------------O------------+---+
+      !!   |___|                         |___|
+      !!     \___radius_buffer             \___radius_buffer
+      !!  
 
     do k bulk
       !! 境界上の格子点を飛ばして、シミュレーション領域内部
@@ -208,16 +222,26 @@ contains
       zz = grid.pos.z(k) - force_center_z    !! 力の中心からのz方向の距離
       do j bulk
         yy = grid.pos.y(j) - force_center_y  !! 力の中心からのy方向の距離
+        rr = sqrt(yy**2+zz**2)               !! 力の中心軸からの距離
+
+        if ( rr <= force_cylinder_radius_inner ) then
+          radial_factor = 1.0_DR
+        else if ( rr <= force_cylinder_radius_outer ) then
+          radial_factor = ( force_cylinder_radius_outer - rr )  &
+                          / force_cylinder_radius_buffer
+        else 
+          radial_factor = 0.0_DR
+        end if
+
         do i bulk
           xx = grid.pos.x(i)                 !! これは格子点のx座標そのもの
-          if ( (yy**2+zz**2) < force_cylinder_radius_sq  &
-                        .and.  &
-               (xx > force_region_x_min)  &
+          if ( (xx > force_region_x_min)  &
                         .and.  &
                (xx < force_region_x_max) ) then
             !! ここで半径そのもので比較するとsqrtの計算が必要になるが
             !! このように2乗同士で比較すれば不要。
-            Drive_force.x(i,j,k) = THE_FORCE  !! いまはx方向だけに力がかかる
+            Drive_force.x(i,j,k) = radial_factor * THE_FORCE 
+                                              !! いまはx方向だけに力がかかる
             Drive_force.y(i,j,k) = 0.0_DR     !! としている。斜め方向に力を
             Drive_force.z(i,j,k) = 0.0_DR     !! かけるにはこの部分を変更。
           else
@@ -543,7 +567,9 @@ contains
     real(DR) <in> :: time   !! シミュレーション時刻
     type(fluid_t) <in> :: fluid  !! 流体データ
 
-    real(DR) :: total_mass, total_energy
+    real(DR) :: max_vel_local, max_vel_global
+    real(DR) :: total_mass_local, total_mass_global
+    real(DR) :: total_energy_local, total_energy_global
 
     integer <const> :: SKIP = 100
       !! このルーチンは結構計算負荷が高いので、
@@ -624,34 +650,43 @@ contains
     call subfield_vel( fluid, vel )
       !! 基本流れデータから副次的な速度場データを求める
 
-    call mpiut__message( Parallel.comm,  &
-                         '#max vel:',    &
-                         nloop,          &
-                         time,           &
-                         sqrt(maxval(vel.x**2+vel.y**2+vel.z**2)) )
-      !! 速度の最大値（ベクトルの長さ）を計算し標準出力に書き出す
+    max_vel_local = sqrt(maxval(vel.x**2+vel.y**2+vel.z**2))
+      !! 各プロセスでの速度の最大値（ベクトルの長さ）を計算する。
       !! わずか1行で書いているが、実際にはここにかなりの計算が
       !! 含まれている。vel.x**2という配列演算は実際には3重do loop
       !! であり、maxval関数はその引数の3次元配列をとっている。
       !! つまり全要素中の最大値をとっている。そして最後に
       !! sqrtをとって振幅（ベクトルの長さ）を計算している。
+    max_vel_global = max_vel_local
+      !! いったんコピー
+    call mpiut__allreduce_max( Parallel.comm, max_vel_global )
+    call mpiut__message( Parallel.comm,  &
+                         '#max vel:',    &
+                         nloop,          &
+                         time,           &
+                         max_vel_global )
+      !! 全プロセスでの最大値を取得し、標準出力に書き出す。
 
-    total_energy = .energyintegral. fluid 
+    total_energy_local = .energyintegral. fluid 
+      !! ここでもこの1行の実行にはかなりの演算（速度ベクトル場
+      !! のx,y,z3成分の2乗和に質量密度を掛けたもの体積積分）が
+      !! されていることに注意。
+    total_energy_global = total_energy_local
+    call mpiut__allreduce_sum( Parallel.comm, total_energy_global )
     call mpiut__message( Parallel.comm,      &
                          '#flow energy: ',   &
                          nloop,              &
                          time,               &
-                         total_energy )
-      !! ここでもこの1行の実行にはかなりの演算（速度ベクトル場
-      !! のx,y,z3成分の2乗和に質量密度を掛けたもの体積積分）が
-      !! されていることに注意。
+                         total_energy_global )
 
-    total_mass = .scalarintegral. fluid.density
+    total_mass_local = .scalarintegral. fluid.density
+    total_mass_global = total_mass_local
+    call mpiut__allreduce_sum( Parallel.comm, total_mass_global )
     call mpiut__message( Parallel.comm,    &
                          '#total mass: ',  &
                          nloop,            &
                          time,             &
-                         total_mass )
+                         total_mass_global )
       !! 上と同様。こちらのほうは単なる密度場の体積積分なので
       !! 演算量は少ないが、シミュレーション領域全体に渡る体積積分
       !! なので計算量は大きいことにかわりない。
