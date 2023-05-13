@@ -43,7 +43,7 @@ module params_m
                                 ! 足りなくなったら大きくする。
 
   integer :: Total_nloop           ! 一度のジョブで計算するループ回数
-  real(DR) :: Viscous_diffusivitiy ! 粘性拡散率
+  real(DR) :: Viscous_diffusivity  ! 粘性拡散率
   real(DR) :: Thermal_diffusivity  ! 熱拡散率
 
   namelist /simulation/     Total_nloop
