@@ -55,9 +55,9 @@ module constants_m
   integer <const> :: NZ_GLOBAL = NZPP * NPROC_Z + 2
 
   ! 格子サイズのメモ
-  ! NX_GLOBAL = 162  ! Vis=5e-3, Kap=5e-3: 
-  ! NY_GLOBAL =  82  ! Vis= e-3, Kap= e-3:      steps
-  ! NZ_GLOBAL =  82  ! Vis= e-3, Kap= e-3:      steps
+  ! NX_GLOBAL = 162  ! Vis=1e-2, Therm=1e-2: 10000 steps OK. 9 min.
+  ! NY_GLOBAL =  82  ! THE_FORCE 1e2 ==> vmax = 5 m/s
+  ! NZ_GLOBAL =  82  ! longer force cylinder   128 MPI procs 
 
   ! << Box Size >>
   real(DR) <const> :: XMIN = -10.0_DR ! 計算領域範囲 +x  単位はメートル
