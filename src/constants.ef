@@ -40,13 +40,13 @@ module constants_m
 
   !<< MPI process constants >>!
   integer <const> :: NPROC_X = 8 ! x方向MPIプロセス数 mkjob.sh でこの行をgrepする
-  integer <const> :: NPROC_Y = 8 ! y方向MPIプロセス数 mkjob.sh でこの行をgrepする 
+  integer <const> :: NPROC_Y = 4 ! y方向MPIプロセス数 mkjob.sh でこの行をgrepする 
   integer <const> :: NPROC_Z = 4 ! z方向MPIプロセス数 mkjob.sh でこの行をgrepする
 
   !<< Grid size constants >>!
-  integer <const> :: NXPP =  50   ! PP = Per Process 
-  integer <const> :: NYPP =  25
-  integer <const> :: NZPP =  50
+  integer <const> :: NXPP =  20   ! PP = Per Process 
+  integer <const> :: NYPP =  20
+  integer <const> :: NZPP =  20
   integer <const> :: NXPP1 = NXPP + 1  ! PP1 = PP plus one
   integer <const> :: NYPP1 = NYPP + 1
   integer <const> :: NZPP1 = NZPP + 1
@@ -55,34 +55,9 @@ module constants_m
   integer <const> :: NZ_GLOBAL = NZPP * NPROC_Z + 2
 
   ! 格子サイズのメモ
-  ! NX_GLOBAL = 182  ! Vis=8e-3, Kap=8e-3: 2000 steps OK
-  ! NY_GLOBAL =  62  ! Vis=5e-3, Kap=5e-3: 1200 steps 発散
-  ! NZ_GLOBAL =  62  ! Vis=5e-3, Kap=1e-2: 1200 steps 発散
-
-  ! 格子サイズのメモ
-  ! NX_GLOBAL = 242  ! Vis=5e-3, Kap=5e-3: 2000 steps OK 11min
-  ! NY_GLOBAL =  82  ! Vis=2e-3, Kap=2e-3:  800 steps 発散
-  ! NZ_GLOBAL =  82  !
-
-  ! 格子サイズのメモ
-  ! NX_GLOBAL = 302  ! Vis=2e-3, Kap=2e-3: 1000 steps 発散
-  ! NY_GLOBAL = 102  !
-  ! NZ_GLOBAL = 102  !
-
-  ! 格子サイズのメモ
-  ! NX_GLOBAL = 422  ! Vis=2e-3, Kap=2e-3: 1400 steps 発散
-  ! NY_GLOBAL = 142  !
-  ! NZ_GLOBAL = 142  !
-
-  ! 格子サイズのメモ
-  ! NX_GLOBAL = 422  ! Vis=2e-3, Kap=2e-3: 
-  ! NY_GLOBAL = 142  !  THE_FORCE を 3e3 から 1.e3  に変更
-  ! NZ_GLOBAL = 142  !  5600 で発散
-
-  ! 格子サイズのメモ
-  ! NX_GLOBAL = 402  ! Vis=1e-3, Kap=1e-3
-  ! NY_GLOBAL = 202  !  THE_FORCE を 1e3 から 1e2  に変更
-  ! NZ_GLOBAL = 202  ! 
+  ! NX_GLOBAL = 162  ! Vis=5e-3, Kap=5e-3: 
+  ! NY_GLOBAL =  82  ! Vis= e-3, Kap= e-3:      steps
+  ! NZ_GLOBAL =  82  ! Vis= e-3, Kap= e-3:      steps
 
   ! << Box Size >>
   real(DR) <const> :: XMIN = -10.0_DR ! 計算領域範囲 +x  単位はメートル
