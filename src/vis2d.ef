@@ -876,7 +876,7 @@ contains
       call vv_sketch.group_push( line_color=color_black,  &
                                  line_width_in_pixel=1.0 )
 
-      tsep = (ur.v-ll.v)*0.1
+      tsep = (ur.v-ll.v)*0.05
 
       ! --<figure title in the header>--
       text_v_pos_in_physical_unit = ur.v + tsep
