@@ -106,6 +106,10 @@ program main_m
       !! 上限値に達したらジョブを停止する。
     end if
   end do
+
+  if ( Job.karte == "fine" .or Job.karte == "loop_max" ) then
+    call fluid
+
                                                 !{main  }{{END}}
                                                 !{{print}}
   call Job.finalize( nloop )                    

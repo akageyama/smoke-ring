@@ -635,7 +635,7 @@ contains
     end if
 
     call vv_sketch.group_push( line_color=VV_COLOR__CONST.magenta,  &
-                               line_width_in_pixel=1.0 )
+                               line_width_in_pixel=0.1 )
       dlevel = level_range / 10
       do l = 1, 10
         level = level_min + dlevel*(real(l)-0.5)
@@ -832,7 +832,7 @@ contains
     level_amplitude = max(abs(level_max),abs(level_min))
     if ( level_amplitude > ALMOST_ZERO ) then
       call vv_sketch.group_push( line_color=color_black,  &
-                                 line_width_in_pixel=1.0 )
+                                 line_width_in_pixel=0.1 )
         level_range = level_max - level_min
         max_min_diff_normalized = level_range / level_amplitude
         if ( max_min_diff_normalized >= TOO_SMALL_DIFF_FOR_CONTOUR )  then
