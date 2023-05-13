@@ -1,2 +1,3 @@
 &simulation      Total_nloop = 20000 /
-&fluid_property  Viscosity = 1.0e-3, Kappa = 1.0e-3 /
+&fluid_property  Viscous_diffusivity = 5.0e-3,  &
+                 Thermal_diffusivity = 5.0e-3 /
