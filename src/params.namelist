@@ -1,4 +1,6 @@
-&data00  Job_name = 'may13a' /
-&data01  Total_nloop = 100 /
-&data02  Viscous_diffusivity = 1.0e-2 /
-&data03  Thermal_diffusivity = 1.0e-2 /
+&data00        Data_dir_name = '../data' /
+&data01             Job_name = 'may14c'  /
+&data02              Job_seq = 2         /
+&data03      Nloops_this_job = 5000      /
+&data04  Viscous_diffusivity = 1.0e-2    /
+&data05  Thermal_diffusivity = 1.0e-2    /

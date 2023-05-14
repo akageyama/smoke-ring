@@ -636,8 +636,8 @@ contains
 
     call vv_sketch.group_push( line_color=VV_COLOR__CONST.magenta,  &
                                line_width_in_pixel=0.1 )
-      dlevel = level_range / 10
-      do l = 1, 10
+      dlevel = level_range / 5
+      do l = 1, 5
         level = level_min + dlevel*(real(l)-0.5)
         level_nrm = (level-level_min) / level_range
         color = vv_color__normalized_real_to_color( level_nrm )
@@ -663,7 +663,7 @@ contains
       call vv_sketch.group_push( line_color=color_black,  &
                                  line_width_in_pixel=1.0 )
 
-      tsep = (ur.v-ll.v)*0.1
+      tsep = (ur.v-ll.v)*0.05
 
       ! --<figure title in the header>--
       text_v_pos_in_physical_unit = ur.v + tsep
@@ -750,7 +750,7 @@ contains
       call vv_sketch.group_push( line_color=color_black,  &
                                  line_width_in_pixel=1.0 )
 
-      tsep = (ur.v-ll.v)*0.1
+      tsep = (ur.v-ll.v)*0.05
 
       ! --<figure title in the header>--
       text_v_pos_in_physical_unit = ur.v + tsep
@@ -836,8 +836,8 @@ contains
         level_range = level_max - level_min
         max_min_diff_normalized = level_range / level_amplitude
         if ( max_min_diff_normalized >= TOO_SMALL_DIFF_FOR_CONTOUR )  then
-          dlevel = level_range / 10
-          do l = 1, 10
+          dlevel = level_range / 5
+          do l = 1, 5
             level = level_min + dlevel*(real(l)-0.5)
             level_nrm = (level-level_min) / level_range
             color = vv_color__normalized_real_to_color( level_nrm )
@@ -917,12 +917,11 @@ contains
     type(fluid_t)  <in> :: fluid
 
     real :: t 
-    integer :: ctr = 0
+    integer <const> :: SKIP = 200   ! draw every SKIP steps.
 
     t = real(t_double,SR)
-
                                                 !{vis2  }{{STT}}
-    ===<skip ctr:100>===
+    if ( mod(nloop,SKIP) == 0 ) then
       call vis2d.set_data( fluid )              !{vis2  }{set  d}
       if ( Parallel.rank.me == 0 ) then
         call vis2d.z_upper.draw ( t, nloop ) 
@@ -933,7 +932,7 @@ contains
 !       call vis2d.y_lower.draw ( t, nloop )    !{vis2  }{    xz}
       end if
       call mpiut__barrier( Parallel.comm )
-    ===</skip ctr>===
+    end if
                                                 !{vis2  }{{END}}
   end subroutine vis2d__draw
 

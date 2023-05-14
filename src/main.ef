@@ -33,60 +33,46 @@ program main_m
   use vis2d_m      !! 断面可視化
   implicit none    !! 暗黙の型宣言無効化。必須
 
-  integer :: nloop   ! シミュレーションのループカウンタ
-  real(DR) :: dt, time   ! 時間刻み幅と時刻
-  type(fluid_t) :: fluid ! 流体場データの構造体
-  type(vis2d_t) :: vis2d
+  real(DR) :: dt, time   !! 時間刻み幅と時刻
+  type(fluid_t) :: fluid !! 流体場データの構造体
+  type(vis2d_t) :: vis2d !! 断面可視化用
+                                                  !{main  }{{STT}}
 
-                                                !{main  }{{STT}}
-  time = 0.0_DR  !! 時刻の初期化。単位は秒。
-  nloop = 0      !! ループカウンタの初期化。
-
-  call Params.read                              !{main  }{params}
-    !! パラメーターの読み込み。paramsの後に続くアンダースコア
-    !! 二つは、これがparamsモジュールの中にあるサブルーチンの
-    !! 呼び出しであることを意味している。paramsモジュールの
-    !! 名前はparams_mである。params_mはparams.f90にある。
-  call Job.initialize( nloop )                  !{main  }{job  i}
-    !! シミュレーションジョブの初期化
-    !! されている。冒頭のPが大文字なのはこれがグローバル変数
-    !! であることを示唆している。（コンパイラは大文字と小文字を
-    !! 区別しないが。）
-  call iPrint                                   !{main  }{iprint}
-    !! 定数とパラメータを書き出す
-  call Grid.initialize                          !{main  }{grid i}
-    !! gridモジュールの初期化。
-    !! パーセント記号はメンバアクセス演算子。
-    !! ここでは構造体のメンバー関数の呼び出しをしている。
-    !! gridモジュール（grid_m）はgrid.f90で定義されている。
-  call Solver.initialize( fluid )               !{main  }{solv i}
-    !! solverジュール（solver_m）の初期化。
-  call vis2d.initialize                         !{main  }{vis  i}
+  call Parallel.initialize                        !{main  }{para i}
+    !! MPI並列化初期化処理。Parallel変数はparallel.efで定義
+    !! された parallel_t 型の変数。initializeはそのメンバー関数。
+  call Job.initialize( time, fluid )              !{main  }{job  i}
+    !! シミュレーションジョブの初期化作業。初期条件の設定。
+    !! 接続ジョブの場合はディスクからリスタートデータを読み込む。
+  call iPrint                                     !{main  }{iprint}
+    !! 内部副プログラム。定数とパラメータを書き出す
+  call vis2d.initialize                           !{main  }{vis2 i}
     !! 可視化モジュール（vis2d_m）の初期化。
 
-  call vis2d.draw( time, nloop, fluid )
-    !! このモジュールはシミュレーション領域の断面図をSVGで出力する。
+  if ( Job.nloop == 0 ) then
+    call vis2d.draw( time, Job.nloop, fluid )     !{main  }{vis2  }
+      !! シミュレーション領域の断面図をSVGフォーマットで出力する。
+    call Job.diagnosis( Job.nloop, time, fluid )  !{main  }{job di}
+      !! solverモジュールで定義されているdiagnosis（診断）
+      !! サブルーチンを呼び出す。診断結果はJob.carte（カルテ）に設定。
+  end if
 
-  call Solver.diagnosis( nloop, time, fluid )   !{main  }{solv d}
-    !! solverモジュールで定義されているdiagnosis（診断）
-    !! サブルーチンを呼び出す。医者が患者を診るのがdiagnosis
-    !! である。そこでの診断結果はJob.carte
-    !! にセットする。carteはカルテである。
-
-  dt = Solver.set_time_step( nloop, fluid )     !{main  }{set dt}
-    !! 時間刻み幅 dt の決定。dtはCFL条件を満足するように決めるが、
+  dt = Solver.set_time_step( Job.nloop, fluid )   !{main  }{set dt}
+    !! 時間刻み幅 dt をCFL条件から決める。
     !! CFL条件は流体の状態に流体の状態に依存して変化する。
     !! たとえば、流体の一部が高温になると、そこでの音速が速くなり、
     !! 音速によって決まるCFL条件が厳しくなる（つまりdtが小さくなる）
-    !! ここでは初期状態における流体の状態に基づいてdtが決まる
+    !! ここでは初期状態における流体の状態に基づいてdtが決まる。
 
-  do while( Job.karte == "fine" )               !{{count}}
-    !! このシミュレーションのメインループである。ジョブカルテが
+  do while( Job.karte == "fine" )                 !{{count}}
+    !! このシミュレーションのメインループ。ジョブカルテが
     !! 「健康 (fine)」状態である限りシミュレーションを続行する。 
-    call Solver.advance( time, dt, fluid )      !{main  }{solv a}
+    Job.nloop += 1  
+      !! ループカウンタのインクリメント
+    call Solver.advance( time, dt, fluid )        !{main  }{solv a}
       !! ナビエ・ストークス方程式に基づいて流体 (fluid) の状態を
       !! 一時刻ステップ dt だけ進める。
-    dt = Solver.set_time_step( nloop, fluid )   !{main  }{set dt}
+    dt = Solver.set_time_step( Job.nloop, fluid ) !{main  }{set dt}
       !! 流体の状態が変わったのでCFL条件に基づき時間刻み幅dt
       !! を設定し直す。
       !! 厳密に言えば毎ステップこの再設定をしているわけではなく、
@@ -94,26 +80,23 @@ program main_m
       !! 数十ステップに一度だけ実際には変更を行うようなskip操作
       !! をしている。CFL条件に基づいた計算は時間がかかるが、
       !! 毎ステップdtを精密に調整する必要はないからである。
-
-    nloop += 1  !! ループカウンタのインクリメント
-    call Solver.diagnosis( nloop, time, fluid ) !{main  }{solv d}
+    call Job.diagnosis( Job.nloop, time, fluid )  !{main  }{job di}
       !! 診断。異常があればjob.carteにセットする。
-    call vis2d.draw( time, nloop, fluid )       !{main  }{vis2  }
+    call vis2d.draw( time, Job.nloop, fluid )     !{main  }{vis2  }
       !! シミュレーション領域の断面図をSVGで出力する。
-    if ( nloop >= Params.get_integer( 'Total_nloop' ) ) then
+    if ( Job.nloop >= Job.nloop_end ) then
       Job.karte = "loop_max"
       !! あらかじめparamsモジュールで設定されたループカウンタの
       !! 上限値に達したらジョブを停止する。
     end if
   end do
 
-  if ( Job.karte == "fine" .or. Job.karte == "loop_max" ) then
-    call Job.write_restart_data( nloop, time, fluid )
-  end if
-                                                !{main  }{{END}}
-                                                !{{print}}
-  call Job.finalize( nloop )                    
+  call Job.finalize( Job.nloop, time, fluid )     !{main  }{job f}
     !! ジョブの後始末。MPI終了処理を含む。
+                                                  !{main  }{{END}}
+                                                  !{{print}}
+  call Parallel.finalize
+    !! MPI並列化終了処理
 
 contains
 
@@ -124,8 +107,10 @@ contains
                                       Params.get_string( 'Job_name') )
     call mpiut__message_leader( comm, "Job_seq",     &
                                       Params.get_integer( 'Job_seq') )
-    call mpiut__message_leader( comm, "Total_nloop",  &
-                                      Params.get_integer( 'Total_nloop' ) )
+    call mpiut__message_leader( comm, "Nloops_this_job",  &
+                                      Params.get_integer( 'Nloops_this_job' ) )
+    call mpiut__message_leader( comm, "Job.nloop_start", Job.nloop_start )
+    call mpiut__message_leader( comm, "Job.nloop_end",   Job.nloop_end )
     call mpiut__message_leader( comm, "NPROC_X", NPROC_X )
     call mpiut__message_leader( comm, "NPROC_Y", NPROC_Y )
     call mpiut__message_leader( comm, "NPROC_Z", NPROC_Z )

@@ -26,30 +26,31 @@
  
    @note
      namelist文中のスラッシュで囲まれた名称（たとえば/simulation/）
-     や、namelist変数名（たとえばTotal_nloop）はnamelistファイル
+     や、namelist変数名（たとえばNloops_this_job）はnamelistファイル
      の中での記述と対応していなければいけない。
 !!<
 
 module params_m
-  use constants_m  ! 定数定義
-  use ut_m         ! ユーティリティ
+  use constants_m  !! 定数定義
+  use ut_m         !! ユーティリティ
   use iso_fortran_env, only : output_unit
-  implicit none    ! 暗黙の型宣言無効化。必須
-  private ! このモジュール内の変数・ルーチン等はデフォルトで非公開
+  implicit none    !! 暗黙の型宣言無効化。必須
+  private !! このモジュール内の変数・ルーチン等はデフォルトで非公開
 
-  logical, save :: Read_done = .false.  ! 読み込みが済んだか否か
+  logical, save :: Read_done = .false.   !! 読み込みが済んだか否か
+  char(len=STR_LEN_MAX) :: Data_dir_name !! データ保存ディレクトリ名
+  char(len=STR_LEN_MAX) :: Job_name      !! このジョブの名前
+  integer :: Job_seq                     !! ジョブの連番。1以上なら接続ジョブ
+  integer :: Nloops_this_job             !! このジョブの計算ループ数
+  real(DR) :: Viscous_diffusivity        !! 粘性拡散率
+  real(DR) :: Thermal_diffusivity        !! 熱拡散率
 
-
-  char(len=STR_LEN_MAX) :: Job_name   ! このジョブの名前
-  integer :: Job_seq                  ! ジョブの連番 0なら最初1以降は接続ジョブ
-  integer :: Total_nloop              ! 一度のジョブで計算するループ回数
-  real(DR) :: Viscous_diffusivity     ! 粘性拡散率
-  real(DR) :: Thermal_diffusivity     ! 熱拡散率
-
-  namelist /data00/ Job_name, Job_seq
-  namelist /data01/ Total_nloop
-  namelist /data02/ Viscous_diffusivity
-  namelist /data03/ Thermal_diffusivity
+  namelist /data00/ Data_dir_name
+  namelist /data01/ Job_name
+  namelist /data02/ Job_seq
+  namelist /data03/ Nloops_this_job
+  namelist /data04/ Viscous_diffusivity
+  namelist /data05/ Thermal_diffusivity
 
   type :: params_t
   contains
@@ -101,8 +102,8 @@ contains
                      '__MODULE__(__LINE__): Read params file first.' )
 
     select case (variable)
-      case                  ('Total_nloop')      ! シミュレーションジョブ
-        params__get_integer = Total_nloop        ! の実行最大ループ数
+      case                  ('Nloops_this_job')  ! シミュレーションジョブ
+        params__get_integer = Nloops_this_job    ! の実行最大ループ数
       case                  ('Job_seq')          ! Sequential number
         params__get_integer = Job_seq            ! of this job series.
       case default                               ! 想定外
@@ -145,24 +146,30 @@ contains
                      "__MODULE__(__LINE__): Usage: smoke_ring param_file")
     call get_command_argument(1,params_file)
 
-    !*******<params_file のサンプル>*********
-    ! &data00  Job_name = 'may13a', Job_seq = 0 /
-    ! &data01  Total_nloop = 20000 /
-    ! &data02  Viscous_diffusivity = 5.0e-3 /
-    ! &data03  Thermal_diffusivity = 5.0e-3 /
-    !*******</params_file のサンプル>*********
+    !*******<params_file のサンプル>************
+    ! &data00        Data_dir_name = '../data' /
+    ! &data01             Job_name = 'may13a'  /
+    ! &data02              Job_seq = 0         /
+    ! &data03      Nloops_this_job = 20000     /
+    ! &data04  Viscous_diffusivity = 5.0e-3    /
+    ! &data05  Thermal_diffusivity = 5.0e-3    /
+    !*******</params_file のサンプル>***********
 
     open(newunit=file_unit,file=trim(params_file))
       read(file_unit,nml=data00)
       read(file_unit,nml=data01)
       read(file_unit,nml=data02)
       read(file_unit,nml=data03)
+      read(file_unit,nml=data04)
+      read(file_unit,nml=data05)
     close(file_unit)
 
     ! write(output_unit,nml=data00)
     ! write(output_unit,nml=data01)
     ! write(output_unit,nml=data02)
     ! write(output_unit,nml=data03)
+    ! write(output_unit,nml=data04)
+    ! write(output_unit,nml=data05)
 
     Read_done = .true.
   end subroutine params__read
@@ -182,7 +189,8 @@ contains
     select case (variable)
       case                 ('Job_name')
         params__get_string = Job_name            !! このジョブの名前
-        
+      case                 ('Data_dir_name')
+        params__get_string = Data_dir_name       !! データ保存ディレクトリ名
       case default
         call ut__message( '? arg = ', variable ) !! 想定外
         call ut__fatal( '__MODULE__(__LINE__): case error.' )
