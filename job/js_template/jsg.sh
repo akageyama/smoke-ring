@@ -12,7 +12,8 @@
 #################################
   Viscous_diffusivity=1.e-2
   Thermal_diffusivity=1.e-2
-  Nodes=128
+  node_and_cpu='select=4:ncpus=32:mpiprocs=32'
+  nprocs=128
 #################################
 
 
@@ -48,15 +49,15 @@ cat<<EOF
 #!/bin/bash
 #
 #PBS -q $que
-#PBS -l select=4:ncpus=32:mpiprocs=32
-#PBS -l walltime=05:00:00
-#PBS -N $job_name
+#PBS -l $node_and_cpu
+#PBS -l walltime=$elaps_time
+#PBS -N $current_seq
 #PBS -j oe
 
 source /etc/profile.d/modules.sh
 module load compiler mpi
 cd \${PBS_O_WORKDIR}
-mpiexec -n 128 ../src/smoke_ring ./$current_seq.namelist
+mpiexec -n $nprocs ../../src/smoke_ring ./$current_seq.namelist
 EOF
 }
 
@@ -90,11 +91,10 @@ current_seq=`printf %03d $3`
   job_nloop=$4
 
    job_name=`pwd | rev | cut -d'/' -f1 | rev`
-   data_dir=../data/$job_name
+   data_dir=../../data/$job_name
 
 mkdir -p $data_dir/restart
 mkdir -p $data_dir/vis2d
-if if
 
 make_namelist  > ./$current_seq.namelist
 make_jobscript > ./$current_seq.js

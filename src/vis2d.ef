@@ -12,6 +12,7 @@ module vis2d_m
   use kutimer_m
   use mpiut_m 
   use parallel_m
+  use params_m
   use ut_m 
   use vv_color_m
   use vv_sketch_m
@@ -225,12 +226,13 @@ contains
 
     char(len=1) <const> :: CHAR_USCORE = "_"
     char(len=1) <const> :: CHAR_SLASH  = "/"
-    char(len=*) <const> :: DIR = '../data/vis2d'
+    char(len=FILE_NAME_MAX) :: data_dir_name
 
-    filename = DIR // CHAR_SLASH // &
-               trim(tag1) // CHAR_USCORE // &
-               trim(tag2) // CHAR_USCORE // &
-               trim(time_and_step_string) // '.svg'
+    data_dir_name = Params.get_string( 'Data_dir_name' )
+    filename = trim(data_dir_name) // CHAR_SLASH // &
+                        trim(tag1) // CHAR_USCORE // &
+                        trim(tag2) // CHAR_USCORE // &
+                        trim(time_and_step_string) // '.svg'
   end subroutine make_filename
 
 
