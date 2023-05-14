@@ -1,0 +1,9 @@
+# grep -E by '^pi-computer' etc.
+
+pi-computer: Manual: http://www.eccse.kobe-u.ac.jp/assets/files/2021/pi-computer_manual_20210512rev.pdf
+pi-computer:  -------+--------------+----------+------------------- 
+pi-computer:    QUE  | max proc num | max time |  available nodes   
+pi-computer:  -------+--------------+----------+------------------- 
+pi-computer:   debug |      32      |  30 min  | node01 -- node16   
+pi-computer:   large |     512      |  12 hour | node01 -- node16   
+pi-computer:  -------+--------------+----------+------------------- 
