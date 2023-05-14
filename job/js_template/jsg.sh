@@ -64,7 +64,7 @@ function print_system_info() {
   if [ $this_host = "alf" ]; then         # Alfven
     echo alfven
   elif [ $this_host = "pif" ]; then    # Pi-computer
-    grep -E '^pi-computer' _computer_systems.txt
+    grep -E '^pi-computer' jsg_computer_systems.txt
   elif [ $this_host = "ofp" ]; then    # Oakforest PACS
     echo ofp
   elif [ $this_host = "fes" ]; then    # NIFS
@@ -86,15 +86,15 @@ fi
 
         que=$1
  elaps_time=$2
-current_seq=$3
+current_seq=`printf %03d $3`
   job_nloop=$4
 
-current_seq=`printf %03d $current_seq`
    job_name=`pwd | rev | cut -d'/' -f1 | rev`
    data_dir=../data/$job_name
 
 mkdir -p $data_dir/restart
 mkdir -p $data_dir/vis2d
+if if
 
 make_namelist  > ./$current_seq.namelist
 make_jobscript > ./$current_seq.js
