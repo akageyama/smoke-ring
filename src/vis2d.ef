@@ -226,13 +226,15 @@ contains
 
     char(len=1) <const> :: CHAR_USCORE = "_"
     char(len=1) <const> :: CHAR_SLASH  = "/"
-    char(len=FILE_NAME_MAX) :: data_dir_name
+    char(len=FILE_NAME_MAX) :: data_dir
+    char(len=FILE_NAME_MAX) :: vis2d_dir
 
-    data_dir_name = Params.get_string( 'Data_dir_name' )
-    filename = trim(data_dir_name) // CHAR_SLASH // &
-                        trim(tag1) // CHAR_USCORE // &
-                        trim(tag2) // CHAR_USCORE // &
-                        trim(time_and_step_string) // '.svg'
+    data_dir = Params.get_string( 'Data_dir_name' )
+    vis2d_dir = trim(data_dir) // '/vis2d'
+    filename = trim(vis2d_dir) // CHAR_SLASH // &
+               trim(tag1) // CHAR_USCORE // &
+               trim(tag2) // CHAR_USCORE // &
+               trim(time_and_step_string) // '.svg'
   end subroutine make_filename
 
 

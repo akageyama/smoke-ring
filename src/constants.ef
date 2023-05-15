@@ -56,9 +56,13 @@ module constants_m
   integer <const> :: NZ_GLOBAL = NZPP * NPROC_Z + 2
 
   ! 格子サイズのメモ
-  ! NX_GLOBAL = 162  ! Vis=1e-2, Therm=1e-2: 10000 steps OK. 9 min.
+  ! NX_GLOBAL = 162  ! Vis=Therm=8e-3 → 1.4万で発散。1e-2 → 20万までOK
   ! NY_GLOBAL =  82  ! THE_FORCE 1e2 ==> vmax = 5 m/s
   ! NZ_GLOBAL =  82  ! longer force cylinder   128 MPI procs 
+  ! 
+  ! NX_GLOBAL = 242  ! Vis=Therm=5e-3: 発散 5万ステップ
+  ! NY_GLOBAL = 122  ! 
+  ! NZ_GLOBAL = 122  ! 
 
   ! << Box Size >>
   real(DR) <const> :: XMIN = -10.0_DR ! 計算領域範囲 +x  単位はメートル
